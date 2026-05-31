@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DesigniQ — Midhun</title>
+  <meta name="description" content="An interior-design app that merges a designer's portfolio, an AI room generator, and a furniture store into one confidence-building experience." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #6B6B68;
+      --soft:      #8A8A8A;
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --tint:      #F4F4F1;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+      --accent:    #B8654A;          /* warm terracotta, used sparingly */
+
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+      --main-nav-h: 72px;
+      --section-nav-h: 56px;
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #A0A09C;
+      --soft:      #6B6B68;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --tint:      #18181590;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+      --accent:    #D8896E;          /* lighter terracotta for dark mode */
+    }
+    [data-theme="dark"] .research-callout,
+    [data-theme="dark"] .quote-card,
+    [data-theme="dark"] .mock-card,
+    [data-theme="dark"] .persona-card,
+    [data-theme="dark"] .rca-card,
+    [data-theme="dark"] .flow-card,
+    [data-theme="dark"] .tn-cell,
+    [data-theme="dark"] .ba-before { background: #1A1A17; }
+    [data-theme="dark"] ul.user-quotes li { background: #1A1A17; }
+    [data-theme="dark"] .card:hover,
+    [data-theme="dark"] .next-item:hover { background: #1A1A17; }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px; height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0; flex-shrink: 0;
+    }
+    .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* ── Main nav ─────────────────────────────────────── */
+    .main-nav {
+      position: sticky; top: 0; z-index: 110;
+      background: var(--bg);
+      padding: 28px var(--side) 24px;
+      display: flex; align-items: center; gap: 64px;
+    }
+    .main-nav ul { list-style: none; display: flex; gap: 56px; }
+    .main-nav a {
+      font-size: 17px; font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative; padding-bottom: 3px;
+    }
+    .main-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .main-nav a:hover::after { width: 100%; }
+
+    /* ── Section nav (sticky) ─────────────────────────── */
+    .section-nav {
+      position: sticky; top: var(--main-nav-h); z-index: 100;
+      background: var(--bg);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 var(--side);
+    }
+    .section-nav-inner {
+      display: flex; gap: 30px;
+      overflow-x: auto; scrollbar-width: none;
+      height: var(--section-nav-h); align-items: center;
+    }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+    .section-nav a {
+      font-size: 13.5px; font-weight: 400;
+      color: var(--soft); letter-spacing: -0.005em;
+      white-space: nowrap; transition: color 0.2s;
+      position: relative; padding: 6px 0;
+    }
+    .section-nav a:hover { color: var(--ink); }
+    .section-nav a.active { color: var(--ink); font-weight: 500; }
+    .section-nav a.active::before {
+      content: ''; position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 1.5px; background: var(--ink);
+    }
+
+    /* ── Intro ────────────────────────────────────────── */
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: clamp(48px, 8vw, 120px);
+      padding: clamp(60px, 8vw, 100px) var(--side) clamp(48px, 6vw, 80px);
+      max-width: var(--max-content);
+    }
+    .intro-title {
+      font-size: clamp(48px, 7.2vw, 104px);
+      font-weight: 500; line-height: 1;
+      letter-spacing: -0.04em; color: var(--ink);
+      margin-bottom: 48px;
+      white-space: nowrap;
+    }
+    .intro-disciplines {
+      font-size: 15px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 18px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+      max-width: 28ch;
+    }
+    .intro-tagline {
+      font-size: clamp(24px, 2.8vw, 38px);
+      font-weight: 500; line-height: 1.18;
+      letter-spacing: -0.025em; color: var(--ink);
+      margin-bottom: 40px;
+    }
+    .intro-body p {
+      font-size: 16px; font-weight: 400; line-height: 1.65;
+      color: var(--ink); letter-spacing: -0.005em;
+      margin-bottom: 16px; max-width: 64ch;
+    }
+    .intro-meta { margin-top: 36px; }
+    .meta-row {
+      padding: 18px 0; border-top: 1px solid var(--rule);
+      font-size: 15px; color: var(--ink); letter-spacing: -0.005em;
+    }
+    .meta-row:last-child { border-bottom: 1px solid var(--rule); }
+    .meta-row strong { font-weight: 500; margin-right: 10px; }
+
+    /* ── Live CTA (accent) ────────────────────────────── */
+    .live-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 24px;
+      background: var(--accent); color: #FFFFFF;
+      border-radius: 100px;
+      font-size: 15px; font-weight: 500; letter-spacing: -0.005em;
+      transition: transform 0.25s, opacity 0.2s;
+    }
+    .live-cta:hover { transform: translateX(4px); }
+    .live-cta .arrow { display: inline-block; transition: transform 0.25s; }
+    .live-cta:hover .arrow { transform: translateX(2px); }
+
+    /* ── Hero visual ──────────────────────────────────── */
+    .hero-visual {
+      padding: 0 var(--side) clamp(12px, 2vw, 28px);
+      max-width: var(--max-content);
+    }
+    .hero-frame {
+      width: 100%; max-width: 1500px; margin: 0 auto;
+      aspect-ratio: 16/9;
+      max-height: 640px;
+      background: var(--tint);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--soft); font-size: 14px; letter-spacing: -0.005em;
+    }
+    .hero-frame video,
+    .hero-frame img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .hero-frame.compact { max-width: 1140px; max-height: 540px; }
+    .visual-caption {
+      margin-top: 14px; font-size: 13px; color: var(--soft);
+      letter-spacing: -0.005em; text-align: center;
+    }
+
+    .inline-img-wrap {
+      width: 100%; border-radius: 14px; overflow: hidden;
+      background: var(--tint); border: 1px solid var(--rule);
+      min-height: 240px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--soft); font-size: 13px; padding: 16px; text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(0,0,0,0.12);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+    }
+    .inline-img-wrap:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 20px 40px -8px rgba(0,0,0,0.16);
+    }
+    .inline-img-wrap img {
+      width: 100%; height: auto; max-height: 720px;
+      object-fit: contain; display: block;
+    }
+    [data-theme="dark"] .inline-img-wrap {
+      background: #1A1A17;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.6);
+    }
+
+    /* ── Section base ─────────────────────────────────── */
+    section.story {
+      padding: clamp(32px, 4vw, 56px) var(--side) clamp(48px, 5.5vw, 80px);
+      max-width: var(--max-content);
+      scroll-margin-top: calc(var(--main-nav-h) + var(--section-nav-h) + 8px);
+    }
+    section.story + section.story { border-top: 1px solid var(--rule); }
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 20px;
+    }
+    .section-heading {
+      font-size: clamp(28px, 3.4vw, 42px); font-weight: 500;
+      line-height: 1.2; letter-spacing: -0.022em;
+      margin-bottom: 24px; max-width: 24ch;
+    }
+    .thesis {
+      font-size: clamp(17px, 1.5vw, 20px); font-weight: 500;
+      line-height: 1.5; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 24px; max-width: 60ch;
+    }
+    .sub-label {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--soft);
+      margin: 56px 0 24px;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: clamp(40px, 5vw, 80px); align-items: start;
+    }
+    .body-text {
+      font-size: 17px; font-weight: 400; line-height: 1.65;
+      color: var(--ink); letter-spacing: -0.005em;
+      margin-bottom: 18px; max-width: 64ch;
+    }
+    .body-text strong { font-weight: 500; }
+
+    /* ── Problem statement block ──────────────────────── */
+    .problem-statement {
+      padding: clamp(28px, 3vw, 40px); background: var(--tint);
+      border-radius: 14px; margin: 0; max-width: 640px; position: relative;
+    }
+    .problem-statement::before {
+      content: ''; position: absolute; left: 0;
+      top: clamp(28px, 3vw, 40px); bottom: clamp(28px, 3vw, 40px);
+      width: 3px; background: var(--ink); border-radius: 0 3px 3px 0;
+    }
+    .problem-statement-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 18px;
+    }
+    .problem-statement-text {
+      font-size: clamp(20px, 1.8vw, 24px); font-weight: 500;
+      line-height: 1.35; letter-spacing: -0.018em;
+      color: var(--ink); margin-bottom: 16px;
+    }
+    .problem-statement-sub {
+      font-size: clamp(14px, 1vw, 15.5px); font-weight: 400;
+      line-height: 1.6; letter-spacing: -0.005em; color: var(--muted);
+    }
+    [data-theme="dark"] .problem-statement { background: #1A1A17; }
+
+    /* ── Objectives chip strip ────────────────────────── */
+    .obj-strip {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 32px;
+    }
+    .obj-chip {
+      font-size: 14px; font-weight: 500; color: var(--ink);
+      padding: 12px 18px; border: 1px solid var(--rule);
+      border-radius: 100px; background: var(--bg); letter-spacing: -0.005em;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .obj-chip:hover { border-color: var(--ink); background: var(--tint); }
+    [data-theme="dark"] .obj-chip:hover { background: #1A1A17; }
+    .obj-chip-num {
+      display: inline-block; margin-right: 8px;
+      font-size: 11px; font-weight: 600; color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Big-number stats ─────────────────────────────── */
+    .big-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      margin: 44px 0 8px;
+      border: 1px solid var(--rule); border-radius: 16px;
+      overflow: hidden;
+    }
+    .big-stat {
+      padding: 36px 28px;
+      border-right: 1px solid var(--rule);
+    }
+    .big-stat:last-child { border-right: none; }
+    .big-stat-cat {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+    }
+    .big-stat-num {
+      font-size: clamp(40px, 4.4vw, 56px); font-weight: 500;
+      letter-spacing: -0.04em; line-height: 1; margin-bottom: 14px;
+    }
+    .big-stat-label {
+      font-size: 13.5px; color: var(--muted); line-height: 1.55;
+      max-width: 30ch; letter-spacing: -0.005em;
+    }
+    @media (max-width: 1024px) {
+      .big-stats { grid-template-columns: repeat(2, 1fr); }
+      .big-stat:nth-child(2) { border-right: none; }
+      .big-stat:nth-child(1),
+      .big-stat:nth-child(2) { border-bottom: 1px solid var(--rule); }
+    }
+    @media (max-width: 600px) {
+      .big-stats { grid-template-columns: 1fr; }
+      .big-stat { border-right: none; border-bottom: 1px solid var(--rule); }
+      .big-stat:last-child { border-bottom: none; }
+    }
+
+    /* ── Interview question cards (2-col grid) ────────── */
+    .iq-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 28px;
+    }
+    .iq-card {
+      position: relative;
+      padding: 28px 28px 26px; border: 1px solid var(--rule);
+      border-radius: 14px; background: var(--bg);
+      display: flex; flex-direction: column; gap: 14px;
+      transition: border-color 0.2s, transform 0.25s cubic-bezier(0.22,1,0.36,1), background 0.2s;
+    }
+    .iq-card:hover { border-color: var(--ink); transform: translateY(-2px); background: var(--tint); }
+    [data-theme="dark"] .iq-card:hover { background: #1A1A17; }
+    .iq-card::before {
+      content: '"';
+      position: absolute; top: 14px; right: 22px;
+      font-family: Georgia, serif; font-size: 56px; line-height: 1;
+      color: var(--rule); pointer-events: none;
+    }
+    .iq-card-num {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; color: var(--accent);
+      text-transform: uppercase;
+    }
+    .iq-card-text {
+      font-size: 15.5px; line-height: 1.55; color: var(--ink);
+      letter-spacing: -0.005em; max-width: 38ch;
+    }
+    @media (max-width: 760px) { .iq-grid { grid-template-columns: 1fr; } }
+
+    /* ── Observations grid (5 items, 2-3 split) ───────── */
+    .observations {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 28px;
+    }
+    .obs-card {
+      padding: 26px 24px; border: 1px solid var(--rule);
+      border-radius: 14px; background: var(--bg);
+      transition: border-color 0.2s, transform 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .obs-card:hover { border-color: var(--ink); transform: translateY(-2px); }
+    .obs-num {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+      color: var(--accent); margin-bottom: 14px;
+    }
+    .obs-title {
+      font-size: 15.5px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.01em; margin-bottom: 8px;
+    }
+    .obs-body {
+      font-size: 14px; color: var(--muted); line-height: 1.55;
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 900px) { .observations { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .observations { grid-template-columns: 1fr; } }
+
+    /* ── Persona cards (2 side by side, designed) ─────── */
+    .persona-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-top: 28px;
+    }
+    .persona-card {
+      position: relative;
+      border: 1px solid var(--rule); border-radius: 18px;
+      background: var(--bg); overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 14px 36px -10px rgba(0,0,0,0.10);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s, border-color 0.2s;
+    }
+    .persona-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--ink);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.06), 0 26px 56px -14px rgba(0,0,0,0.18);
+    }
+    [data-theme="dark"] .persona-card {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.55);
+    }
+    .persona-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 4px; background: var(--accent);
+      opacity: 0.85;
+    }
+    .persona-header {
+      padding: 32px 30px 24px;
+      background: var(--tint);
+      border-bottom: 1px solid var(--rule);
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    [data-theme="dark"] .persona-header { background: #1A1A17; }
+    .persona-head-row {
+      display: flex; align-items: center; gap: 18px;
+    }
+    .persona-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 600; flex-shrink: 0;
+      letter-spacing: -0.01em;
+      box-shadow: 0 6px 18px -4px rgba(184,101,74,0.45);
+    }
+    [data-theme="dark"] .persona-avatar { box-shadow: 0 6px 18px -4px rgba(216,137,110,0.40); }
+    .persona-id { display: flex; flex-direction: column; gap: 4px; }
+    .persona-name {
+      font-size: 20px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.018em; line-height: 1.1;
+    }
+    .persona-role {
+      font-size: 13px; color: var(--muted); letter-spacing: -0.005em;
+      font-weight: 500;
+    }
+    .persona-motto {
+      font-size: 14px; font-style: italic; color: var(--ink);
+      line-height: 1.5; letter-spacing: -0.005em;
+      padding-left: 14px; border-left: 2px solid var(--accent);
+    }
+    .persona-body {
+      padding: 26px 30px 30px;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .persona-meta {
+      display: grid; grid-template-columns: auto 1fr; gap: 8px 14px;
+      font-size: 13.5px; color: var(--ink); letter-spacing: -0.005em;
+    }
+    .persona-meta dt {
+      color: var(--soft); font-weight: 600;
+      font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding-top: 3px;
+    }
+    .persona-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .persona-tag {
+      font-size: 11.5px; font-weight: 500; color: var(--ink);
+      padding: 6px 12px; border: 1px solid var(--rule);
+      border-radius: 100px; letter-spacing: -0.005em;
+      background: var(--bg);
+    }
+    .persona-block { display: flex; flex-direction: column; gap: 8px; }
+    .persona-block-label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--soft);
+    }
+    .persona-block p {
+      font-size: 14.5px; color: var(--ink); line-height: 1.6;
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 900px) { .persona-row { grid-template-columns: 1fr; } }
+
+    /* ── Empathy maps (side by side) ──────────────────── */
+    .empathy-pair {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-top: 28px;
+    }
+    .empathy-cell {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .empathy-cell .inline-img-wrap {
+      min-height: 320px; padding: 0;
+    }
+    .empathy-cell .inline-img-wrap img {
+      max-height: 600px;
+    }
+    .empathy-cap {
+      font-size: 13px; color: var(--soft); letter-spacing: -0.005em;
+      text-align: center;
+    }
+    .empathy-cap strong { color: var(--ink); font-weight: 500; }
+    @media (max-width: 760px) { .empathy-pair { grid-template-columns: 1fr; } }
+
+    /* ── RCA (text left, 2x2 image grid right) ────────── */
+    .rca-block {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: clamp(40px, 5vw, 72px);
+      align-items: start; margin-top: 28px;
+    }
+    .rca-text { display: flex; flex-direction: column; gap: 18px; }
+    .rca-text .body-text { margin-bottom: 0; }
+    .rca-image-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .rca-image-grid .inline-img-wrap {
+      min-height: 180px; padding: 0;
+    }
+    .rca-image-grid .inline-img-wrap img {
+      max-height: 280px;
+    }
+    @media (max-width: 900px) {
+      .rca-block { grid-template-columns: 1fr; gap: 28px; }
+    }
+
+    /* ── Insight ──────────────────────────────────────── */
+    .insight {
+      font-size: clamp(28px, 3.2vw, 40px); font-weight: 400;
+      line-height: 1.25; letter-spacing: -0.022em;
+      max-width: 24ch; color: var(--ink);
+    }
+    .insight em { font-style: normal; color: var(--soft); }
+    .insight-beats { display: flex; flex-direction: column; gap: 28px; }
+    .insight-beat { padding-left: 22px; border-left: 2px solid var(--rule); transition: border-color 0.2s; }
+    .insight-beat:hover { border-left-color: var(--ink); }
+    .insight-beat .beat-label {
+      display: block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--soft); margin-bottom: 10px;
+    }
+    .insight-beat p {
+      font-size: 15.5px; line-height: 1.6; color: var(--ink);
+      letter-spacing: -0.005em; max-width: 56ch;
+    }
+
+    /* ── Flow cards (3 flows) ─────────────────────────── */
+    .flow-list {
+      display: flex; flex-direction: column; gap: 24px;
+      margin-top: 32px;
+    }
+    .flow-card {
+      border: 1px solid var(--rule); border-radius: 16px;
+      background: var(--bg); padding: 32px;
+      display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 32px; align-items: center;
+      transition: border-color 0.2s;
+    }
+    .flow-card:hover { border-color: var(--ink); }
+    .flow-head { display: flex; flex-direction: column; gap: 8px; }
+    .flow-num {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+      color: var(--accent);
+    }
+    .flow-name {
+      font-size: clamp(22px, 2.2vw, 28px); font-weight: 500;
+      color: var(--ink); letter-spacing: -0.018em; line-height: 1.2;
+    }
+    .flow-purpose {
+      font-size: 15.5px; color: var(--muted); line-height: 1.55;
+      letter-spacing: -0.005em;
+    }
+    .flow-steps {
+      display: flex; flex-wrap: wrap; gap: 6px 4px;
+      margin-top: 14px;
+      font-size: 13.5px; color: var(--ink); letter-spacing: -0.005em;
+    }
+    .flow-step {
+      padding: 6px 12px; border: 1px solid var(--rule);
+      border-radius: 100px; background: var(--tint); white-space: nowrap;
+    }
+    [data-theme="dark"] .flow-step { background: #1A1A17; }
+    .flow-arrow { color: var(--soft); padding: 0 2px; align-self: center; }
+    .flow-img {
+      width: 100%; border-radius: 12px; overflow: hidden;
+      background: var(--tint); border: 1px solid var(--rule);
+      min-height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--soft); font-size: 13px; padding: 14px; text-align: center;
+    }
+    .flow-img img {
+      width: 100%; height: auto; max-height: 380px; object-fit: contain;
+    }
+    [data-theme="dark"] .flow-img { background: #1A1A17; }
+    @media (max-width: 900px) {
+      .flow-card { grid-template-columns: 1fr; gap: 20px; padding: 24px; }
+    }
+
+    /* ── Then / Now trade-off ─────────────────────────── */
+    .then-now {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-top: 32px;
+    }
+    .tn-cell {
+      padding: 28px 26px; border: 1px solid var(--rule);
+      border-radius: 14px; background: var(--bg);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .tn-head {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 14px; border-bottom: 1px solid var(--rule);
+    }
+    .tn-mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 11px; flex-shrink: 0;
+    }
+    .tn-mark.x { border: 1px solid #B95C5C; color: #B95C5C; }
+    .tn-mark.v { border: 1px solid #1B7A4B; color: #1B7A4B; }
+    [data-theme="dark"] .tn-mark.x { border-color: #E07878; color: #E07878; }
+    [data-theme="dark"] .tn-mark.v { border-color: #6DBF9C; color: #6DBF9C; }
+    .tn-tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--soft);
+    }
+    .tn-cell.now .tn-tag { color: var(--accent); }
+    .tn-title {
+      font-size: 17px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.01em; line-height: 1.35;
+    }
+    .tn-desc {
+      font-size: 14.5px; color: var(--muted); line-height: 1.6;
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 720px) { .then-now { grid-template-columns: 1fr; } }
+
+    /* ── Why-list (UX rationale) ──────────────────────── */
+    .why-list {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px; margin-top: 32px;
+    }
+    .why-item {
+      padding-left: 22px; border-left: 2px solid var(--rule);
+      transition: border-left-color 0.2s;
+    }
+    .why-item:hover { border-left-color: var(--ink); }
+    .why-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 10px;
+    }
+    .why-text {
+      font-size: 15px; line-height: 1.6; color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 900px) { .why-list { grid-template-columns: 1fr; } }
+
+    /* ── User quotes (stacked boxes) ──────────────────── */
+    ul.user-quotes {
+      list-style: none; margin: 32px 0 0;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    ul.user-quotes li {
+      display: grid; grid-template-columns: max-content 1fr;
+      gap: 20px; align-items: start;
+      padding: 22px 24px; background: var(--tint);
+      border-radius: 12px;
+    }
+    ul.user-quotes .uq-name {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--soft); padding-top: 5px; white-space: nowrap;
+    }
+    ul.user-quotes p {
+      font-size: clamp(15px, 1.3vw, 17px); font-weight: 400;
+      line-height: 1.5; letter-spacing: -0.01em; color: var(--ink);
+      font-style: italic; text-wrap: pretty;
+    }
+    @media (max-width: 600px) {
+      ul.user-quotes li { grid-template-columns: 1fr; gap: 8px; }
+      ul.user-quotes .uq-name { padding-top: 0; }
+    }
+
+    /* ── Screen gallery (Solution) ────────────────────── */
+    .screen-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 40px;
+    }
+    .screen-cell {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .screen-frame {
+      aspect-ratio: 9 / 19.5;
+      background: var(--tint); border-radius: 28px;
+      overflow: hidden; border: 1px solid var(--rule);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--soft); font-size: 13px; text-align: center; padding: 18px;
+      letter-spacing: -0.005em;
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(0,0,0,0.10);
+    }
+    .screen-frame img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .screen-frame:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 20px 40px -8px rgba(0,0,0,0.16);
+    }
+    [data-theme="dark"] .screen-frame {
+      background: #1A1A17;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.6);
+    }
+    .screen-cap {
+      font-size: 13px; color: var(--muted); letter-spacing: -0.005em;
+      line-height: 1.5; text-align: center;
+    }
+    .screen-cap strong { color: var(--ink); font-weight: 500; }
+    @media (max-width: 900px) { .screen-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .screen-grid { grid-template-columns: 1fr; } }
+
+    /* ── Phone video wrapper (handles size) ────────────── */
+    .pv {
+      display: block;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .pv video {
+      width: 100%; height: auto; display: block;
+      border-radius: 26px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 16px 40px -10px rgba(0,0,0,0.16);
+    }
+    [data-theme="dark"] .pv video {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 18px 44px -10px rgba(0,0,0,0.6);
+    }
+    .pv.bright video { filter: brightness(1.10) saturate(1.04); }
+
+    /* ── Flow video trio sizing ───────────────────────── */
+    .flow-video-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: clamp(20px, 3vw, 36px); margin-top: 36px;
+      align-items: start;
+    }
+    .flow-video-cell {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .flow-video-cell .pv { max-width: 280px; }
+    .flow-video-cap {
+      font-size: 13px; color: var(--muted); text-align: center;
+      letter-spacing: -0.005em; line-height: 1.5; max-width: 28ch;
+    }
+    .flow-video-cap strong { color: var(--ink); font-weight: 500; }
+    @media (max-width: 900px) {
+      .flow-video-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .flow-video-grid { grid-template-columns: 1fr; }
+      .flow-video-cell .pv { max-width: 260px; }
+    }
+
+    /* ── Overall app flow (single, in right column) ───── */
+    .overall-flow {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .overall-flow .pv { max-width: 320px; }
+    .overall-flow-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent);
+      align-self: center;
+    }
+    .overall-flow-cap {
+      font-size: 13px; color: var(--muted); text-align: center;
+      letter-spacing: -0.005em; line-height: 1.5; max-width: 32ch;
+    }
+    .overall-flow-cap strong { color: var(--ink); font-weight: 500; }
+    @media (max-width: 600px) {
+      .overall-flow .pv { max-width: 280px; }
+    }
+
+    /* ── Pull quote (reflection) ──────────────────────── */
+    .pull-quote { padding: 32px 0 32px 28px; border-left: 2px solid var(--ink); max-width: 56ch; }
+    .pull-quote p {
+      font-size: clamp(20px, 2vw, 26px); font-weight: 400;
+      line-height: 1.35; letter-spacing: -0.015em; color: var(--ink);
+    }
+    .pull-quote cite {
+      display: block; margin-top: 14px; font-size: 13px;
+      color: var(--soft); font-style: normal; letter-spacing: -0.005em;
+    }
+
+    /* ── Reflection: shift in thinking ────────────────── */
+    .shift { display: flex; flex-direction: column; }
+    .shift-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 10px;
+    }
+    .shift-block.going .shift-text {
+      font-size: 16px; line-height: 1.6; color: var(--muted);
+      letter-spacing: -0.005em;
+    }
+    .shift-arrow {
+      font-size: 22px; color: var(--soft); margin: 20px 0; line-height: 1;
+    }
+    .shift-block.coming {
+      padding-left: 24px; border-left: 2px solid var(--accent);
+    }
+    .shift-block.coming .shift-text {
+      font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6;
+      color: var(--ink); letter-spacing: -0.01em;
+    }
+
+    /* ── Closing CTA ──────────────────────────────────── */
+    .closing-cta {
+      max-width: var(--max-content);
+      margin: 0 auto;
+      padding: clamp(48px, 6vw, 88px) var(--side);
+      border-top: 1px solid var(--rule);
+      text-align: center;
+    }
+    .closing-cta h3 {
+      font-size: clamp(26px, 3vw, 38px); font-weight: 500;
+      line-height: 1.2; letter-spacing: -0.022em; color: var(--ink);
+      margin-bottom: 12px; max-width: 22ch; margin-left: auto; margin-right: auto;
+    }
+    .closing-cta p {
+      font-size: 15px; color: var(--muted); letter-spacing: -0.005em;
+      margin-bottom: 28px; max-width: 48ch; margin-left: auto; margin-right: auto;
+    }
+
+    /* ── Case nav + footer ────────────────────────────── */
+    .case-nav {
+      padding: clamp(40px, 5vw, 72px) var(--side);
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--rule); max-width: var(--max-content);
+    }
+    .case-nav a {
+      font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
+      position: relative; padding-bottom: 3px;
+    }
+    .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }
+    .case-nav a:hover .arrow { transform: translateX(4px); }
+    .case-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .case-nav a:hover::after { width: 100%; }
+    .case-nav .top-link { color: var(--soft); }
+    .case-nav .top-link:hover { color: var(--ink); }
+
+    footer.site {
+      background: var(--footer-bg); color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start;
+    }
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px); font-weight: 500;
+      line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 10px;
+    }
+    .footer-tagline { font-size: 13px; color: var(--footer-muted); }
+    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+    .footer-right h3 {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      color: var(--footer-muted); margin-bottom: 12px;
+    }
+    .footer-right ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .footer-right a { font-size: 16px; position: relative; padding-bottom: 2px; }
+    .footer-right a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px; background: var(--footer-ink);
+      transition: width 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .footer-right a:hover::after { width: 100%; }
+
+    /* ═══════ RESPONSIVE ═══════ */
+    @media (max-width: 1024px) {
+      .intro-title  { font-size: clamp(40px, 6vw, 72px); }
+      .intro-tagline { font-size: clamp(22px, 3vw, 32px); }
+      section.story { padding: clamp(32px, 4vw, 56px) var(--side) clamp(40px, 5vw, 64px); }
+      .hero-frame { max-height: 480px; }
+      .hero-frame.compact { max-height: 420px; }
+    }
+    @media (max-width: 900px) {
+      .grid-two { grid-template-columns: 1fr !important; gap: 32px !important; align-items: start !important; }
+      .intro { grid-template-columns: 1fr !important; gap: 24px !important; padding: 32px var(--side) 32px; }
+      .intro-title { font-size: clamp(34px, 11vw, 56px); margin-bottom: 16px; white-space: nowrap; }
+      .intro-tagline { font-size: clamp(20px, 5vw, 26px); margin-bottom: 24px; }
+      .intro-disciplines { max-width: none; }
+      .observations { grid-template-columns: 1fr 1fr !important; }
+      .persona-row, .then-now { grid-template-columns: 1fr !important; gap: 16px !important; }
+      .section-heading { font-size: clamp(24px, 6vw, 36px) !important; max-width: none !important; }
+      .insight { font-size: clamp(22px, 6vw, 30px) !important; max-width: none !important; }
+      .big-stat-num { font-size: clamp(40px, 10vw, 52px); }
+      ul.user-quotes li { padding: 18px 20px; }
+      .main-nav { padding: 20px var(--side) 16px; gap: 24px; }
+      .main-nav ul { gap: 24px; }
+      .main-nav a { font-size: 15px; }
+      .section-nav-inner { gap: 22px; height: 50px; }
+      footer.site { grid-template-columns: 1fr !important; gap: 32px; padding: 40px var(--side) 56px; }
+      .case-nav { padding: 32px var(--side); }
+    }
+    @media (max-width: 600px) {
+      :root { --side: 20px; }
+      .main-nav { padding: 16px var(--side) 12px; }
+      .main-nav ul { gap: 18px; }
+      .main-nav a { font-size: 14px; }
+      .section-nav-inner { gap: 18px; height: 46px; }
+      .section-nav a { font-size: 12.5px; }
+      .theme-toggle { width: 34px; height: 34px; }
+      .theme-toggle svg { width: 14px; height: 14px; }
+      .intro-title { font-size: clamp(30px, 10vw, 48px); }
+      .observations { grid-template-columns: 1fr !important; }
+      .case-nav a { font-size: 14px; }
+      .footer-left h2 { font-size: clamp(20px, 5.5vw, 26px); }
+      .live-cta { padding: 12px 20px; font-size: 14px; }
+      .hero-frame { max-height: 360px; }
+      .hero-frame.compact { max-height: 320px; }
+    }
+    @media (max-width: 380px) {
+      :root { --side: 16px; }
+      .main-nav ul { gap: 14px; }
+      .section-nav-inner { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Main nav ──────────────────────────────────── -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Section nav (sticky) ──────────────────────── -->
+  <nav class="section-nav" aria-label="Case study sections">
+    <div class="section-nav-inner">
+      <a href="#brief">The Brief</a>
+      <a href="#research">Research</a>
+      <a href="#insight">Insight</a>
+      <a href="#flows">Three Flows</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#solution">Solution</a>
+      <a href="#impact">Impact</a>
+      <a href="#iteration">What I'd Rework</a>
+      <a href="#reflection">Reflection</a>
+    </div>
+  </nav>
+
+  <!-- ── Intro ─────────────────────────────────────── -->
+  <header class="intro">
+    <div class="intro-left">
+      <h1 class="intro-title">DesigniQ</h1>
+      <p class="intro-disciplines">Mobile Product Design<br>UX Research<br>AI Feature Design<br>Information Architecture</p>
+    </div>
+    <div class="intro-right">
+      <p class="intro-tagline">
+        Helping people choose a space they actually want, by letting them see it first.
+      </p>
+      <div class="intro-body">
+        <p>A practicing interior designer came with a printed portfolio book and a real business problem hiding under it. DesigniQ is the app that came out of that — three flows in one product, designed to take a customer from inspiration to a furnished room without ever having to imagine the in-between.</p>
+      </div>
+      <div class="intro-meta">
+        <div class="meta-row"><strong>Role</strong> UI/UX Designer</div>
+        <div class="meta-row"><strong>Timeline</strong> Oct 2023 to Jan 2024</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero visual ───────────────────────────────── -->
+  <section class="hero-visual">
+    <div class="hero-frame">
+      <video
+        src="images/designiq/designiq-hero.mp4"
+        autoplay loop muted playsinline controls preload="metadata"
+        aria-label="DesigniQ overview: portfolio, AI room generation, and shop in one app"
+      ></video>
+    </div>
+  </section>
+
+  <!-- ═══ 01 THE BRIEF ═══ -->
+  <section class="story" id="brief">
+    <p class="section-label">01 — The Brief</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); align-items: center; gap: clamp(40px,5vw,80px);">
+      <h2 class="section-heading" style="margin-bottom: 0; max-width: none;">From a printed album to a digital business.</h2>
+
+      <div class="problem-statement">
+        <p class="problem-statement-label">Problem Statement</p>
+        <p class="problem-statement-text">
+          The portfolio was paper. The customer had to imagine. The furniture lived somewhere else.
+        </p>
+        <p class="problem-statement-sub">
+          One customer at a time, with no way to customize, preview, or shop the work. Three disconnected steps that kept the business small and the customer hesitant.
+        </p>
+      </div>
+    </div>
+
+    <p class="sub-label">Objectives the app had to meet</p>
+    <div class="obj-strip">
+      <span class="obj-chip"><span class="obj-chip-num">01</span>Digitize the portfolio</span>
+      <span class="obj-chip"><span class="obj-chip-num">02</span>Let customers experiment with color</span>
+      <span class="obj-chip"><span class="obj-chip-num">03</span>Generate room previews with AI</span>
+      <span class="obj-chip"><span class="obj-chip-num">04</span>Sell decor and furniture in-app</span>
+      <span class="obj-chip"><span class="obj-chip-num">05</span>Shorten decision time</span>
+    </div>
+  </section>
+
+  <!-- ═══ 02 RESEARCH ═══ -->
+  <section class="story" id="research">
+    <p class="section-label">02 — Research</p>
+    <h2 class="section-heading">I spent more time understanding the problem than designing the answer.</h2>
+    <p class="thesis">This was one of my first end-to-end projects, and I leaned into the process. Five methods, in sequence, before drawing a single screen.</p>
+
+    <!-- A. User interviews -->
+    <p class="sub-label">A · User interviews</p>
+    <p class="body-text" style="max-width: 78ch;">I ran open-ended interviews with prospective customers and practicing designers to understand how people actually look for interior design ideas, where they stall, and what they wish a tool would do for them. Six of the questions that opened the conversation:</p>
+    <div class="iq-grid">
+      <div class="iq-card">
+        <span class="iq-card-num">Question 01</span>
+        <p class="iq-card-text">Can you describe your typical experience when looking for interior design inspiration or services?</p>
+      </div>
+      <div class="iq-card">
+        <span class="iq-card-num">Question 02</span>
+        <p class="iq-card-text">What challenges do you face when trying to plan or visualize a new design for your space?</p>
+      </div>
+      <div class="iq-card">
+        <span class="iq-card-num">Question 03</span>
+        <p class="iq-card-text">How do you currently explore and select interior design ideas, and what do you like or dislike about it?</p>
+      </div>
+      <div class="iq-card">
+        <span class="iq-card-num">Question 04</span>
+        <p class="iq-card-text">What features or tools would make it easier to experiment with different design options?</p>
+      </div>
+      <div class="iq-card">
+        <span class="iq-card-num">Question 05</span>
+        <p class="iq-card-text">How do you feel about using technology like apps or AI to help with interior design decisions?</p>
+      </div>
+      <div class="iq-card">
+        <span class="iq-card-num">Question 06</span>
+        <p class="iq-card-text">What would an ideal interior design app look like for you, and what key features would it have?</p>
+      </div>
+    </div>
+
+    <!-- B. Observations -->
+    <p class="sub-label">B · Key insights from observations</p>
+    <p class="body-text" style="max-width: 78ch;">Across every interview, five patterns kept surfacing. Together they framed the rest of the work.</p>
+    <div class="observations">
+      <div class="obs-card">
+        <p class="obs-num">01</p>
+        <p class="obs-title">Fragmented design process</p>
+        <p class="obs-body">Inspiration is scattered across Pinterest, Instagram, and Google. Consolidating it is exhausting.</p>
+      </div>
+      <div class="obs-card">
+        <p class="obs-num">02</p>
+        <p class="obs-title">Visualization challenges</p>
+        <p class="obs-body">Customers can't picture how different interior elements combine into a cohesive setup in their own space.</p>
+      </div>
+      <div class="obs-card">
+        <p class="obs-num">03</p>
+        <p class="obs-title">Limited offline variety</p>
+        <p class="obs-body">Physical stores don't carry enough range to experiment with diverse styles before committing.</p>
+      </div>
+      <div class="obs-card">
+        <p class="obs-num">04</p>
+        <p class="obs-title">Appetite for AI customization</p>
+        <p class="obs-body">Strong interest in AI-driven suggestions and realistic previews of design combinations.</p>
+      </div>
+      <div class="obs-card">
+        <p class="obs-num">05</p>
+        <p class="obs-title">Need for professional input</p>
+        <p class="obs-body">Customers still want a real designer's validation at some point in the journey, not just an algorithm.</p>
+      </div>
+    </div>
+
+    <!-- C. Personas -->
+    <p class="sub-label">C · Two personas, two intents</p>
+    <p class="body-text" style="max-width: 78ch;">The interviews split cleanly into two intents. The everyday user trying to design her own home, and the professional trying to design many homes faster. The app had to serve both.</p>
+    <div class="persona-row">
+      <div class="persona-card">
+        <div class="persona-header">
+          <div class="persona-head-row">
+            <div class="persona-avatar">A</div>
+            <div class="persona-id">
+              <span class="persona-name">Ananya Singh</span>
+              <span class="persona-role">The everyday user</span>
+            </div>
+          </div>
+          <p class="persona-motto">"I want to feel my space before I change it."</p>
+        </div>
+        <div class="persona-body">
+          <dl class="persona-meta">
+            <dt>Age</dt><dd>29 · Mumbai</dd>
+            <dt>Background</dt><dd>BBA, IT consultant</dd>
+          </dl>
+          <div class="persona-tags">
+            <span class="persona-tag">Tech-savvy</span>
+            <span class="persona-tag">Detail-oriented</span>
+            <span class="persona-tag">Loves aesthetics</span>
+          </div>
+          <div class="persona-block">
+            <span class="persona-block-label">Goal</span>
+            <p>Experiment with different decor styles for her new apartment without visiting multiple stores, and see real-time previews before buying.</p>
+          </div>
+          <div class="persona-block">
+            <span class="persona-block-label">Frustration</span>
+            <p>Inspiration is scattered. Existing apps are static and don't let her customize. She can't picture how pieces will look together in her own space.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="persona-card">
+        <div class="persona-header">
+          <div class="persona-head-row">
+            <div class="persona-avatar">R</div>
+            <div class="persona-id">
+              <span class="persona-name">Rajesh Khanna</span>
+              <span class="persona-role">The power user</span>
+            </div>
+          </div>
+          <p class="persona-motto">"Show me ten options, then let me close in fast."</p>
+        </div>
+        <div class="persona-body">
+          <dl class="persona-meta">
+            <dt>Age</dt><dd>32 · Hyderabad</dd>
+            <dt>Background</dt><dd>BTech, Real estate developer</dd>
+          </dl>
+          <div class="persona-tags">
+            <span class="persona-tag">Innovative</span>
+            <span class="persona-tag">Curious</span>
+            <span class="persona-tag">Values simplicity</span>
+          </div>
+          <div class="persona-block">
+            <span class="persona-block-label">Goal</span>
+            <p>Quickly browse and compare styles across property types, generate cost estimates, and present design options to potential buyers.</p>
+          </div>
+          <div class="persona-block">
+            <span class="persona-block-label">Frustration</span>
+            <p>Resources are scattered across catalogs and supplier sites. No tool combines inspiration, customization, and shopping in one place.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D. Empathy maps -->
+    <p class="sub-label">D · Empathy maps</p>
+    <p class="body-text" style="max-width: 78ch;">An empathy map for each persona, mapping what they think and feel, see, hear, and say and do. Side by side, they made the difference between the two intents obvious. It kept the design grounded in their own language, not mine.</p>
+    <div class="empathy-pair">
+      <div class="empathy-cell">
+        <div class="inline-img-wrap">
+          <img src="images/designiq/Empathy-map-1.png" alt="Empathy map for Ananya: Think & Feel, See, Hear, Say & Do" />
+        </div>
+        <p class="empathy-cap"><strong>Ananya</strong> · The everyday user</p>
+      </div>
+      <div class="empathy-cell">
+        <div class="inline-img-wrap">
+          <img src="images/designiq/Empathy-map-2.png" alt="Empathy map for Rajesh: Think & Feel, See, Hear, Say & Do" />
+        </div>
+        <p class="empathy-cap"><strong>Rajesh</strong> · The power user</p>
+      </div>
+    </div>
+
+    <!-- E. Root Cause Analysis -->
+    <p class="sub-label">E · Root cause analysis</p>
+    <div class="rca-block">
+      <div class="rca-text">
+        <p class="body-text">Every symptom from the interviews mapped to an underlying root cause and a candidate product response. RCA was the bridge between research and design.</p>
+        <p class="body-text">Four symptoms surfaced, each tracing back to a different friction in the way people currently shop for and decide on interior design. Each one resolved into a clear direction for the product, so by the time I started drawing screens, every decision could trace back to a real cause.</p>
+        <p class="body-text" style="margin-bottom: 0;">The four causes set the priorities for the rest of the work: interactivity, visualization, integration, and serving two very different intents in one app.</p>
+      </div>
+      <div class="rca-image-grid">
+        <div class="inline-img-wrap">
+          <img src="images/designiq/RCA-1.png" alt="RCA 1: Lack of interactive customization frustrates users" />
+        </div>
+        <div class="inline-img-wrap">
+          <img src="images/designiq/RCA-2.png" alt="RCA 2: Visualization challenges slow decision-making" />
+        </div>
+        <div class="inline-img-wrap">
+          <img src="images/designiq/RCA-3.png" alt="RCA 3: Fragmented resources hurt the experience" />
+        </div>
+        <div class="inline-img-wrap">
+          <img src="images/designiq/RCA-4.png" alt="RCA 4: The app must meet diverse user needs" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 03 INSIGHT ═══ -->
+  <section class="story" id="insight">
+    <p class="section-label">03 — The Insight</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); align-items: start; gap: clamp(48px,6vw,96px);">
+      <p class="insight" style="max-width: none;">
+        Customers don't want more options. They want <em>confidence in the one they pick.</em>
+      </p>
+      <div class="insight-beats">
+        <div class="insight-beat">
+          <span class="beat-label">The realization</span>
+          <p>Every root cause traced back to the same friction: too much to imagine, too little to actually see. Each extra step of imagination added doubt; each preview removed it.</p>
+        </div>
+        <div class="insight-beat">
+          <span class="beat-label">The direction</span>
+          <p>The fix wasn't a bigger catalog or a smarter recommender. It was letting people <strong>see the outcome before they commit to it,</strong> across every job the app does.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 04 THREE FLOWS ═══ -->
+  <section class="story" id="flows">
+    <p class="section-label">04 — Three Flows</p>
+    <h2 class="section-heading">Three flows, one product.</h2>
+    <p class="thesis">The app does three jobs, each with its own user-task flow. They share a home page and a tab bar, but the work each one does is distinct, and each one removes a doubt the others would have inherited.</p>
+
+    <div class="flow-list">
+
+      <div class="flow-card">
+        <div class="flow-head">
+          <span class="flow-num">FLOW 01</span>
+          <span class="flow-name">Interior flow</span>
+          <p class="flow-purpose">The designer's portfolio, browsable by project type and bookable for a consultation. The entry point for customers who want to see what's possible before they commit.</p>
+        </div>
+        <div class="flow-img">
+          <img src="images/designiq/Interiors-Flow.png" alt="Interior user task flow: from Interiors entry to consultation booking and acknowledgement" />
+        </div>
+      </div>
+
+      <div class="flow-card">
+        <div class="flow-head">
+          <span class="flow-num">FLOW 02</span>
+          <span class="flow-name">Store flow</span>
+          <p class="flow-purpose">The shop, organized for finding furniture by room or by what's selling. Where intent turns into a purchase, without needing to leave the app.</p>
+        </div>
+        <div class="flow-img">
+          <img src="images/designiq/Store-Flow.png" alt="Store user task flow: from Store/Cart through categories to a product purchase" />
+        </div>
+      </div>
+
+      <div class="flow-card">
+        <div class="flow-head">
+          <span class="flow-num">FLOW 03</span>
+          <span class="flow-name">AI flow</span>
+          <p class="flow-purpose">The simulator that closes the loop between inspiration and purchase. Customers see their own room restyled, then add the pieces inside it to the cart.</p>
+        </div>
+        <div class="flow-img">
+          <img src="images/designiq/AI-Flow.png" alt="AI user task flow: choose a generation type, generate, then either save or convert components into a purchase" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ 05 ARCHITECTURE ═══ -->
+  <section class="story" id="architecture">
+    <p class="section-label">05 — Architecture</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); align-items: center; gap: clamp(40px,5vw,80px); margin-top: 8px;">
+      <div>
+        <h2 class="section-heading" style="margin-bottom: 16px; max-width: none;">Three peers under one home.</h2>
+        <p class="body-text" style="margin-bottom: 16px;">The IA treats Interior, Store, and AI as peers, not parents and children. Each hangs off the home page, each is reachable from any screen, and each carries its own sub-structure for the work that happens inside it.</p>
+        <p class="body-text" style="margin-bottom: 0;">Cross-links are explicit. AI-generated rooms expose their components as shoppable products, store items show the rooms they appear in, and portfolio pieces offer a "try this in my room" path into the AI flow.</p>
+      </div>
+      <div class="inline-img-wrap">
+        <img src="images/designiq/Overall-IA.png" alt="Overall information architecture: Home Page anchors Interiors, Store, Try AI, Inspirations, and Account" />
+      </div>
+    </div>
+
+    <p class="sub-label">The detailed architecture</p>
+    <p class="body-text" style="max-width: 78ch;">The full map showing every screen, every sub-tree, and how the three flows cross-link inside the product.</p>
+    <div class="inline-img-wrap">
+      <img src="images/designiq/Detailed-IA.png" alt="Detailed information architecture: complete flowchart of every screen and connection across the three flows" />
+    </div>
+  </section>
+
+  <!-- ═══ 06 SOLUTION ═══ -->
+  <section class="story" id="solution">
+    <p class="section-label">06 — The Solution</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0,1.2fr) minmax(0,0.8fr); align-items: center; gap: clamp(48px,6vw,96px);">
+      <div>
+        <h2 class="section-heading" style="max-width: none;">One app. Three connected experiences.</h2>
+        <p class="thesis">The shipped product takes a customer from a portfolio piece to a furnished room without ever leaving the experience.</p>
+        <p class="body-text" style="margin-bottom: 0;">
+          Designers get a portfolio that travels and reaches customers they'd never have met. Customers get a way to see the outcome before they spend the money. Every screen holds to the same rule: <strong>show, don't ask people to imagine.</strong>
+        </p>
+      </div>
+      <div class="overall-flow">
+        <span class="overall-flow-eyebrow">End to end</span>
+        <div class="pv bright">
+          <video
+            src="images/designiq/Overall-app-flow.mp4"
+            autoplay loop muted playsinline controls preload="metadata"
+            aria-label="Overall app walkthrough connecting all four flows"
+          ></video>
+        </div>
+        <p class="overall-flow-cap">The home page tying all four flows together: <strong>Interior, Store, AI, and Inspirations.</strong></p>
+      </div>
+    </div>
+
+    <p class="sub-label" style="margin-top: clamp(56px, 6vw, 80px);">The three flows</p>
+    <div class="flow-video-grid">
+      <div class="flow-video-cell">
+        <div class="pv">
+          <video
+            src="images/designiq/Interiors-flow-video.mp4"
+            autoplay loop muted playsinline controls preload="metadata"
+            aria-label="Interior flow walkthrough"
+          ></video>
+        </div>
+        <p class="flow-video-cap"><strong>Interior flow.</strong> The designer's portfolio in motion: browse, pick a project, book a consultation.</p>
+      </div>
+      <div class="flow-video-cell">
+        <div class="pv">
+          <video
+            src="images/designiq/Store-flow-video.mp4"
+            autoplay loop muted playsinline controls preload="metadata"
+            aria-label="Store flow walkthrough"
+          ></video>
+        </div>
+        <p class="flow-video-cap"><strong>Store flow.</strong> Browse by room or by best sellers, land on a product, add it to the cart.</p>
+      </div>
+      <div class="flow-video-cell">
+        <div class="pv">
+          <video
+            src="images/designiq/AI-flow-video.mp4"
+            autoplay loop muted playsinline controls preload="metadata"
+            aria-label="AI flow walkthrough"
+          ></video>
+        </div>
+        <p class="flow-video-cap"><strong>AI flow.</strong> Upload a room, pick a direction, see it restyled, then shop the pieces inside it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 07 IMPACT ═══ -->
+  <section class="story" id="impact">
+    <p class="section-label">07 — Impact</p>
+    <h2 class="section-heading">What changed once it shipped.</h2>
+    <p class="thesis">The product's job was to remove the imagining and shorten the path to a "yes." The post-launch numbers tracked exactly that.</p>
+
+    <div class="big-stats">
+      <div class="big-stat">
+        <p class="big-stat-cat">Engagement</p>
+        <p class="big-stat-num">10×</p>
+        <p class="big-stat-label">Higher engagement than the previous portfolio-only experience.</p>
+      </div>
+      <div class="big-stat">
+        <p class="big-stat-cat">Sales</p>
+        <p class="big-stat-num">₹10M+</p>
+        <p class="big-stat-label">Contributed sales growth tied to the integrated shop loop.</p>
+      </div>
+      <div class="big-stat">
+        <p class="big-stat-cat">Capacity</p>
+        <p class="big-stat-num">3×</p>
+        <p class="big-stat-label">Client capacity per designer, freed by the digital portfolio.</p>
+      </div>
+      <div class="big-stat">
+        <p class="big-stat-cat">Flow completion</p>
+        <p class="big-stat-num">94%</p>
+        <p class="big-stat-label">Of test users finished the core flow without hitting a dead end.</p>
+      </div>
+    </div>
+
+    <ul class="user-quotes">
+      <li>
+        <span class="uq-name">Tester 01</span>
+        <p>"I've been saving photos for a year and this is the first time I've actually seen what one would look like in my house."</p>
+      </li>
+      <li>
+        <span class="uq-name">Tester 02</span>
+        <p>"I'd buy the sofa now. Before this I'd have spent another month deciding."</p>
+      </li>
+      <li>
+        <span class="uq-name">Designer interviewee</span>
+        <p>"This is the first time I can show ten clients my work in one evening instead of one."</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ═══ 08 WHAT I'D REWORK ═══ -->
+  <section class="story" id="iteration">
+    <p class="section-label">08 — What I'd Rework</p>
+    <h2 class="section-heading">One rule I'd hold the line on, looking back.</h2>
+    <p class="thesis">The Store flow used a different footer than the rest of the app. That's the call I'd flip today.</p>
+
+    <div class="then-now">
+      <div class="tn-cell">
+        <div class="tn-head">
+          <span class="tn-mark x">✕</span>
+          <span class="tn-tag">Then</span>
+        </div>
+        <p class="tn-title">A separate footer for the Store flow.</p>
+        <p class="tn-desc">Tuned to shopping actions. Felt contextual at the time.</p>
+      </div>
+      <div class="tn-cell now">
+        <div class="tn-head">
+          <span class="tn-mark v">✓</span>
+          <span class="tn-tag">Now</span>
+        </div>
+        <p class="tn-title">A persistent tab bar across every flow.</p>
+        <p class="tn-desc">Context lives inside the screen, not inside the chrome.</p>
+      </div>
+    </div>
+
+    <p class="sub-label">Why I'd hold the line</p>
+    <div class="why-list">
+      <div class="why-item">
+        <p class="why-label">Persistent navigation</p>
+        <p class="why-text">Same place, every time. Less working memory spent on wayfinding.</p>
+      </div>
+      <div class="why-item">
+        <p class="why-label">Consistency heuristic</p>
+        <p class="why-text">The foundation of trust in any product.</p>
+      </div>
+      <div class="why-item">
+        <p class="why-label">Chrome vs content</p>
+        <p class="why-text">Special actions belong on the screen, not in the nav.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 09 REFLECTION ═══ -->
+  <section class="story" id="reflection">
+    <p class="section-label">09 — Reflection</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); align-items: start; gap: clamp(48px,6vw,96px);">
+      <div class="pull-quote" style="margin: 0; max-width: none;">
+        <p>The project shipped two years ago. The discipline it left me with hasn't.</p>
+      </div>
+      <div class="shift">
+        <div class="shift-block going">
+          <span class="shift-label">Then</span>
+          <p class="shift-text">Each design call felt right on its own. A footer here, an emphasis there.</p>
+        </div>
+        <div class="shift-arrow">↓</div>
+        <div class="shift-block coming">
+          <span class="shift-label">Now</span>
+          <p class="shift-text">A product is not the sum of its best individual decisions. It is the sum of how well those decisions agree with each other. That is the rule I now hold above any single feature.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── Case study nav ────────────────────────────── -->
+  <nav class="case-nav">
+    <a href="index.html" aria-label="Back to all work">← BACK TO WORK</a>
+    <a href="#top" class="top-link">TOP ↑</a>
+  </nav>
+
+  <!-- ── Site footer ───────────────────────────────── -->
+  <footer class="site">
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank">LinkedIn</a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ───────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+
+    // ── Scroll-spy ─────────────────────────────────────
+    const sections = document.querySelectorAll('section.story');
+    const navLinks = document.querySelectorAll('.section-nav a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+
+    // ── Smooth scroll ──────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#' || href === '#top') {
+          if (href === '#top') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          return;
+        }
+        const target = document.querySelector(href);
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+
+</body>
+</html>

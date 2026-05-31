@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayPal Activity Redesign — Midhun</title>
+  <meta name="description" content="Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #6B6B68;
+      --soft:      #8A8A8A;
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --tint:      #F4F4F1;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+      --accent:    #0070BA;          /* PayPal blue, used very sparingly */
+
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+      --main-nav-h: 72px;
+      --section-nav-h: 56px;
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #A0A09C;
+      --soft:      #6B6B68;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --tint:      #18181590;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+    }
+    [data-theme="dark"] .compare-col,
+    [data-theme="dark"] .quote-card { background: #1A1A17; }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ─────────────────────────────────────────────
+       Main nav (consistent with homepage)
+    ───────────────────────────────────────────── */
+    .main-nav {
+      position: sticky;
+      top: 0;
+      z-index: 110;
+      background: var(--bg);
+      padding: 28px var(--side) 24px;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+    .main-nav ul { list-style: none; display: flex; gap: 56px; }
+    .main-nav a {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative;
+      padding-bottom: 3px;
+    }
+    .main-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .main-nav a:hover::after { width: 100%; }
+
+    /* ─────────────────────────────────────────────
+       Section nav (sticky, under main nav)
+    ───────────────────────────────────────────── */
+    .section-nav {
+      position: sticky;
+      top: var(--main-nav-h);
+      z-index: 100;
+      background: var(--bg);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 var(--side);
+    }
+    .section-nav-inner {
+      display: flex;
+      gap: 32px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      height: var(--section-nav-h);
+      align-items: center;
+    }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+
+    .section-nav a {
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--soft);
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+      transition: color 0.2s;
+      position: relative;
+      padding: 6px 0;
+    }
+    .section-nav a:hover { color: var(--ink); }
+    .section-nav a.active {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .section-nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: -1px;
+      height: 1.5px;
+      background: var(--ink);
+    }
+
+    /* ─────────────────────────────────────────────
+       Intro (two-column hero, MoMA-style)
+    ───────────────────────────────────────────── */
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: clamp(48px, 8vw, 120px);
+      padding: clamp(60px, 8vw, 100px) var(--side) clamp(48px, 6vw, 80px);
+      max-width: var(--max-content);
+    }
+
+    .intro-title {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 500;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      margin-bottom: 48px;
+    }
+
+    .intro-disciplines {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+      max-width: 22ch;
+    }
+
+    .intro-context {
+      font-size: 15px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      max-width: 24ch;
+      line-height: 1.5;
+    }
+
+    .intro-tagline {
+      font-size: clamp(24px, 2.8vw, 38px);
+      font-weight: 500;
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin-bottom: 56px;
+    }
+
+    .intro-body p {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 16px;
+      max-width: 64ch;
+    }
+    .intro-body p:last-child { margin-bottom: 0; }
+
+    .intro-meta { margin-top: 40px; }
+
+    .meta-row {
+      padding: 18px 0;
+      border-top: 1px solid var(--rule);
+      font-size: 15px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .meta-row:last-child { border-bottom: 1px solid var(--rule); }
+    .meta-row strong {
+      font-weight: 500;
+      margin-right: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .intro {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .intro-title {
+        font-size: clamp(48px, 14vw, 88px);
+        margin-bottom: 24px;
+      }
+      .intro-tagline { margin-bottom: 32px; }
+    }
+
+    /* ─────────────────────────────────────────────
+       Hero visual placeholder
+    ───────────────────────────────────────────── */
+    .hero-visual {
+      padding: 0 var(--side) clamp(12px, 2vw, 28px);
+      max-width: var(--max-content);
+    }
+    .visual-slot {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--tint);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--soft);
+      font-size: 14px;
+      letter-spacing: -0.005em;
+    }
+    .visual-slot.tall { aspect-ratio: 4/5; }
+    .visual-slot.short { aspect-ratio: 21/9; }
+
+    /* ── Real image inside hero-visual ──────────── */
+    .hero-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    /* ── Hero video ─────────────────────────────── */
+    .hero-video {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      height: auto;
+      max-height: 640px;
+      display: block;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    /* ── Inline screenshot (e.g. inside grid-two) ─ */
+    .inline-img {
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      display: block;
+      border-radius: 14px;
+      object-fit: contain;
+      object-position: center;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 12px 32px -8px rgba(0, 0, 0, 0.12),
+        0 24px 60px -16px rgba(0, 0, 0, 0.10);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    }
+    .inline-img:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 20px 40px -8px rgba(0, 0, 0, 0.16),
+        0 32px 70px -20px rgba(0, 0, 0, 0.14);
+    }
+    [data-theme="dark"] .inline-img {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.5),
+        0 16px 40px -8px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    [data-theme="dark"] .inline-img:hover {
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.6),
+        0 24px 50px -8px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    /* ── Task-flow blocks (two columns, side-by-side) ─ */
+    .flow-stack {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 5vw, 72px);
+      align-items: start;
+    }
+    .flow-block { min-width: 0; }
+    .flow-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--soft);
+      margin-bottom: 10px;
+    }
+    .flow-title {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    .flow-img {
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      display: block;
+      margin-top: 4px;
+      border-radius: 12px;
+      background: var(--tint);
+      object-fit: contain;
+    }
+    @media (max-width: 900px) {
+      .flow-stack { grid-template-columns: 1fr; gap: 56px; }
+    }
+
+    /* ── Solution: horizontal video on the right ─────── */
+    .solution-video {
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      display: block;
+      margin: 0 auto 14px;
+      border-radius: 28px;
+    }
+
+    /* ── Before / After vertical videos (phone-shaped) ─ */
+    .ba-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ba-col .ba-label {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .ba-video {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      display: block;
+      border-radius: 28px;
+    }
+
+    /* Research: heading on left, image stacked below, text on right */
+    .research-grid {
+      align-items: start !important;
+    }
+    .research-image-col {
+      display: block;
+      min-width: 0;
+    }
+    .research-img {
+      width: 100%;
+      height: auto;
+      max-height: none;
+      display: block;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 10px;
+    }
+    .research-image-col .visual-caption {
+      margin-top: 14px;
+      text-align: center;
+    }
+    .visual-caption {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--soft);
+      letter-spacing: -0.005em;
+    }
+
+    /* ─────────────────────────────────────────────
+       Section base
+    ───────────────────────────────────────────── */
+    section.story {
+      padding: clamp(32px, 4vw, 56px) var(--side) clamp(48px, 5.5vw, 80px);
+      max-width: var(--max-content);
+      scroll-margin-top: calc(var(--main-nav-h) + var(--section-nav-h) + 8px);
+    }
+    section.story + section.story { border-top: 1px solid var(--rule); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 20px;
+    }
+    .section-heading {
+      font-size: clamp(28px, 3.4vw, 42px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.022em;
+      margin-bottom: 28px;
+      max-width: 22ch;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: clamp(40px, 5vw, 80px);
+      align-items: start;
+    }
+    .grid-two.reverse { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+
+    .body-text {
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 18px;
+      max-width: 64ch;
+    }
+    .body-text strong { font-weight: 500; }
+    .body-text + .body-text { margin-top: -4px; }
+
+    ul.bullets {
+      list-style: none;
+      margin: 18px 0;
+    }
+    ul.bullets li {
+      position: relative;
+      padding-left: 26px;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      max-width: 60ch;
+    }
+    ul.bullets li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.65em;
+      width: 14px; height: 1px;
+      background: var(--ink);
+    }
+
+    /* ── Two-framings list (Design Direction intro) ─ */
+    ul.framings {
+      list-style: none;
+      margin: 0 0 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    ul.framings li {
+      display: grid;
+      grid-template-columns: minmax(180px, max-content) 1fr;
+      align-items: baseline;
+      gap: 24px;
+      padding: 14px 0;
+      border-top: 1px solid var(--rule);
+    }
+    ul.framings li:last-child {
+      border-bottom: 1px solid var(--rule);
+    }
+    ul.framings .fr-tag {
+      font-family: var(--font-sans);
+      font-size: clamp(18px, 1.8vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+    ul.framings .fr-abbr {
+      font-size: 0.7em;
+      font-weight: 400;
+      color: var(--soft);
+      letter-spacing: 0;
+      margin-left: 6px;
+    }
+    ul.framings p {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+      max-width: 56ch;
+    }
+    @media (max-width: 720px) {
+      ul.framings li {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+
+    /* ── Impact cards (Why this matters for PayPal) ─ */
+    .impact-heading {
+      font-size: clamp(28px, 3.2vw, 40px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.022em;
+      color: var(--ink);
+      max-width: 14ch;
+      margin: 0;
+    }
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .impact-card {
+      padding: 28px 26px;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      transition: background 0.2s, border-color 0.2s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      background: var(--bg);
+    }
+    .impact-card:hover {
+      background: var(--tint);
+      border-color: var(--ink);
+      transform: translateY(-2px);
+    }
+    [data-theme="dark"] .impact-card:hover { background: #1A1A17; }
+    .impact-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      margin-bottom: 14px;
+    }
+    .impact-title {
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .impact-body {
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 720px) {
+      .impact-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Emphasized user quotes (stacked boxes) ──── */
+    ul.user-quotes {
+      list-style: none;
+      margin: 28px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    ul.user-quotes li {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 22px 24px;
+      background: var(--tint);
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    ul.user-quotes li:hover {
+      background: var(--hover-bg);
+    }
+    [data-theme="dark"] ul.user-quotes li {
+      background: #1A1A17;
+    }
+    [data-theme="dark"] ul.user-quotes li:hover {
+      background: #20201D;
+    }
+    ul.user-quotes .uq-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      padding-top: 6px;
+    }
+    ul.user-quotes p {
+      font-size: clamp(16px, 1.4vw, 18px);
+      font-weight: 400;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      font-style: italic;
+      text-wrap: pretty;
+      hyphens: auto;
+    }
+    /* Also fix orphaned words in Iteration quote cards */
+    .quote-card p {
+      text-wrap: pretty;
+      hyphens: auto;
+    }
+
+    /* ── Stat row ─────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 32px;
+      margin: 36px 0 8px;
+      padding: 36px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .stat-num {
+      font-size: clamp(36px, 4vw, 48px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 30ch;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Highlighted problem statement block ──── */
+    .problem-statement {
+      padding: clamp(28px, 3vw, 40px) clamp(28px, 3vw, 40px);
+      background: var(--tint);
+      border-radius: 14px;
+      margin: 28px 0 0;
+      max-width: 620px;
+      position: relative;
+    }
+    .problem-statement::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: clamp(28px, 3vw, 40px);
+      bottom: clamp(28px, 3vw, 40px);
+      width: 3px;
+      background: var(--ink);
+      border-radius: 0 3px 3px 0;
+    }
+    .problem-statement-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 18px;
+    }
+    .problem-statement-text {
+      font-size: clamp(19px, 1.7vw, 23px);
+      font-weight: 500;
+      line-height: 1.35;
+      letter-spacing: -0.018em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+    .problem-statement-sub {
+      font-size: clamp(13.5px, 1vw, 15px);
+      font-weight: 400;
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+      color: var(--muted);
+    }
+    [data-theme="dark"] .problem-statement { background: #1A1A17; }
+
+    /* ── Pull quote ───────────────────────────── */
+    .pull-quote {
+      padding: 32px 0 32px 28px;
+      border-left: 2px solid var(--ink);
+      margin: 28px 0;
+      max-width: 56ch;
+    }
+    .pull-quote p {
+      font-size: clamp(20px, 2vw, 26px);
+      font-weight: 400;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+    .pull-quote cite {
+      display: block;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--soft);
+      font-style: normal;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Insight (single bold statement) ──────── */
+    .insight {
+      font-size: clamp(28px, 3.2vw, 40px);
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: -0.022em;
+      max-width: 22ch;
+      color: var(--ink);
+    }
+    .insight em {
+      font-style: normal;
+      color: var(--soft);
+    }
+
+    /* ── Card row (objectives, features) ──────── */
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .card {
+      padding: 28px 24px;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      background: var(--bg);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .card:hover { background: var(--tint); border-color: var(--ink); }
+    .card .card-num {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--soft);
+      letter-spacing: 0.12em;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .card .card-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Quote grid (user testing) ────────────── */
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .quote-card {
+      padding: 28px 24px;
+      background: var(--tint);
+      border-radius: 10px;
+    }
+    .quote-card .q-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      margin-bottom: 16px;
+    }
+    .quote-card p {
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+    }
+
+    /* ── Side-by-side comparison (Iteration) ──── */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 24px;
+      align-items: stretch;
+      margin: 36px 0 12px;
+    }
+    .compare-col {
+      padding: 32px 28px;
+      background: var(--tint);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .compare-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      margin-bottom: 18px;
+    }
+    .compare-flow {
+      font-size: clamp(16px, 1.4vw, 19px);
+      font-weight: 500;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .compare-flow .arrow-inline { color: var(--soft); margin: 0 4px; }
+    .compare-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--soft);
+      font-size: 26px;
+      font-weight: 300;
+    }
+    @media (max-width: 720px) {
+      .compare { grid-template-columns: 1fr; gap: 12px; }
+      .compare-arrow { transform: rotate(90deg); padding: 4px 0; }
+    }
+
+    /* ── Before/After ─────────────────────────── */
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 32px;
+    }
+    .ba-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      margin-bottom: 12px;
+    }
+
+    /* ─────────────────────────────────────────────
+       Footer (case study nav + main footer)
+    ───────────────────────────────────────────── */
+    .case-nav {
+      padding: clamp(40px, 5vw, 72px) var(--side);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--rule);
+      max-width: var(--max-content);
+    }
+    .case-nav a {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative;
+      padding-bottom: 3px;
+    }
+    .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }
+    .case-nav a:hover .arrow { transform: translateX(4px); }
+    .case-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .case-nav a:hover::after { width: 100%; }
+    .case-nav .top-link { color: var(--soft); }
+    .case-nav .top-link:hover { color: var(--ink); }
+
+    footer.site {
+      background: var(--footer-bg);
+      color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-size: 13px;
+      color: var(--footer-muted);
+    }
+    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+    .footer-right h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--footer-muted);
+      margin-bottom: 12px;
+    }
+    .footer-right ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .footer-right a {
+      font-size: 16px;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .footer-right a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px; background: var(--footer-ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .footer-right a:hover::after { width: 100%; }
+
+    /* ─────────────────────────────────────────────
+       Responsive
+    ───────────────────────────────────────────── */
+    /* ═════════════════════════════════════════════════
+       RESPONSIVE — Tablet (≤ 1024px)
+    ═════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .intro-title  { font-size: clamp(48px, 8vw, 88px); }
+      .intro-tagline { font-size: clamp(22px, 3vw, 32px); }
+      section.story { padding: clamp(32px, 4vw, 56px) var(--side) clamp(40px, 5vw, 64px); }
+      .hero-video   { max-height: 480px; }
+    }
+
+    /* ═════════════════════════════════════════════════
+       RESPONSIVE — Mobile (≤ 900px)
+       Force every 2-column layout → single column.
+       Uses !important to defeat inline styles set on
+       per-section grid-two overrides.
+    ═════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      /* All grid-two variants collapse to one column */
+      .grid-two,
+      .grid-two.reverse,
+      .research-grid {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+        align-items: start !important;
+      }
+
+      /* Intro hero */
+      .intro {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        padding: 32px var(--side) 32px;
+      }
+      .intro-title {
+        font-size: clamp(40px, 12vw, 64px);
+        margin-bottom: 16px;
+      }
+      .intro-tagline {
+        font-size: clamp(20px, 5vw, 26px);
+        margin-bottom: 28px;
+      }
+      .intro-disciplines,
+      .intro-context { max-width: none; }
+
+      /* All multi-column card grids → single column */
+      .card-row,
+      .impact-grid,
+      .flow-stack,
+      .ba-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+
+      /* Iteration compare blocks: vertical with rotated arrow */
+      .compare {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      .compare-arrow {
+        transform: rotate(90deg);
+        padding: 4px 0;
+      }
+
+      /* Framings list (Design Direction) */
+      ul.framings li {
+        grid-template-columns: 1fr !important;
+        gap: 6px;
+      }
+
+      /* Typography scales for narrow screens */
+      .section-heading {
+        font-size: clamp(24px, 6vw, 36px) !important;
+        max-width: none !important;
+      }
+      .insight {
+        font-size: clamp(22px, 6vw, 30px) !important;
+        max-width: none !important;
+      }
+      .impact-heading {
+        font-size: clamp(24px, 6vw, 32px) !important;
+        max-width: none !important;
+      }
+      .pull-quote p { font-size: clamp(18px, 4.5vw, 24px); }
+
+      /* Stats row stacks */
+      .stats {
+        grid-template-columns: 1fr !important;
+        gap: 18px;
+        padding: 24px 0;
+      }
+      .stat-num { font-size: clamp(32px, 8vw, 42px); }
+
+      /* Videos & images: bring sizes down */
+      .hero-video    { max-height: 360px; }
+      .solution-video { max-width: 380px; }
+      .ba-video      { max-width: 320px; }
+      .flow-img      { max-height: 460px; }
+      .research-img  { max-height: 460px; }
+      .inline-img    { max-height: 420px; }
+
+      /* User quote cards: tighter padding */
+      ul.user-quotes li {
+        padding: 18px 20px;
+        grid-template-columns: 32px 1fr;
+        gap: 14px;
+      }
+
+      /* Nav: tighter spacing */
+      .main-nav {
+        padding: 20px var(--side) 16px;
+        gap: 24px;
+      }
+      .main-nav ul { gap: 24px; }
+      .main-nav a  { font-size: 15px; }
+      .section-nav-inner { gap: 22px; height: 50px; }
+
+      /* Footer collapses */
+      footer.site {
+        grid-template-columns: 1fr !important;
+        gap: 32px;
+        padding: 40px var(--side) 56px;
+      }
+
+      /* Case study nav */
+      .case-nav { padding: 32px var(--side); }
+    }
+
+    /* ═════════════════════════════════════════════════
+       RESPONSIVE — Small phones (≤ 600px)
+    ═════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      :root { --side: 20px; }
+
+      .main-nav { padding: 16px var(--side) 12px; }
+      .main-nav ul { gap: 18px; }
+      .main-nav a  { font-size: 14px; }
+
+      .section-nav-inner { gap: 18px; height: 46px; }
+      .section-nav a { font-size: 12.5px; }
+
+      .theme-toggle {
+        width: 34px;
+        height: 34px;
+      }
+      .theme-toggle svg { width: 14px; height: 14px; }
+
+      .intro-title   { font-size: clamp(34px, 11vw, 52px); }
+      .intro-tagline { font-size: clamp(18px, 5vw, 22px); }
+
+      .card,
+      .impact-card { padding: 22px 20px; }
+
+      .ba-video,
+      .solution-video { max-width: 100%; }
+
+      .case-nav a    { font-size: 14px; }
+      .footer-left h2 { font-size: clamp(20px, 5.5vw, 26px); }
+    }
+
+    /* Tiny phones — final squeeze */
+    @media (max-width: 380px) {
+      :root { --side: 16px; }
+      .main-nav ul { gap: 14px; }
+      .section-nav-inner { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Main nav (same as homepage) ───────────────── -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Section nav (sticky) ──────────────────────── -->
+  <nav class="section-nav" aria-label="Case study sections">
+    <div class="section-nav-inner">
+      <a href="#problem">Problem</a>
+      <a href="#research">Research</a>
+      <a href="#insight">Insight</a>
+      <a href="#design">Design</a>
+      <a href="#solution">Solution</a>
+      <a href="#iteration">Iteration</a>
+      <a href="#impact">Impact</a>
+      <a href="#learnings">Learnings</a>
+    </div>
+  </nav>
+
+  <!-- ── Intro (two-column, MoMA-style) ────────────── -->
+  <header class="intro">
+    <div class="intro-left">
+      <h1 class="intro-title">PayPal Activity</h1>
+      <p class="intro-disciplines">Product Design, UX Research, Fintech</p>
+    </div>
+    <div class="intro-right">
+      <p class="intro-tagline">
+        Reimagining how 200M+ PayPal users understand their transactions — from a flat, chronological feed to a tool that reflects how they actually think about their money.
+      </p>
+      <div class="intro-body">
+        <p>PayPal processes payments for over 200 million users worldwide, but its Activity feed treats every transaction the same — a chronological list that works fine for casual users and falls apart for anyone who's using PayPal as part of their work.</p>
+        <p>My role was to research the problem space, design toward the opportunity, and prototype the solution. Grounded in real conversations with freelancers who knew exactly where the Activity feed got in the way.</p>
+      </div>
+      <div class="intro-meta">
+        <div class="meta-row"><strong>Role</strong> Product Designer, UX Researcher</div>
+        <div class="meta-row"><strong>Duration</strong> 6 weeks (Dec'25 — Jan'26)</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero visual ───────────────────────────────── -->
+  <section class="hero-visual">
+    <video
+      class="hero-video"
+      src="images/paypal/paypal-activity-hero.mp4"
+      autoplay
+      loop
+      muted
+      playsinline
+      controls
+      preload="metadata"
+      poster="images/paypal/paypal-hero.png"
+      aria-label="PayPal Activity redesign walkthrough"
+    >
+      Your browser doesn't support embedded video. <a href="images/paypal/paypal-activity-hero.mp4">View the video</a>.
+    </video>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── PROBLEM ──────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="problem">
+    <p class="section-label">01 — The Problem</p>
+
+    <div class="grid-two">
+      <div>
+        <h2 class="section-heading" style="margin-bottom: 16px; max-width: none;">A feed that treats every transaction the same way.</h2>
+        <div class="problem-statement">
+          <p class="problem-statement-label">Problem Statement</p>
+          <p class="problem-statement-text">
+            For freelancers using PayPal personal, there is no way to organize transactions by intent.
+          </p>
+          <p class="problem-statement-sub">
+            The feed is chronological by design. Useful for confirming a payment went through. Less useful for understanding what your side income actually looks like.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <img
+          src="images/paypal/paypal-hero.png"
+          alt="Current PayPal Activity feed — chronological list of transactions on iPhone mockups"
+          class="inline-img"
+        />
+        <p class="visual-caption" style="text-align: center;">The current PayPal Activity page — with predefined filters.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>
+        <p class="stat-num">200M+</p>
+        <p class="stat-label">PayPal accounts globally, many used for side income without a business account</p>
+      </div>
+      <div>
+        <p class="stat-num">8–10</p>
+        <p class="stat-label">Freelancers and small-business owners interviewed during early research</p>
+      </div>
+      <div>
+        <p class="stat-num">3rd-party</p>
+        <p class="stat-label">Most participants relied on a spreadsheet or another app to make sense of PayPal</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── RESEARCH ─────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="research">
+    <p class="section-label">02 — Research</p>
+
+    <div class="grid-two research-grid" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: clamp(40px, 5vw, 80px);">
+      <div class="research-image-col">
+        <h2 class="section-heading" style="margin-bottom: 28px; max-width: none;">Listening to people who outgrew "personal" but resisted "business."</h2>
+        <img
+          src="images/paypal/user-insights-from-Interviews.png"
+          alt="Affinity map synthesizing user insights from interviews with freelancers"
+          class="research-img"
+        />
+        <p class="visual-caption" style="text-align: center;">Affinity map — synthesis from interviews with 8–10 freelancers.</p>
+      </div>
+
+      <div>
+        <p class="body-text">
+          I spoke with 8–10 people who run side-hustles through PayPal (wedding photographers, freelance illustrators, a tutor, a home-baker, a small-batch jewelry seller). None of them used PayPal Business; the barrier wasn't price, it was overhead.
+        </p>
+        <p class="body-text">
+          What they wanted was strikingly small: <strong>a way to mentally separate their side-money from their personal money,</strong> without a second account or a new tool.
+        </p>
+
+        <ul class="user-quotes">
+          <li>
+            <span class="uq-num">01</span>
+            <p>"I just want to see what I earned from photo gigs this month, without doing math in my head."</p>
+          </li>
+          <li>
+            <span class="uq-num">02</span>
+            <p>"I copy transactions into a Google Sheet every Sunday, it's the worst part of my week."</p>
+          </li>
+          <li>
+            <span class="uq-num">03</span>
+            <p>"PayPal already knows everything. It just doesn't let me organize it the way I think."</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── INSIGHT ──────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="insight">
+    <p class="section-label">03 — The Core Insight</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: clamp(48px, 6vw, 96px);">
+      <p class="insight" style="max-width: none;">
+        Financial clarity isn't about more data — it's about <em>respecting how users already think about their money.</em>
+      </p>
+
+      <div>
+        <p class="body-text">
+          Every freelancer I talked to had already done the categorization mentally. They knew which payments were for which project, which expenses were business-adjacent, which were personal. The tool just didn't let them externalize it without leaving the app.
+        </p>
+        <p class="body-text">
+          The opportunity wasn't to <em>automate</em> categorization — most people distrust auto-tagging in financial contexts. It was to give them a <strong>lightweight, manual way to mark intent</strong> at the moment they understood it best: the moment the transaction happened.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── DESIGN DIRECTION ─────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="design">
+    <p class="section-label">04 — Design Direction</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: start; gap: clamp(40px, 5vw, 80px);">
+      <div>
+        <h2 class="section-heading" style="max-width: 16ch; margin-bottom: 24px;">Framing the problem before drawing pixels.</h2>
+        <p class="body-text" style="max-width: 42ch; margin-bottom: 0;">
+          Before sketching any UI, I leaned on two framings to make sure I was solving the right thing.
+        </p>
+      </div>
+
+      <ul class="framings" style="margin: 0;">
+        <li>
+          <span class="fr-tag">Jobs-To-Be-Done <span class="fr-abbr">(JTBD)</span></span>
+          <p>to focus on what the user is "hiring" the product to do.</p>
+        </li>
+        <li>
+          <span class="fr-tag">How-Might-We <span class="fr-abbr">(HMW)</span></span>
+          <p>to keep the solution space open before narrowing it down.</p>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-row" style="margin-top: clamp(48px, 6vw, 80px);">
+      <div class="card">
+        <p class="card-num">JTBD</p>
+        <p class="card-title">The job, in their words</p>
+        <p class="card-body">
+          When managing both personal and side-hustle payments, freelancers want to understand their financial activity clearly, without exporting data or mentally reconstructing what each transaction was for.
+        </p>
+      </div>
+      <div class="card">
+        <p class="card-num">HMW</p>
+        <p class="card-title">The design opportunity</p>
+        <p class="card-body">
+          How might we let users intentionally assign meaning to transactions inside the Activity feed, without requiring a business account or introducing complex financial tools?
+        </p>
+      </div>
+      <div class="card">
+        <p class="card-num">PRINCIPLE</p>
+        <p class="card-title">Manual by design</p>
+        <p class="card-body">
+          In financial UIs, automation erodes trust. Keep categorization manual but make the gesture invisible: one tap, no friction, no second-guessing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── SOLUTION ─────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="solution">
+    <p class="section-label">05 — The Solution</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: clamp(40px, 5vw, 80px);">
+      <div>
+        <h2 class="section-heading" style="max-width: none; margin-bottom: 24px;">User-Curated Collections.</h2>
+        <p class="body-text">
+          Collections are user-defined groupings inside the Activity feed — like playlists, but for money. Users create a Collection (say, <em>"C1 payments"</em>), then assign transactions to it as they happen, or in bulk from the feed.
+        </p>
+        <p class="body-text">
+          Collections live alongside system filters, never replacing them.
+        </p>
+      </div>
+      <div>
+        <video
+          class="solution-video"
+          src="images/paypal/PayPal-Solution.mp4"
+          autoplay loop muted playsinline controls preload="metadata"
+          aria-label="Walkthrough of the redesigned PayPal Activity feed with Collections"
+        ></video>
+        <p class="visual-caption" style="text-align: center;">The redesigned Activity feed, with a user-created "C1 payments" collection.</p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 22px; font-weight: 500; letter-spacing: -0.015em; margin: 72px 0 28px;">Key task flows</h3>
+
+    <div class="flow-stack">
+      <div class="flow-block">
+        <p class="flow-eyebrow">FLOW 01</p>
+        <h4 class="flow-title">Creating a new Collection</h4>
+        <p class="body-text" style="max-width: 70ch; margin-bottom: 24px;">
+          From the Activity feed, users tap "New Collection," name it, optionally pick a color, and start adding. No setup wizard, no required fields beyond a name. The whole flow takes under 10 seconds.
+        </p>
+        <img
+          src="images/paypal/creating-new-collection.avif"
+          alt="Flow diagram: creating a new Collection in PayPal Activity"
+          class="flow-img"
+        />
+      </div>
+
+      <div class="flow-block">
+        <p class="flow-eyebrow">FLOW 02</p>
+        <h4 class="flow-title">Adding transactions to a Collection</h4>
+        <p class="body-text" style="max-width: 70ch; margin-bottom: 24px;">
+          Each transaction row gets a single-tap "Add to Collection" affordance. Users can also long-press to multi-select and bulk-assign — a deliberate nod to power users who want to catch up on a month of unsorted activity.
+        </p>
+        <img
+          src="images/paypal/Adding-transactions-to-collections.avif"
+          alt="Flow diagram: adding transactions to an existing Collection"
+          class="flow-img"
+        />
+      </div>
+    </div>
+
+    <h3 style="font-size: 22px; font-weight: 500; letter-spacing: -0.015em; margin: 72px 0 28px; text-align: center;">Before &amp; after</h3>
+    <div class="ba-grid">
+      <div class="ba-col">
+        <p class="ba-label">BEFORE</p>
+        <video
+          class="ba-video"
+          src="images/paypal/PayPal-Before.mp4"
+          autoplay loop muted playsinline controls preload="metadata"
+          aria-label="Current PayPal Activity experience"
+        ></video>
+      </div>
+      <div class="ba-col">
+        <p class="ba-label">AFTER</p>
+        <video
+          class="ba-video"
+          src="images/paypal/PayPal-After.mp4"
+          autoplay loop muted playsinline controls preload="metadata"
+          aria-label="Redesigned PayPal Activity with Collections"
+        ></video>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── ITERATION ────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="iteration">
+    <p class="section-label">06 — Iteration</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(40px, 5vw, 80px);">
+      <h2 class="section-heading" style="margin-bottom: 0; max-width: none;">From create-first to transaction-first.</h2>
+      <p class="body-text" style="margin-bottom: 0; max-width: 56ch;">
+        After building out the first concept, I shared it with a few of the freelancers from the original interviews. The feedback flipped my thinking.
+      </p>
+    </div>
+
+    <div class="compare" role="group" aria-label="Initial vs. final flow comparison">
+      <div class="compare-col">
+        <p class="compare-label">INITIAL DIRECTION</p>
+        <p class="compare-flow">
+          Create a collection first
+          <span class="arrow-inline">→</span>
+          add transactions later
+        </p>
+      </div>
+      <div class="compare-arrow" aria-hidden="true">→</div>
+      <div class="compare-col">
+        <p class="compare-label">FINAL ITERATION</p>
+        <p class="compare-flow">
+          Select transactions first
+          <span class="arrow-inline">→</span>
+          create or assign in context
+        </p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin: 56px 0 20px; color: var(--soft); text-transform: uppercase; letter-spacing: 0.14em;">What users said</h3>
+
+    <div class="quote-grid">
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 01</p>
+        <p>"I wanted to organize the payment while looking at it."</p>
+      </div>
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 02</p>
+        <p>"Setting up a folder before knowing what goes in it felt backwards."</p>
+      </div>
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 03</p>
+        <p>"I just wanted to deal with it in the moment — not plan ahead."</p>
+      </div>
+    </div>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: clamp(48px, 6vw, 96px); margin-top: 64px;">
+      <div>
+        <p class="section-label" style="margin-bottom: 16px;">The insight</p>
+        <p class="insight" style="max-width: none;">
+          Organization behavior is <em>reactive, not proactive.</em>
+        </p>
+      </div>
+
+      <p class="body-text" style="max-width: none; margin-bottom: 0;">
+        <strong>Why the new flow works:</strong> it reduces upfront decision-making and aligns the interaction with how users actually think about their money, in the moment they're already looking at a payment, not in a planning step they have to remember to do later.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── IMPACT ───────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="impact">
+    <p class="section-label">07 — Impact</p>
+    <h2 class="section-heading">What freelancers said when they used it.</h2>
+
+    <div class="quote-grid">
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 01</p>
+        <p>"I wouldn't need a separate app or spreadsheet anymore."</p>
+      </div>
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 02</p>
+        <p>"This makes PayPal feel like it understands how I actually use it."</p>
+      </div>
+      <div class="quote-card">
+        <p class="q-num">PARTICIPANT 03</p>
+        <p>"I can finally see my project payments in one place."</p>
+      </div>
+    </div>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); align-items: start; gap: clamp(40px, 5vw, 80px); margin-top: 72px;">
+      <h3 class="impact-heading">Why this matters for PayPal.</h3>
+
+      <div class="impact-grid">
+        <div class="impact-card">
+          <p class="impact-num">01</p>
+          <p class="impact-title">A working surface, not a record</p>
+          <p class="impact-body">Collections turn the Activity feed from passive history into an everyday tool, increasing daily engagement.</p>
+        </div>
+        <div class="impact-card">
+          <p class="impact-num">02</p>
+          <p class="impact-title">Less churn to third-party tools</p>
+          <p class="impact-body">Users no longer need Mint, YNAB, or a Sunday-night spreadsheet to make sense of their side income.</p>
+        </div>
+        <div class="impact-card">
+          <p class="impact-num">03</p>
+          <p class="impact-title">A softer on-ramp to Business</p>
+          <p class="impact-body">Users self-identify as semi-pro through their own collection names, long before being asked to commit to a Business account.</p>
+        </div>
+        <div class="impact-card">
+          <p class="impact-num">04</p>
+          <p class="impact-title">Signals for future personalization</p>
+          <p class="impact-body">Collection names and frequency become behavioral signals that could power smart suggestions, without violating trust.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── LEARNINGS ────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="learnings">
+    <p class="section-label">08 — What I Learned</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: clamp(48px, 6vw, 96px);">
+      <div class="pull-quote" style="margin: 0; max-width: none;">
+        <p>Financial clarity isn't just about accurate data, it's about respecting user intent.</p>
+        <cite>— Closing reflection</cite>
+      </div>
+
+      <div>
+        <p class="body-text">
+          The hardest part of this project wasn't the design, it was resisting the urge to over-build. Every freelancer I spoke with had been burned by an app that tried to auto-categorize their finances and got it subtly wrong.
+        </p>
+        <p class="body-text">
+          The lesson: <strong>in financial tools, restraint is a feature.</strong> Manual gestures, framed well, can feel like agency rather than work.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Case study nav ────────────────────────────── -->
+  <nav class="case-nav">
+    <a href="#" aria-label="Next case study">
+      NEXT PROJECT <span class="arrow">→</span>
+    </a>
+    <a href="#top" class="top-link">TOP ↑</a>
+  </nav>
+
+  <!-- ── Site footer ───────────────────────────────── -->
+  <footer class="site">
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank">LinkedIn</a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ───────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+
+    // ── Scroll-spy: highlight active section in nav ────
+    const sections = document.querySelectorAll('section.story');
+    const navLinks = document.querySelectorAll('.section-nav a');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ── Smooth scroll for in-page anchors ──────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#' || href === '#top') {
+          if (href === '#top') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          return;
+        }
+        const target = document.querySelector(href);
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+
+</body>
+</html>

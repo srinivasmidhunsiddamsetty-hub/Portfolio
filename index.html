@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Midhun — Product Designer</title>
+  <meta name="description" content="Midhun is a product designer with a love for curiosity, clarity, and thoughtful interaction design." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #8A8A8A;
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --preview-bg:#EDEDEA;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --nav-h:     72px;
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #888885;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --preview-bg:#1A1A18;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      font-weight: 400;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Page-load fade ───────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.15s; }
+    .fade-in:nth-child(3) { animation-delay: 0.25s; }
+    .fade-in:nth-child(4) { animation-delay: 0.35s; }
+
+    /* ── Navigation (top left) ────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+      padding: 28px var(--side) 24px;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 56px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      position: relative;
+      padding-bottom: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+
+    /* Mobile hamburger */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+      margin-left: auto;
+    }
+    .nav-toggle span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--ink); transition: 0.3s;
+    }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero {
+      padding: clamp(24px, 3vw, 40px) var(--side) clamp(80px, 10vw, 140px);
+      max-width: var(--max-content);
+    }
+
+    .hero-statement {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: clamp(30px, 3.6vw, 48px);
+      line-height: 1.25;
+      letter-spacing: 0em;
+      word-spacing: 0.08em;
+      color: var(--ink);
+      max-width: none;
+    }
+
+    /* ── Work section ─────────────────────────────────── */
+    .work {
+      padding: 0 var(--side);
+      max-width: var(--max-content);
+    }
+
+    .work-label {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Filter tabs ──────────────────────────────────── */
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border: 1px solid var(--rule);
+      background: transparent;
+      border-radius: 100px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--ink);
+    }
+
+    .filter-btn.active {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    /* ── Project list ─────────────────────────────────── */
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule);
+      margin-bottom: clamp(80px, 10vw, 120px);
+    }
+
+    .project-card {
+      display: grid;
+      grid-template-columns: 22% 1fr 160px 60px;
+      align-items: center;
+      gap: 32px;
+      padding: 28px 16px;
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .project-card:hover {
+      background: var(--hover-bg);
+    }
+
+    .project-title {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .project-desc {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.55;
+      max-width: 620px;
+      letter-spacing: -0.005em;
+    }
+
+    .project-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      justify-self: start;
+      white-space: nowrap;
+      visibility: hidden;
+    }
+    .project-tag:not(:empty) { visibility: visible; }
+
+    .project-arrow {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: var(--ink);
+      justify-self: end;
+      transition: background 0.2s, color 0.2s, transform 0.25s;
+      flex-shrink: 0;
+    }
+
+    .project-card:hover .project-arrow {
+      background: var(--ink);
+      color: var(--bg);
+      transform: translateX(4px);
+    }
+
+    /* Placeholder slot for case studies (empty by design) */
+    .project-card.placeholder {
+      opacity: 0.55;
+    }
+
+    /* ── Floating preview on hover ────────────────────── */
+    .hover-preview {
+      position: fixed;
+      pointer-events: none;
+      z-index: 200;
+      width: 320px;
+      height: 220px;
+      border-radius: 6px;
+      background: var(--preview-bg);
+      box-shadow: 0 18px 40px -12px rgba(0,0,0,0.18), 0 6px 14px -6px rgba(0,0,0,0.10);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+      transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hover-preview.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .hover-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Placeholder content inside preview when no image */
+    .hover-preview .preview-placeholder {
+      color: #999;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 720px) {
+      .hover-preview { display: none !important; }
+    }
+
+    /* ── Footer ───────────────────────────────────────── */
+    footer {
+      background: var(--footer-bg);
+      color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--footer-ink);
+      margin-bottom: 10px;
+    }
+
+    .footer-tagline {
+      font-size: 13px;
+      color: var(--footer-muted);
+      font-weight: 400;
+      letter-spacing: -0.005em;
+    }
+
+    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+
+    .footer-right h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--footer-muted);
+      margin-bottom: 12px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .footer-links a {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--footer-ink);
+      letter-spacing: -0.005em;
+      transition: opacity 0.2s;
+      display: inline-block;
+      position: relative;
+      padding-bottom: 2px;
+    }
+
+    .footer-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--footer-ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .footer-links a:hover::after { width: 100%; }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .project-card {
+        grid-template-columns: 25% 1fr 120px 50px;
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .project-card {
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 24px 12px;
+      }
+
+      .project-title { grid-column: 1 / -1; }
+      .project-desc  { grid-column: 1 / -1; }
+      .project-tag   { grid-column: 1 / 2; justify-self: start; }
+      .project-arrow { grid-column: 2 / 3; grid-row: 1; align-self: start; }
+    }
+
+    @media (max-width: 720px) {
+      nav { padding: 22px var(--side) 18px; gap: 32px; }
+      .nav-links { gap: 28px; }
+      .nav-links a { font-size: 15px; }
+
+      footer {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root { --side: 22px; }
+      .nav-links { gap: 22px; }
+      .nav-links a { font-size: 14px; }
+      .hero-statement { font-size: clamp(26px, 8vw, 36px); }
+      .filters { gap: 6px; }
+      .filter-btn { padding: 6px 14px; font-size: 13px; }
+    }
+
+    /* Filter hidden cards */
+    .project-card[data-hidden="true"] { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav (top left) ─────────────────────────────── -->
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="about.html">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────── -->
+  <section class="hero" aria-label="Introduction">
+    <h1 class="hero-statement fade-in">
+      I'm Midhun, a product designer with a love for curiosity, clarity and thoughtful interaction design.
+    </h1>
+  </section>
+
+  <!-- ── Work / Case Studies ──────────────────────────── -->
+  <section class="work" id="work" aria-label="Selected work">
+
+    <p class="work-label fade-in">What are you looking for?</p>
+
+    <div class="filters fade-in" role="group" aria-label="Filter projects">
+      <button class="filter-btn active" data-filter="all">All (5)</button>
+      <button class="filter-btn" data-filter="web">Web Design (2)</button>
+      <button class="filter-btn" data-filter="product">Product & AI (4)</button>
+    </div>
+
+    <!-- Case studies placeholder grid -->
+    <div class="projects-list fade-in">
+
+      <a class="project-card" href="campus-copilot.html" data-category="web product" data-preview="images/Campus-copilot-Mockup.png">
+        <span class="project-title">Campus Copilot</span>
+        <span class="project-desc">A conversational AI assistant designed to simplify campus onboarding and service discovery for 10,000+ incoming students annually.</span>
+        <span class="project-tag"></span>
+        <span class="project-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="project-card" href="smartcharge.html" data-category="product" data-preview="images/Smart-charge-Mockup.png">
+        <span class="project-title">Smart Charge</span>
+        <span class="project-desc">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
+        <span class="project-tag"></span>
+        <span class="project-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="project-card" href="paypal.html" data-category="product" data-preview="images/PayPal-Mockup.png">
+        <span class="project-title">PayPal Activity</span>
+        <span class="project-desc">Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload.</span>
+        <span class="project-tag"></span>
+        <span class="project-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="project-card" href="#" data-category="web" data-preview="" data-preview-text="Coming soon">
+        <span class="project-title">Grant Allocation Dashboard</span>
+        <span class="project-desc">An internal PennTAP dashboard built for executive stakeholders to monitor multi-million-dollar funding distribution and long-term program performance at scale.</span>
+        <span class="project-tag"></span>
+        <span class="project-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="project-card" href="designiq.html" data-category="product" data-preview="images/Interior-design-mockup.png">
+        <span class="project-title">DesigniQ</span>
+        <span class="project-desc">Transforming interior design exploration through an AI-enhanced platform that delivered 10× higher engagement and contributed to over 10M in sales growth.</span>
+        <span class="project-tag"></span>
+        <span class="project-arrow" aria-hidden="true">→</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ── Floating preview tooltip (follows cursor on case-study hover) ─ -->
+  <div class="hover-preview" id="hover-preview" aria-hidden="true">
+    <span class="preview-placeholder">Case study preview</span>
+  </div>
+
+  <!-- ── Footer ───────────────────────────────────────── -->
+  <footer id="contact">
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul class="footer-links">
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ──────────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+
+    // ── Project filter ────────────────────────────────────
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        cards.forEach(card => {
+          const cats = (card.dataset.category || '').split(/\s+/);
+          const show = filter === 'all' || cats.includes(filter);
+          card.setAttribute('data-hidden', !show);
+        });
+      });
+    });
+
+    // ── Floating preview (follows cursor) ─────────────────
+    const preview = document.getElementById('hover-preview');
+    const placeholderEl = preview.querySelector('.preview-placeholder');
+
+    const defaultPlaceholderText = placeholderEl.textContent;
+
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const src = card.dataset.preview;
+        const customText = card.dataset.previewText;
+        // swap content: image if data-preview is set, otherwise placeholder text
+        preview.querySelectorAll('img').forEach(n => n.remove());
+        if (src) {
+          placeholderEl.style.display = 'none';
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = '';
+          preview.appendChild(img);
+        } else {
+          placeholderEl.textContent = customText || defaultPlaceholderText;
+          placeholderEl.style.display = '';
+        }
+        preview.classList.add('visible');
+      });
+
+      card.addEventListener('mouseleave', () => {
+        preview.classList.remove('visible');
+      });
+
+      card.addEventListener('mousemove', (e) => {
+        preview.style.left = e.clientX + 'px';
+        preview.style.top  = (e.clientY - 30) + 'px';
+      });
+    });
+
+    // ── Smooth anchor scroll ──────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

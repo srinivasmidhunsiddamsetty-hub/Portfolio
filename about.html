@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Me — Midhun</title>
+  <meta name="description" content="A bit about Midhun: background, what drives the work, and a timeline of education and experience." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #8A8A8A;
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --nav-h:     72px;
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+    }
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #888885;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      font-weight: 400;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Navigation (top left) ────────────────────────── */
+    nav.main-nav {
+      position: sticky; top: 0;
+      background: var(--bg);
+      z-index: 100;
+      padding: 28px var(--side) 24px;
+      display: flex; align-items: center; gap: 64px;
+    }
+    .nav-links { display: flex; gap: 56px; list-style: none; }
+    .nav-links a {
+      font-size: 17px; font-weight: 500;
+      color: var(--ink); letter-spacing: -0.01em;
+      position: relative; padding-bottom: 3px;
+      transition: opacity 0.2s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px; height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0; flex-shrink: 0;
+    }
+    .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* ═══ About Me section ═══════════════════════════════ */
+    section.about {
+      padding: clamp(32px, 4vw, 56px) var(--side) clamp(80px, 8vw, 120px);
+      max-width: var(--max-content);
+      margin: 0 auto;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: clamp(48px, 6vw, 96px);
+      align-items: start;
+    }
+    .about-text {
+      display: flex; flex-direction: column;
+      gap: clamp(56px, 6vw, 80px);
+    }
+    .block-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 22px;
+    }
+
+    /* — Intro — */
+    .about-block.intro p {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 400;
+      font-style: normal;
+      line-height: 1.6;
+      letter-spacing: -0.02em;
+      word-spacing: normal;
+      color: var(--ink);
+      margin-bottom: 18px;
+      max-width: 68ch;
+    }
+    .about-block.intro p:last-child { margin-bottom: 0; }
+
+    /* — What drives me (2x2 cards) — */
+    .drives-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .drive-card {
+      position: relative;
+      padding: 30px 28px 26px 32px;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: var(--bg);
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .drive-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: #B8654A;
+      opacity: 0.7;
+      transition: width 0.25s, opacity 0.25s;
+    }
+    [data-theme="dark"] .drive-card::before { background: #D8896E; }
+    .drive-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-4px);
+    }
+    .drive-card:hover::before { width: 6px; opacity: 1; }
+    .drive-num {
+      position: absolute;
+      top: 22px; right: 24px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+    .drive-card h4 {
+      font-size: clamp(18px, 1.5vw, 21px);
+      font-weight: 500;
+      letter-spacing: -0.018em;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 10px;
+      max-width: 22ch;
+      padding-right: 36px;
+    }
+    .drive-card p {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+      max-width: 32ch;
+    }
+
+    /* — Beyond design (warm tinted card + hobby chips) — */
+    .about-block.beyond {
+      padding: 38px 36px 32px;
+      background: linear-gradient(135deg, #F8F4EF 0%, #F2EDE7 100%);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 18px 40px -16px rgba(184,101,74,0.18);
+    }
+    /* Full-width variant (below the grid, spans full content area) */
+    .about-block.beyond.beyond-wide {
+      margin-top: clamp(64px, 7vw, 96px);
+      padding: clamp(40px, 4vw, 56px) clamp(36px, 4vw, 56px);
+    }
+    .about-block.beyond.beyond-wide::before {
+      top: -48px; right: -12px;
+      font-size: 280px;
+    }
+    .about-block.beyond.beyond-wide .beyond-text {
+      max-width: 80ch;
+      text-wrap: pretty;
+    }
+    [data-theme="dark"] .about-block.beyond {
+      background: linear-gradient(135deg, #1C1A17 0%, #181613 100%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 18px 40px -14px rgba(0,0,0,0.55);
+    }
+    .about-block.beyond::before {
+      content: '✦';
+      position: absolute;
+      top: -32px; right: -10px;
+      font-size: 220px;
+      line-height: 1;
+      color: #B8654A;
+      opacity: 0.07;
+      pointer-events: none;
+      font-family: Georgia, serif;
+    }
+    [data-theme="dark"] .about-block.beyond::before { color: #D8896E; opacity: 0.10; }
+    .about-block.beyond .block-label {
+      margin-bottom: 18px;
+      color: var(--muted);
+      position: relative;
+    }
+    .about-block.beyond .beyond-text {
+      font-size: clamp(17px, 1.5vw, 19px);
+      font-weight: 400;
+      font-style: normal;
+      line-height: 1.6;
+      letter-spacing: -0.008em;
+      color: var(--ink);
+      max-width: 54ch;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .beyond-tags {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      position: relative;
+    }
+    .beyond-tag {
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--muted);
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 100px;
+      cursor: default;
+      user-select: none;
+    }
+    [data-theme="dark"] .beyond-tag { background: transparent; }
+
+    /* ── Timeline (right column) ────────────────────── */
+    .about-timeline { position: relative; }
+    .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6.25px; top: 8px; bottom: 8px;
+      width: 1.5px;
+      background: var(--rule);
+    }
+    .tl-item {
+      position: relative;
+      padding-left: 36px;
+      padding-bottom: 30px;
+    }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-marker {
+      position: absolute;
+      left: 0; top: 6px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--muted);
+      z-index: 1;
+      box-sizing: border-box;
+    }
+    .tl-item.edu .tl-marker {
+      border-color: #5A6B4A;
+      background: #5A6B4A;
+    }
+    .tl-item.work .tl-marker {
+      border-color: #B8654A;
+      background: #B8654A;
+    }
+    [data-theme="dark"] .tl-item.edu .tl-marker { border-color: #93AA7E; background: #93AA7E; }
+    [data-theme="dark"] .tl-item.work .tl-marker { border-color: #D8896E; background: #D8896E; }
+
+    .tl-content { display: flex; flex-direction: column; gap: 4px; }
+    .tl-type {
+      display: inline-block;
+      width: max-content;
+      font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .tl-type.edu { color: #5A6B4A; background: rgba(90,107,74,0.12); }
+    .tl-type.work { color: #B8654A; background: rgba(184,101,74,0.12); }
+    [data-theme="dark"] .tl-type.edu { color: #93AA7E; background: rgba(147,170,126,0.16); }
+    [data-theme="dark"] .tl-type.work { color: #D8896E; background: rgba(216,137,110,0.16); }
+
+    .tl-date {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .tl-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.012em;
+      line-height: 1.3;
+      color: var(--ink);
+      display: inline-block;
+    }
+    .tl-title::after {
+      content: '';
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--ink);
+      margin-top: 6px;
+      transition: width 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .tl-item:hover .tl-title::after { width: 44px; }
+    .tl-org {
+      font-size: 13.5px;
+      font-weight: 400;
+      letter-spacing: -0.005em;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    /* About responsive */
+    @media (max-width: 1024px) {
+      .about-grid { grid-template-columns: 1fr; gap: clamp(48px, 6vw, 72px); }
+    }
+    @media (max-width: 600px) {
+      .drives-grid { grid-template-columns: 1fr; }
+      .about-block.beyond { padding: 24px 22px; }
+      nav.main-nav { padding: 20px var(--side) 16px; gap: 24px; }
+      .nav-links { gap: 24px; }
+      .nav-links a { font-size: 15px; }
+      .theme-toggle { width: 34px; height: 34px; }
+      .theme-toggle svg { width: 14px; height: 14px; }
+    }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      background: var(--footer-bg);
+      color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px);
+      font-weight: 500; line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--footer-ink);
+      margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-size: 13px; color: var(--footer-muted);
+      font-weight: 400; letter-spacing: -0.005em;
+    }
+    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+    .footer-right h3 {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; color: var(--footer-muted);
+      margin-bottom: 12px;
+    }
+    .footer-right ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .footer-right a {
+      font-size: 16px; position: relative; padding-bottom: 2px;
+    }
+    .footer-right a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--footer-ink);
+      transition: width 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .footer-right a:hover::after { width: 100%; }
+    @media (max-width: 720px) {
+      footer { grid-template-columns: 1fr; gap: 32px; padding: 40px var(--side) 56px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Main nav ──────────────────────────────────── -->
+  <nav class="main-nav">
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── About Me ───────────────────────────────────── -->
+  <section class="about">
+    <div class="about-grid">
+
+      <!-- LEFT: Text -->
+      <div class="about-text">
+
+        <!-- Introduction -->
+        <div class="about-block intro">
+          <h3 class="block-label">Introduction</h3>
+          <p class="lead">Hi, I'm Midhun, a Product Designer with a love for curiosity, clarity, and thoughtful interaction design.</p>
+          <p>Over the past few years, I've worked across startups, consulting, higher education, B2B and public-sector innovation designing products that balance user needs with business goals. My experience spans UX design, AI, analytics, research, and product thinking, which lets me approach problems from multiple angles.</p>
+          <p>I enjoy multidisciplinary projects where design intersects with technology, strategy, and human behavior. Beyond my professional work, I spend time experimenting with new ideas, exploring emerging technologies, and learning through design.</p>
+        </div>
+
+        <!-- What drives me -->
+        <div class="about-block drives">
+          <h3 class="block-label">What drives me</h3>
+          <div class="drives-grid">
+            <div class="drive-card">
+              <span class="drive-num">01</span>
+              <h4>Curiosity</h4>
+              <p>The best ideas come from asking questions, exploring possibilities, and staying open to new perspectives.</p>
+            </div>
+            <div class="drive-card">
+              <span class="drive-num">02</span>
+              <h4>Problem solving</h4>
+              <p>Transforming complexity into clarity through thoughtful, user-centered design and strategic thinking.</p>
+            </div>
+            <div class="drive-card">
+              <span class="drive-num">03</span>
+              <h4>Collaboration</h4>
+              <p>My favorite work happens at the intersection of design, research, engineering, and business, where different perspectives create stronger outcomes.</p>
+            </div>
+            <div class="drive-card">
+              <span class="drive-num">04</span>
+              <h4>Perpetual learning</h4>
+              <p>Whether through side projects, experimentation, research, or emerging technologies, I'm always looking for opportunities to grow and refine my craft.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Timeline -->
+      <div class="about-timeline">
+        <h3 class="block-label">Timeline</h3>
+
+        <ol class="timeline">
+
+          <li class="tl-item work">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type work">Work</span>
+              <span class="tl-date">Aug 2025 — May 2026</span>
+              <h4 class="tl-title">Product Designer</h4>
+              <p class="tl-org">PennTAP</p>
+            </div>
+          </li>
+
+          <li class="tl-item work">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type work">Work</span>
+              <span class="tl-date">Sep 2024 — Jul 2025</span>
+              <h4 class="tl-title">UX Design Instructional Assistant</h4>
+              <p class="tl-org">Pennsylvania State University</p>
+            </div>
+          </li>
+
+          <li class="tl-item edu">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type edu">Education</span>
+              <span class="tl-date">Aug 2024 — May 2026</span>
+              <h4 class="tl-title">M.S. in Informatics (HCI)</h4>
+              <p class="tl-org">Pennsylvania State University</p>
+            </div>
+          </li>
+
+          <li class="tl-item work">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type work">Work</span>
+              <span class="tl-date">Jan 2024 — Jul 2024</span>
+              <h4 class="tl-title">UX Analyst</h4>
+              <p class="tl-org">Deloitte</p>
+            </div>
+          </li>
+
+          <li class="tl-item work">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type work">Work</span>
+              <span class="tl-date">May 2023 — Jan 2024</span>
+              <h4 class="tl-title">UX Designer</h4>
+              <p class="tl-org">Tandem Digital</p>
+            </div>
+          </li>
+
+          <li class="tl-item edu">
+            <span class="tl-marker"></span>
+            <div class="tl-content">
+              <span class="tl-type edu">Education</span>
+              <span class="tl-date">2019 — 2023</span>
+              <h4 class="tl-title">B.Tech in Computer Science &amp; Business Systems (CSBS)</h4>
+              <p class="tl-org">VNR VJIET</p>
+            </div>
+          </li>
+
+        </ol>
+      </div>
+
+    </div>
+
+    <!-- Beyond design (full content width) -->
+    <div class="about-block beyond beyond-wide">
+      <h3 class="block-label">Beyond design</h3>
+      <p class="beyond-text">When I'm not designing, you'll usually find me swimming, playing cricket, tennis, or badminton. I'm also a passionate car enthusiast who enjoys exploring automotive design, engineering, and the technology behind modern vehicles. My curiosity extends into emerging technologies, personal projects, and continuous experimentation.</p>
+      <div class="beyond-tags">
+        <span class="beyond-tag">Swimming</span>
+        <span class="beyond-tag">Cricket</span>
+        <span class="beyond-tag">Tennis</span>
+        <span class="beyond-tag">Badminton</span>
+        <span class="beyond-tag">Cars</span>
+        <span class="beyond-tag">Emerging Tech</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────────────── -->
+  <footer>
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ──────────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+  </script>
+
+</body>
+</html>

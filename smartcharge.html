@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Charge — Midhun</title>
+  <meta name="description" content="An OS-level feature designed to step in at the quiet moments your phone could have been charging, before low-battery anxiety has a chance to kick in." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #6B6B68;
+      --soft:      #8A8A8A;
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --tint:      #F4F4F1;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+      --main-nav-h: 72px;
+      --section-nav-h: 56px;
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #A0A09C;
+      --soft:      #6B6B68;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --tint:      #18181590;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+    }
+    [data-theme="dark"] .compare-col,
+    [data-theme="dark"] .quote-card { background: #1A1A17; }
+    [data-theme="dark"] ul.user-quotes li { background: #1A1A17; }
+    [data-theme="dark"] ul.user-quotes li:hover { background: #20201D; }
+    [data-theme="dark"] .impact-card:hover { background: #1A1A17; }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* ── Main nav ─────────────────────────────────────── */
+    .main-nav {
+      position: sticky;
+      top: 0;
+      z-index: 110;
+      background: var(--bg);
+      padding: 28px var(--side) 24px;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+    .main-nav ul { list-style: none; display: flex; gap: 56px; }
+    .main-nav a {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative;
+      padding-bottom: 3px;
+    }
+    .main-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .main-nav a:hover::after { width: 100%; }
+
+    /* ── Section nav (sticky) ─────────────────────────── */
+    .section-nav {
+      position: sticky;
+      top: var(--main-nav-h);
+      z-index: 100;
+      background: var(--bg);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 var(--side);
+    }
+    .section-nav-inner {
+      display: flex;
+      gap: 32px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      height: var(--section-nav-h);
+      align-items: center;
+    }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+
+    .section-nav a {
+      font-size: 13.5px;
+      font-weight: 400;
+      color: var(--soft);
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+      transition: color 0.2s;
+      position: relative;
+      padding: 6px 0;
+    }
+    .section-nav a:hover { color: var(--ink); }
+    .section-nav a.active { color: var(--ink); font-weight: 500; }
+    .section-nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: -1px;
+      height: 1.5px;
+      background: var(--ink);
+    }
+
+    /* ── Intro (two-column, MoMA-style) ───────────────── */
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: clamp(48px, 8vw, 120px);
+      padding: clamp(60px, 8vw, 100px) var(--side) clamp(48px, 6vw, 80px);
+      max-width: var(--max-content);
+    }
+
+    .intro-title {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      margin-bottom: 48px;
+    }
+    .intro-title .word {
+      display: block;
+    }
+
+    .intro-disciplines {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+      max-width: 26ch;
+    }
+    .intro-award {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 16px;
+      max-width: 28ch;
+      line-height: 1.5;
+    }
+    .intro-award .award-tag {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 6px;
+    }
+    .intro-context {
+      font-size: 13.5px;
+      font-style: italic;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+      line-height: 1.55;
+      max-width: 30ch;
+    }
+
+    .intro-tagline {
+      font-size: clamp(24px, 2.8vw, 38px);
+      font-weight: 500;
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin-bottom: 56px;
+    }
+
+    .intro-body p {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 16px;
+      max-width: 64ch;
+    }
+    .intro-body p:last-child { margin-bottom: 0; }
+
+    .intro-meta { margin-top: 40px; }
+    .meta-row {
+      padding: 18px 0;
+      border-top: 1px solid var(--rule);
+      font-size: 15px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .meta-row:last-child { border-bottom: 1px solid var(--rule); }
+    .meta-row strong { font-weight: 500; margin-right: 10px; }
+
+    /* ── Hero visual ───────────────────────────────── */
+    .hero-visual {
+      padding: 0 var(--side) clamp(12px, 2vw, 28px);
+      max-width: var(--max-content);
+    }
+    .visual-slot {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--tint);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--soft);
+      font-size: 14px;
+      letter-spacing: -0.005em;
+      padding: 16px;
+      text-align: center;
+    }
+    .visual-slot.tall { aspect-ratio: 4/5; }
+    .visual-slot.short { aspect-ratio: 21/9; }
+    .visual-caption {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--soft);
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Real image / video ───────────────────────── */
+    .hero-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+    .hero-video {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      height: auto;
+      max-height: 640px;
+      display: block;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .inline-img {
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      display: block;
+      border-radius: 14px;
+      object-fit: contain;
+      object-position: center;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 12px 32px -8px rgba(0, 0, 0, 0.12),
+        0 24px 60px -16px rgba(0, 0, 0, 0.10);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    }
+    .inline-img:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 20px 40px -8px rgba(0, 0, 0, 0.16),
+        0 32px 70px -20px rgba(0, 0, 0, 0.14);
+    }
+    [data-theme="dark"] .inline-img {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.5),
+        0 16px 40px -8px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    [data-theme="dark"] .inline-img:hover {
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.6),
+        0 24px 50px -8px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    /* ── Solution mockups (3-up in right column) ── */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .mockup-grid > div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .mockup-grid img {
+      width: 100%;
+      max-width: 180px;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      background: transparent;
+    }
+    .mockup-grid .visual-slot {
+      width: 100%;
+      max-width: 180px;
+      aspect-ratio: 9/19;
+      background: var(--tint);
+      border-radius: 12px;
+    }
+    .mockup-meta {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .mockup-meta .mockup-num {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+    .mockup-meta .mockup-name {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .mockup-meta .mockup-time {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+    }
+    .mockup-meta .mockup-desc {
+      display: block;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+      margin-top: 10px;
+      max-width: 24ch;
+    }
+    /* Core highlight */
+    .mockup-grid > div.is-core .mockup-num { color: var(--ink); }
+    .mockup-grid > div.is-core .mockup-name::after {
+      content: '· Core';
+      font-size: 0.78em;
+      font-weight: 500;
+      color: var(--soft);
+      margin-left: 5px;
+      letter-spacing: 0;
+    }
+    @media (max-width: 900px) {
+      .mockup-grid img,
+      .mockup-grid .visual-slot { max-width: 160px; }
+    }
+    @media (max-width: 600px) {
+      .mockup-grid {
+        grid-template-columns: 1fr;
+        max-width: 240px;
+        margin: 0 auto;
+        gap: 32px;
+      }
+    }
+
+    /* ── Section base ─────────────────────────────── */
+    section.story {
+      padding: clamp(32px, 4vw, 56px) var(--side) clamp(48px, 5.5vw, 80px);
+      max-width: var(--max-content);
+      scroll-margin-top: calc(var(--main-nav-h) + var(--section-nav-h) + 8px);
+    }
+    section.story + section.story { border-top: 1px solid var(--rule); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 20px;
+    }
+    .section-heading {
+      font-size: clamp(28px, 3.4vw, 42px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.022em;
+      margin-bottom: 28px;
+      max-width: 22ch;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: clamp(40px, 5vw, 80px);
+      align-items: start;
+    }
+    .grid-two.reverse { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+
+    .body-text {
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin-bottom: 18px;
+      max-width: 64ch;
+    }
+    .body-text strong { font-weight: 500; }
+
+    /* ── Stat row ─────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 32px;
+      margin: 36px 0 8px;
+      padding: 36px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .stat-num {
+      font-size: clamp(36px, 4vw, 48px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 30ch;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Highlighted problem statement block ──── */
+    .problem-statement {
+      padding: clamp(32px, 3.4vw, 48px) clamp(32px, 3.4vw, 48px);
+      background: var(--tint);
+      border-radius: 14px;
+      margin: 36px 0 0;
+      max-width: 760px;
+      position: relative;
+    }
+    .problem-statement::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: clamp(32px, 3.4vw, 48px);
+      bottom: clamp(32px, 3.4vw, 48px);
+      width: 3px;
+      background: var(--ink);
+      border-radius: 0 3px 3px 0;
+    }
+    .problem-statement-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 20px;
+    }
+    .problem-statement-text {
+      font-size: clamp(22px, 2vw, 28px);
+      font-weight: 500;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .problem-statement-sub {
+      font-size: clamp(14.5px, 1.1vw, 16px);
+      font-weight: 400;
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+      color: var(--muted);
+    }
+    [data-theme="dark"] .problem-statement { background: #1A1A17; }
+
+    /* ── User story (Research section) ────────── */
+    .user-story {
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      font-style: italic;
+      max-width: 56ch;
+      padding-left: 20px;
+      border-left: 2px solid var(--ink);
+    }
+    .user-story strong { font-style: normal; font-weight: 500; }
+
+    /* ── Pull quote ───────────────────────────── */
+    .pull-quote {
+      padding: 32px 0 32px 28px;
+      border-left: 2px solid var(--ink);
+      max-width: 56ch;
+    }
+    .pull-quote p {
+      font-size: clamp(20px, 2vw, 26px);
+      font-weight: 400;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+    .pull-quote cite {
+      display: block;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--soft);
+      font-style: normal;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Insight (single bold statement) ──────── */
+    .insight {
+      font-size: clamp(28px, 3.2vw, 40px);
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: -0.022em;
+      max-width: 22ch;
+      color: var(--ink);
+    }
+    .insight em {
+      font-style: normal;
+      color: var(--soft);
+    }
+
+    /* ── Insight beats (observation / response) ─ */
+    .insight-beats {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .insight-beat {
+      padding-left: 22px;
+      border-left: 2px solid var(--rule);
+      transition: border-color 0.2s;
+    }
+    .insight-beat:hover {
+      border-left-color: var(--ink);
+    }
+    .insight-beat .beat-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 10px;
+    }
+    .insight-beat p {
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      max-width: 56ch;
+    }
+    .insight-beat p strong {
+      font-weight: 600;
+    }
+
+    /* ── Card row ─────────────────────────────── */
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .card {
+      padding: 28px 24px;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      background: var(--bg);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .card:hover { background: var(--tint); border-color: var(--ink); }
+    .card .card-num {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--soft);
+      letter-spacing: 0.12em;
+      margin-bottom: 16px;
+    }
+    .card .card-title {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .card .card-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── User-quote stacked boxes (Problem) ───── */
+    ul.user-quotes {
+      list-style: none;
+      margin: 28px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    ul.user-quotes li {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 22px 24px;
+      background: var(--tint);
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    ul.user-quotes li:hover { background: var(--hover-bg); }
+    ul.user-quotes .uq-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      padding-top: 6px;
+    }
+    ul.user-quotes p {
+      font-size: clamp(16px, 1.4vw, 18px);
+      font-weight: 400;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      font-style: italic;
+      text-wrap: pretty;
+      hyphens: auto;
+    }
+
+    /* ── Trigger gate cards (Architecture) — compact horizontal ── */
+    .gate-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 40px;
+    }
+    .gate-card {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 28px;
+      padding: 20px 26px;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      background: var(--bg);
+      align-items: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .gate-card:hover {
+      background: var(--tint);
+      border-color: var(--ink);
+      transform: translateX(4px);
+    }
+    [data-theme="dark"] .gate-card:hover { background: #1A1A17; }
+    .gate-card-num {
+      font-size: 38px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .gate-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+    .gate-card-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
+    .gate-card-detail {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+    }
+    .gate-card-prevents {
+      padding-left: 24px;
+      border-left: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+    .gate-card:hover .gate-card-prevents { border-left-color: var(--ink); }
+    .gate-card-prevents .prevents-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+    .gate-card-prevents .prevents-text {
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+    }
+    @media (max-width: 900px) {
+      .gate-card {
+        grid-template-columns: 56px 1fr;
+        gap: 18px;
+        padding: 18px 20px;
+      }
+      .gate-card-num { font-size: 32px; }
+      .gate-card-prevents {
+        grid-column: 2 / 3;
+        padding-left: 0;
+        padding-top: 14px;
+        margin-top: 6px;
+        border-left: none;
+        border-top: 1px solid var(--rule);
+      }
+      .gate-card:hover .gate-card-prevents {
+        border-left-color: transparent;
+        border-top-color: var(--ink);
+      }
+    }
+    @media (max-width: 600px) {
+      .gate-card {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .gate-card-prevents {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* ── Nudge moments (Concept) ──────────────── */
+    .nudge-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .nudge-block {
+      padding: 28px 24px;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      background: var(--bg);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nudge-block:hover { background: var(--tint); border-color: var(--ink); }
+    .nudge-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--soft);
+      margin-bottom: 12px;
+    }
+    .nudge-title {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .nudge-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+    }
+
+    /* ── Trade-offs: 3-card comparison ───────────── */
+    .trade-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.3fr;
+      gap: 14px;
+      margin-top: 40px;
+      align-items: stretch;
+    }
+    .trade-card {
+      display: flex;
+      flex-direction: column;
+      padding: 26px 26px 22px;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: var(--bg);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
+    }
+    .trade-card.rejected { opacity: 0.78; }
+    .trade-card.rejected:hover { opacity: 1; transform: translateY(-2px); }
+    .trade-card.chosen {
+      border: 1.5px solid var(--ink);
+      background: var(--tint);
+      position: relative;
+    }
+    .trade-card.chosen::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border: 1.5px solid var(--ink);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+    [data-theme="dark"] .trade-card.chosen { background: #1A1A17; }
+
+    .trade-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .trade-badge.bad { color: #B95C5C; }
+    .trade-badge.good { color: #2D8262; }
+    [data-theme="dark"] .trade-badge.bad { color: #E07878; }
+    [data-theme="dark"] .trade-badge.good { color: #6DBF9C; }
+    .trade-badge .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .trade-card h4 {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .trade-card.rejected h4 {
+      /* strikethrough removed */
+    }
+    .trade-card > p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+      letter-spacing: -0.005em;
+      margin-bottom: 0;
+    }
+    .trade-takeaway {
+      margin-top: auto;
+      padding-top: 18px;
+      margin-top: 18px;
+      border-top: 1px solid var(--rule);
+    }
+    .trade-card.chosen .trade-takeaway { border-top-color: rgba(0,0,0,0.12); }
+    [data-theme="dark"] .trade-card.chosen .trade-takeaway { border-top-color: rgba(255,255,255,0.12); }
+    .trade-takeaway-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 8px;
+    }
+    .trade-takeaway-text {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .trade-card ul {
+      list-style: none;
+      margin-top: 4px;
+    }
+    .trade-card ul li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 7px;
+      letter-spacing: -0.005em;
+    }
+    .trade-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.7em;
+      width: 10px; height: 1px;
+      background: var(--ink);
+    }
+    .trade-card ul li:last-child { margin-bottom: 0; }
+
+    @media (max-width: 900px) {
+      .trade-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+
+    /* ── Prototype walkthrough video (vertical) ─ */
+    .proto-video {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 28px;
+    }
+
+    /* ── Solution: prototype CTA ──────────────── */
+    .proto-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px;
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      transition: transform 0.25s, opacity 0.2s;
+      margin-top: 24px;
+    }
+    .proto-cta:hover {
+      transform: translateX(4px);
+    }
+    .proto-cta .arrow {
+      display: inline-block;
+      transition: transform 0.25s;
+    }
+    .proto-cta:hover .arrow { transform: translateX(2px); }
+
+    /* ── Case-study + site footer ─────────────── */
+    .case-nav {
+      padding: clamp(40px, 5vw, 72px) var(--side);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--rule);
+      max-width: var(--max-content);
+    }
+    .case-nav a {
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative;
+      padding-bottom: 3px;
+    }
+    .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }
+    .case-nav a:hover .arrow { transform: translateX(4px); }
+    .case-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .case-nav a:hover::after { width: 100%; }
+    .case-nav .top-link { color: var(--soft); }
+    .case-nav .top-link:hover { color: var(--ink); }
+
+    footer.site {
+      background: var(--footer-bg);
+      color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .footer-tagline { font-size: 13px; color: var(--footer-muted); }
+    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+    .footer-right h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--footer-muted);
+      margin-bottom: 12px;
+    }
+    .footer-right ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .footer-right a {
+      font-size: 16px;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .footer-right a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px; background: var(--footer-ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .footer-right a:hover::after { width: 100%; }
+
+    /* ═════════════════════════════════════════════════
+       RESPONSIVE — Tablet (≤ 1024px)
+    ═════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .intro-title  { font-size: clamp(48px, 8vw, 88px); }
+      .intro-tagline { font-size: clamp(22px, 3vw, 32px); }
+      section.story { padding: clamp(32px, 4vw, 56px) var(--side) clamp(40px, 5vw, 64px); }
+      .hero-video   { max-height: 480px; }
+      .nudge-row    { grid-template-columns: 1fr; gap: 16px; }
+      .mockup-grid  { grid-template-columns: 1fr; gap: 16px; }
+    }
+
+    /* ═════════════════════════════════════════════════
+       RESPONSIVE — Mobile (≤ 900px)
+    ═════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .grid-two,
+      .grid-two.reverse {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+        align-items: start !important;
+      }
+
+      .intro {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        padding: 32px var(--side) 32px;
+      }
+      .intro-title { font-size: clamp(40px, 12vw, 64px); margin-bottom: 16px; }
+      .intro-tagline { font-size: clamp(20px, 5vw, 26px); margin-bottom: 28px; }
+      .intro-disciplines { max-width: none; }
+
+      .card-row,
+      .nudge-row,
+      .mockup-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+
+      .section-heading { font-size: clamp(24px, 6vw, 36px) !important; max-width: none !important; }
+      .insight { font-size: clamp(22px, 6vw, 30px) !important; max-width: none !important; }
+      .pull-quote p { font-size: clamp(18px, 4.5vw, 24px); }
+
+      .stats { grid-template-columns: 1fr !important; gap: 18px; padding: 24px 0; }
+      .stat-num { font-size: clamp(32px, 8vw, 42px); }
+
+      .hero-video { max-height: 360px; }
+      .inline-img { max-height: 420px; }
+
+      ul.user-quotes li { padding: 18px 20px; grid-template-columns: 32px 1fr; gap: 14px; }
+
+      .gate-list li { grid-template-columns: 1fr; gap: 8px; }
+      .privacy-step { grid-template-columns: 1fr; gap: 8px; }
+
+      .main-nav { padding: 20px var(--side) 16px; gap: 24px; }
+      .main-nav ul { gap: 24px; }
+      .main-nav a { font-size: 15px; }
+      .section-nav-inner { gap: 22px; height: 50px; }
+
+      footer.site { grid-template-columns: 1fr !important; gap: 32px; padding: 40px var(--side) 56px; }
+      .case-nav { padding: 32px var(--side); }
+    }
+
+    @media (max-width: 600px) {
+      :root { --side: 20px; }
+      .main-nav { padding: 16px var(--side) 12px; }
+      .main-nav ul { gap: 18px; }
+      .main-nav a { font-size: 14px; }
+      .section-nav-inner { gap: 18px; height: 46px; }
+      .section-nav a { font-size: 12.5px; }
+      .theme-toggle { width: 34px; height: 34px; }
+      .theme-toggle svg { width: 14px; height: 14px; }
+      .intro-title { font-size: clamp(34px, 11vw, 52px); }
+      .intro-tagline { font-size: clamp(18px, 5vw, 22px); }
+      .card { padding: 22px 20px; }
+      .case-nav a { font-size: 14px; }
+      .footer-left h2 { font-size: clamp(20px, 5.5vw, 26px); }
+      .proto-cta { padding: 12px 18px; font-size: 14px; }
+    }
+
+    @media (max-width: 380px) {
+      :root { --side: 16px; }
+      .main-nav ul { gap: 14px; }
+      .section-nav-inner { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Main nav (same as homepage) ───────────────── -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Section nav (sticky) ──────────────────────── -->
+  <nav class="section-nav" aria-label="Case study sections">
+    <div class="section-nav-inner">
+      <a href="#problem">Problem</a>
+      <a href="#research">Research</a>
+      <a href="#insight">Insight</a>
+      <a href="#concept">Concept</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#solution">Solution</a>
+      <a href="#tradeoffs">Trade-offs</a>
+      <a href="#reflection">Reflection</a>
+    </div>
+  </nav>
+
+  <!-- ── Intro ─────────────────────────────────────── -->
+  <header class="intro">
+    <div class="intro-left">
+      <h1 class="intro-title"><span class="word">Smart</span><span class="word">Charge</span></h1>
+      <p class="intro-disciplines">Product Design, UX Research, Interaction Design, Design Systems, OS-Level&nbsp;Feature</p>
+      <p class="intro-award">
+        <span class="award-tag">Award</span>
+        Winner, School Prize, FigBuild 2026
+      </p>
+    </div>
+    <div class="intro-right">
+      <p class="intro-tagline">
+        Designed around the everyday moments where battery anxiety quietly takes over a person's day.
+      </p>
+      <div class="intro-body">
+        <p>FigBuild 2026 was a schoolwide designathon where 80+ teams were challenged to design a single small OS-level feature in just one week. Teams worked end-to-end from research to a high-fidelity prototype. We chose to address the everyday discomfort of low-battery anxiety through Smart Charge, an OS-level nudge built inside Battery settings that catches users at the moments where they could quietly charge.</p>
+      </div>
+      <div class="intro-meta">
+        <div class="meta-row"><strong>Role</strong> Product Designer, UX Researcher</div>
+        <div class="meta-row"><strong>Duration</strong> 1-week sprint, FigBuild 2026</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero visual ───────────────────────────────── -->
+  <section class="hero-visual">
+    <video
+      class="hero-video"
+      src="images/smartcharge/smart-charge-hero.mp4"
+      autoplay
+      loop
+      muted
+      playsinline
+      controls
+      preload="metadata"
+      aria-label="Smart Charge feature overview"
+    ></video>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 01 PROBLEM ───────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="problem">
+    <p class="section-label">01 — The Problem</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(40px, 5vw, 80px);">
+      <h2 class="section-heading" style="margin-bottom: 0; max-width: none;">When the phone dies, something bigger than convenience goes with it.</h2>
+
+      <div class="problem-statement" style="margin: 0;">
+        <p class="problem-statement-label">Problem Statement</p>
+        <p class="problem-statement-text">
+          For most full-time working professionals, low-battery anxiety happens on most days.
+        </p>
+        <p class="problem-statement-sub">
+          The phone gives no warning until it is already too late, well past the point where charging would have been easy.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 02 RESEARCH ──────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="research">
+    <p class="section-label">02 — Research</p>
+
+    <div class="grid-two">
+      <div>
+        <h2 class="section-heading" style="margin-bottom: 24px; max-width: none;">Eight conversations and three days of diaries.</h2>
+        <p class="body-text">
+          We conducted 8 semi-structured interviews with full-time working professionals aged 23 to 55, alongside a 3-day diary study where participants logged when they charged, where they were, and how they felt when battery dropped below 20%.
+        </p>
+        <p class="body-text">
+          The interviews captured how people talked about battery anxiety. The diaries showed what they actually did. The gap between the two was where the design opportunity lived.
+        </p>
+      </div>
+
+      <div>
+        <h3 style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin-bottom: 20px;">Two findings from the diary study</h3>
+
+        <div class="card-row" style="grid-template-columns: 1fr; gap: 14px; margin-top: 0;">
+          <div class="card">
+            <p class="card-num">FINDING 01</p>
+            <p class="card-title">The idle counter</p>
+            <p class="card-body">
+              Across the 3-day diary, participants' phones sat idle on counters and desks for 10 to 30 minutes after they got home. The charger was within reach. The charging window was wide open. Almost no one used it.
+            </p>
+          </div>
+          <div class="card">
+            <p class="card-num">FINDING 02</p>
+            <p class="card-title">The "I'll do it later" loop</p>
+            <p class="card-body">
+              6 of 8 participants regularly noticed low battery during the day, told themselves they would charge soon, and then forgot until it was critical. The intent to charge was there. The trigger to actually do it wasn't.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>
+        <p class="stat-num">7/8</p>
+        <p class="stat-label">Participants reported weekly low-battery stress</p>
+      </div>
+      <div>
+        <p class="stat-num">8/8</p>
+        <p class="stat-label">Described disproportionate panic when battery dropped below 20%</p>
+      </div>
+      <div>
+        <p class="stat-num">23–55</p>
+        <p class="stat-label">Age range, all full-time working professionals</p>
+      </div>
+    </div>
+
+    <h3 style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin: 64px 0 20px;">What users said</h3>
+
+    <ul class="user-quotes">
+      <li>
+        <span class="uq-num">01</span>
+        <p>"When my phone hits 10% I get this wave of panic. Not because I actually need it right then, just this sense of being exposed. Like what if something happens?"</p>
+      </li>
+      <li>
+        <span class="uq-num">02</span>
+        <p>"I once missed an important call because my phone was dead. I'd been at home for an hour the evening before and just hadn't plugged in. Still bothers me."</p>
+      </li>
+      <li>
+        <span class="uq-num">03</span>
+        <p>"I start rationing screen time at 30%. Closing apps. Lowering brightness. Just trying to stretch what's left until I get home."</p>
+      </li>
+      <li>
+        <span class="uq-num">04</span>
+        <p>"By bedtime it's already too late. I plug it in at 8% and hope it'll be full by morning."</p>
+      </li>
+    </ul>
+
+    <h3 style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin: 64px 0 20px;">A day in the life</h3>
+
+    <div style="max-width: 780px; margin: 0 auto;">
+      <img
+        src="images/smartcharge/user-story.png"
+        alt="A typical day of a working professional, showing the slow rise of battery anxiety from morning to night."
+        class="inline-img"
+        style="max-height: none;"
+      />
+      <p class="visual-caption" style="text-align: center; font-size: 14px; margin-top: 18px;">A typical day slowly turns into battery anxiety.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 03 INSIGHT ───────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="insight">
+    <p class="section-label">03 — The Insight</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: clamp(48px, 6vw, 96px);">
+      <p class="insight" style="max-width: none;">
+        Charging is reactive, not habitual. The system has to <em>initiate the moment.</em>
+      </p>
+
+      <div class="insight-beats">
+        <div class="insight-beat">
+          <span class="beat-label">The observation</span>
+          <p>No participant described charging as something they planned. It happened in response to crisis. The OS warning fires, the phone slips below 10%, the cable gets hunted down at the worst possible moment.</p>
+        </div>
+        <div class="insight-beat">
+          <span class="beat-label">The response</span>
+          <p>Smart Charge couldn't rely on users forming the habit on their own. It had to intercept the idle window <strong>before</strong> the emergency, not after.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 04 CONCEPT ───────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="concept">
+    <p class="section-label">04 — Concept</p>
+    <h2 class="section-heading">Smart Charge: a schedule-aware nudge inside Battery settings.</h2>
+
+    <p class="body-text" style="max-width: 70ch;">
+      Smart Charge is a single feature, placed inside the OS Battery settings. Four time anchors are pre-set from a typical working professional's day: <strong>wake up, leave home, return home, bedtime.</strong> When the conditions align at one of these transition moments, a single contextual notification fires.
+    </p>
+    <p class="body-text" style="max-width: 70ch;">
+      A hard cap of three nudges a day across the four anchors. The system picks the most relevant moments and stays quiet through the rest.
+    </p>
+
+    <div class="nudge-row">
+      <div class="nudge-block">
+        <p class="nudge-num">NUDGE 01</p>
+        <p class="nudge-title">Pre-commute</p>
+        <p class="nudge-body">Battery below threshold during the morning departure window. Catches the user before they walk out the door.</p>
+      </div>
+      <div class="nudge-block">
+        <p class="nudge-num">NUDGE 02 · CORE</p>
+        <p class="nudge-title">Return home</p>
+        <p class="nudge-body">Battery below threshold after arriving home, phone idle for 10 minutes. All conditions met. The highest-value moment in the day.</p>
+      </div>
+      <div class="nudge-block">
+        <p class="nudge-num">NUDGE 03</p>
+        <p class="nudge-title">Pre-bedtime</p>
+        <p class="nudge-body">Battery below threshold within the final hour before bedtime. Ensures the user wakes up to a full phone without thinking about it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 05 ARCHITECTURE ──────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="architecture">
+    <p class="section-label">05 — Architecture</p>
+    <h2 class="section-heading">Five conditions, one nudge. Each gate prevents a specific failure.</h2>
+
+    <p class="body-text" style="max-width: 70ch;">
+      A nudge only fires when every one of these is simultaneously true. Each gate is a deliberate guard against the way well-intentioned notifications normally go wrong.
+    </p>
+
+    <div class="gate-cards">
+      <div class="gate-card">
+        <div class="gate-card-num">01</div>
+        <div class="gate-card-content">
+          <h4 class="gate-card-title">Within a transition window</h4>
+          <p class="gate-card-detail">±30 min of a defined anchor.</p>
+        </div>
+        <div class="gate-card-prevents">
+          <span class="prevents-label">Prevents</span>
+          <span class="prevents-text">Random-time nudges that don't match any natural action moment.</span>
+        </div>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-num">02</div>
+        <div class="gate-card-content">
+          <h4 class="gate-card-title">Phone is idle</h4>
+          <p class="gate-card-detail">Screen off, no active apps, stationary for 10+ minutes.</p>
+        </div>
+        <div class="gate-card-prevents">
+          <span class="prevents-label">Prevents</span>
+          <span class="prevents-text">Interrupting the user mid-task.</span>
+        </div>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-num">03</div>
+        <div class="gate-card-content">
+          <h4 class="gate-card-title">Battery below threshold</h4>
+          <p class="gate-card-detail">Default 60%. Anything under 30% nudges immediately.</p>
+        </div>
+        <div class="gate-card-prevents">
+          <span class="prevents-label">Prevents</span>
+          <span class="prevents-text">Nudging when there is no real need to charge.</span>
+        </div>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-num">04</div>
+        <div class="gate-card-content">
+          <h4 class="gate-card-title">Home Wi-Fi connected</h4>
+          <p class="gate-card-detail">Recognised SSID. Soft location proxy, no GPS required.</p>
+        </div>
+        <div class="gate-card-prevents">
+          <span class="prevents-label">Prevents</span>
+          <span class="prevents-text">Firing when the user isn't actually home.</span>
+        </div>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-num">05</div>
+        <div class="gate-card-content">
+          <h4 class="gate-card-title">Not currently charging</h4>
+          <p class="gate-card-detail">No power source of any kind: wall, wireless, car, or power bank.</p>
+        </div>
+        <div class="gate-card-prevents">
+          <span class="prevents-label">Prevents</span>
+          <span class="prevents-text">The most annoying failure: nudging while already plugged in.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 06 SOLUTION ──────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="solution">
+    <p class="section-label">06 — The Solution</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 3fr) minmax(0, 7fr); align-items: start; gap: clamp(40px, 5vw, 72px);">
+      <div>
+        <h2 class="section-heading" style="margin-bottom: 24px; max-width: none;">Three moments.<br>One quiet notification.</h2>
+        <p class="body-text">
+          Built using the iOS 26 design system. The flow lives inside Settings, Battery, Smart Charge. Once enabled, the system handles itself.
+        </p>
+      </div>
+
+      <div class="mockup-grid">
+        <div>
+          <img
+            src="images/smartcharge/Morning-Mockup.png"
+            alt="Smart Charge pre-commute nudge on iPhone lock screen"
+            loading="lazy"
+          />
+          <div class="mockup-meta">
+            <span class="mockup-num">Nudge 01</span>
+            <span class="mockup-name">Pre-commute</span>
+            <p class="mockup-desc">Catches you before you walk out the door, while the phone is still idle from the morning routine.</p>
+          </div>
+        </div>
+        <div class="is-core">
+          <img
+            src="images/smartcharge/Evening-Mockup.png"
+            alt="Smart Charge return-home nudge on iPhone lock screen"
+            loading="lazy"
+          />
+          <div class="mockup-meta">
+            <span class="mockup-num">Nudge 02</span>
+            <span class="mockup-name">Return home</span>
+            <p class="mockup-desc">The core use case. Phone idle on the counter, home Wi-Fi, battery low. All five conditions met.</p>
+          </div>
+        </div>
+        <div>
+          <img
+            src="images/smartcharge/Night-Mockup.png"
+            alt="Smart Charge pre-bedtime nudge on iPhone lock screen"
+            loading="lazy"
+          />
+          <div class="mockup-meta">
+            <span class="mockup-num">Nudge 03</span>
+            <span class="mockup-name">Pre-bedtime</span>
+            <p class="mockup-desc">Catches the forgotten plug-in before sleep, so the user wakes up to a full phone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); align-items: center; gap: clamp(40px, 5vw, 72px); margin-top: 80px;">
+      <div>
+        <h3 style="font-size: 22px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 16px;">A full day, side by side</h3>
+        <p class="body-text" style="margin-bottom: 0;">
+          The journey map compares one user's day with and without Smart Charge. The pain points on the left become the opportunity moments on the right.
+        </p>
+      </div>
+
+      <div>
+        <img
+          src="images/smartcharge/Journey-map.png"
+          alt="Journey map comparing a user's day with and without Smart Charge, showing pain points becoming opportunity moments."
+          class="inline-img"
+          style="max-height: none;"
+        />
+      </div>
+    </div>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(40px, 5vw, 80px); margin-top: 80px;">
+      <div>
+        <video
+          class="proto-video"
+          src="images/smartcharge/smart-charge-prototype.mp4"
+          autoplay loop muted playsinline controls preload="metadata"
+          aria-label="Smart Charge prototype walkthrough"
+        ></video>
+        <p class="visual-caption" style="text-align: center; margin-top: 14px;">A walkthrough of the Smart Charge setup flow inside iOS Battery settings.</p>
+      </div>
+
+      <div>
+        <h3 style="font-size: 22px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 16px;">Prototype walkthrough</h3>
+        <p class="body-text">
+          A short video walkthrough of the Smart Charge feature flow inside the iOS Battery settings.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 07 TRADE-OFFS (Privacy iteration) ────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="tradeoffs">
+    <p class="section-label">07 — Trade-offs</p>
+    <h2 class="section-heading">Getting the trigger right meant getting privacy right.</h2>
+
+    <p class="body-text" style="max-width: 70ch;">
+      Before settling on the five-gate trigger, we worked through three approaches to the location signal. Each one taught the next.
+    </p>
+
+    <div class="trade-grid">
+      <div class="trade-card rejected">
+        <span class="trade-badge bad">
+          <span class="icon">×</span>
+          Attempt 01 · Rejected
+        </span>
+        <h4>Time only</h4>
+        <p>A pure schedule: if it's 6pm and battery is below 60%, nudge. Zero permissions, zero infrastructure. But it doesn't know if you're actually home.</p>
+        <div class="trade-takeaway">
+          <span class="trade-takeaway-label">Why it failed</span>
+          <p class="trade-takeaway-text">Too many false positives on days that didn't match the schedule — meetings, trains, anywhere the charger isn't.</p>
+        </div>
+      </div>
+
+      <div class="trade-card rejected">
+        <span class="trade-badge bad">
+          <span class="icon">×</span>
+          Attempt 02 · Rejected
+        </span>
+        <h4>GPS location</h4>
+        <p>Location would solve the false positives instantly. But always-on GPS permission for a <em>battery feature</em> is disproportionate.</p>
+        <div class="trade-takeaway">
+          <span class="trade-takeaway-label">Why it failed</span>
+          <p class="trade-takeaway-text">A permission ask that big would quietly kill adoption — many users would refuse, the rest would feel uneasy.</p>
+        </div>
+      </div>
+
+      <div class="trade-card chosen">
+        <span class="trade-badge good">
+          <span class="icon">✓</span>
+          Chosen · What worked
+        </span>
+        <h4>Wi-Fi SSID + time anchors</h4>
+        <p>The home Wi-Fi network is a soft location signal. If the phone connects to your home SSID, it's a reliable proxy for "the user is likely home" — no GPS required.</p>
+        <div class="trade-takeaway">
+          <span class="trade-takeaway-label">Why it works</span>
+          <ul>
+            <li>No permission prompt required</li>
+            <li>Stored on-device only, never transmitted</li>
+            <li>Already known to the OS</li>
+            <li>Pairs naturally with time anchors to eliminate false positives</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 08 REFLECTION ────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="reflection">
+    <p class="section-label">08 — Reflection</p>
+
+    <div class="grid-two" style="grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; gap: clamp(48px, 6vw, 96px);">
+      <div class="pull-quote" style="margin: 0; max-width: none;">
+        <p>The product isn't the notification. It's the timing.</p>
+        <cite>— Closing reflection</cite>
+      </div>
+
+      <div>
+        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 10px;">Designed for the failure mode, not the happy path.</h3>
+        <p class="body-text" style="margin-bottom: 28px;">
+          Every one of the five trigger conditions exists because of a specific way the feature could go wrong. The guards mattered more than the trigger itself.
+        </p>
+
+        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 10px;">Behavioural design over feature design.</h3>
+        <p class="body-text" style="margin-bottom: 0;">
+          Smart Charge isn't really about charging. It's about catching people at the exact moment they're most likely to act. The notification is just the delivery mechanism.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Case study nav ────────────────────────────── -->
+  <nav class="case-nav">
+    <a href="#" aria-label="Next case study">
+      NEXT PROJECT <span class="arrow">→</span>
+    </a>
+    <a href="#top" class="top-link">TOP ↑</a>
+  </nav>
+
+  <!-- ── Site footer ───────────────────────────────── -->
+  <footer class="site">
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank">LinkedIn</a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ──────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+
+    // ── Scroll-spy: highlight active section in nav ────
+    const sections = document.querySelectorAll('section.story');
+    const navLinks = document.querySelectorAll('.section-nav a');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ── Smooth scroll for in-page anchors ──────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#' || href === '#top') {
+          if (href === '#top') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          return;
+        }
+        const target = document.querySelector(href);
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+
+</body>
+</html>
