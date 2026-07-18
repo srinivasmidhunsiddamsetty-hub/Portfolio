@@ -765,7 +765,7 @@
       margin: 0 auto;
     }
     .pv video {
-      width: 100%; height: auto; display: block;
+      width: 100%; height: auto; aspect-ratio: 0.47; object-fit: cover; display: block;
       border-radius: 26px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 16px 40px -10px rgba(0,0,0,0.16);
     }
@@ -1021,7 +1021,7 @@
     <div class="hero-frame">
       <video
         src="images/designiq/designiq-hero.mp4"
-        autoplay loop muted playsinline controls preload="metadata"
+        autoplay loop muted playsinline preload="metadata"
         aria-label="DesigniQ overview: portfolio, AI room generation, and shop in one app"
       ></video>
     </div>
@@ -1338,7 +1338,7 @@
         <div class="pv bright">
           <video
             src="images/designiq/Overall-app-flow.mp4"
-            autoplay loop muted playsinline controls preload="metadata"
+            autoplay loop muted playsinline preload="metadata"
             aria-label="Overall app walkthrough connecting all four flows"
           ></video>
         </div>
@@ -1352,7 +1352,7 @@
         <div class="pv">
           <video
             src="images/designiq/Interiors-flow-video.mp4"
-            autoplay loop muted playsinline controls preload="metadata"
+            autoplay loop muted playsinline preload="metadata"
             aria-label="Interior flow walkthrough"
           ></video>
         </div>
@@ -1362,7 +1362,7 @@
         <div class="pv">
           <video
             src="images/designiq/Store-flow-video.mp4"
-            autoplay loop muted playsinline controls preload="metadata"
+            autoplay loop muted playsinline preload="metadata"
             aria-label="Store flow walkthrough"
           ></video>
         </div>
@@ -1372,7 +1372,7 @@
         <div class="pv">
           <video
             src="images/designiq/AI-flow-video.mp4"
-            autoplay loop muted playsinline controls preload="metadata"
+            autoplay loop muted playsinline preload="metadata"
             aria-label="AI flow walkthrough"
           ></video>
         </div>
@@ -1552,5 +1552,16 @@
     });
   </script>
 
+  <script>
+    // Play the Solution (overall app flow) video at 1.5x by default
+    (function () {
+      document.querySelectorAll('.overall-flow video').forEach(function (v) {
+        var setRate = function () { try { v.playbackRate = 1.5; } catch (e) {} };
+        setRate();
+        v.addEventListener('loadedmetadata', setRate);
+        v.addEventListener('play', setRate);
+      });
+    })();
+  </script>
 </body>
 </html>

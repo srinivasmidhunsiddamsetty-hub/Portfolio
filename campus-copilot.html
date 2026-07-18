@@ -226,8 +226,8 @@
       letter-spacing: -0.005em;
     }
     .hero-video {
-      width: 100%; max-width: 1500px; margin: 0 auto;
-      height: auto; max-height: 640px; display: block;
+      width: 100%; max-width: 1140px; margin: 0 auto;
+      height: auto; display: block;
       border-radius: 12px; object-fit: contain;
     }
     .inline-img {
@@ -866,7 +866,6 @@
       .intro-title  { font-size: clamp(48px, 8vw, 88px); }
       .intro-tagline { font-size: clamp(22px, 3vw, 32px); }
       section.story { padding: clamp(32px, 4vw, 56px) var(--side) clamp(40px, 5vw, 64px); }
-      .hero-video   { max-height: 480px; }
     }
     @media (max-width: 900px) {
       .grid-two { grid-template-columns: 1fr !important; gap: 32px !important; align-items: start !important; }
@@ -879,7 +878,6 @@
       .insight { font-size: clamp(22px, 6vw, 30px) !important; max-width: none !important; }
       .big-stats { grid-template-columns: 1fr !important; }
       .big-stat-num { font-size: clamp(40px, 10vw, 52px); }
-      .hero-video { max-height: 360px; }
       .inline-img { max-height: 420px; }
       ul.user-quotes li { padding: 18px 20px; }
       .main-nav { padding: 20px var(--side) 16px; gap: 24px; }
@@ -975,7 +973,7 @@
     <video
       class="hero-video"
       src="images/campus-copilot/campus-copilot-hero.mp4"
-      autoplay loop muted playsinline controls preload="metadata"
+      autoplay loop muted playsinline preload="metadata"
       aria-label="Campus Copilot demo: asking a question and getting a structured answer"
     ></video>
   </section>
@@ -1224,7 +1222,7 @@
       <video
         class="hero-video"
         src="images/campus-copilot/campus-copilot-recording.mp4"
-        autoplay loop muted playsinline controls preload="metadata"
+        autoplay loop muted playsinline preload="metadata"
         aria-label="Campus Copilot recording demonstrating a few conversation flows"
       ></video>
       <p class="visual-caption">A short recording demonstrating a few of the conversation flows in action.</p>
@@ -1557,5 +1555,16 @@
     });
   </script>
 
+  <script>
+    // Play the Solution video at 1.5x by default
+    (function () {
+      document.querySelectorAll('#solution video').forEach(function (v) {
+        var setRate = function () { try { v.playbackRate = 1.5; } catch (e) {} };
+        setRate();
+        v.addEventListener('loadedmetadata', setRate);
+        v.addEventListener('play', setRate);
+      });
+    })();
+  </script>
 </body>
 </html>
