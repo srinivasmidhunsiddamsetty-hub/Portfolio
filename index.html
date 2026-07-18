@@ -49,7 +49,7 @@
     }
 
     [data-theme="dark"] {
-      --bg:        #0F0F0F;
+      --bg:        #0a0a0b;
       --ink:       #F2F2EE;
       --muted:     #888885;
       --rule:      #232320;
@@ -176,11 +176,30 @@
     [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
     [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
-    /* ── Hero ─────────────────────────────────────────── */
+    /* ── Hero (dark tubes-cursor banner) ──────────────── */
     .hero {
-      padding: clamp(24px, 3vw, 40px) var(--side) clamp(80px, 10vw, 140px);
-      max-width: var(--max-content);
+      position: relative;
+      overflow: hidden;
+      background: #0a0a0b;
+      min-height: 360px;
+      display: flex;
+      align-items: center;
+      padding: clamp(24px, 3vw, 40px) var(--side);
+      max-width: none;
     }
+
+    #tubes-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      pointer-events: none;
+      background: #0a0a0b;
+    }
+
+    .hero > *:not(#tubes-canvas) { position: relative; z-index: 1; }
 
     .hero-statement {
       font-family: var(--font-sans);
@@ -189,13 +208,14 @@
       line-height: 1.25;
       letter-spacing: 0em;
       word-spacing: 0.08em;
-      color: var(--ink);
-      max-width: none;
+      color: #ffffff;
+      text-shadow: 0 2px 26px rgba(0, 0, 0, 0.55);
+      max-width: 1180px;
     }
 
     /* ── Work section ─────────────────────────────────── */
     .work {
-      padding: 0 var(--side);
+      padding: 24px var(--side) 0;
       max-width: var(--max-content);
     }
 
@@ -497,6 +517,7 @@
 
   <!-- ── Hero ─────────────────────────────────────────── -->
   <section class="hero" aria-label="Introduction">
+    <canvas id="tubes-canvas" aria-hidden="true"></canvas>
     <h1 class="hero-statement fade-in">
       I'm Midhun, a product designer with a love for curiosity, clarity and thoughtful interaction design.
     </h1>
@@ -537,8 +558,8 @@
         <span class="project-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="#" data-category="web" data-preview="" data-preview-text="Coming soon">
-        <span class="project-title">Grant Allocation Dashboard</span>
+      <a class="project-card" href="executivedashboard.html" data-category="web" data-preview="" data-preview-text="Work in progress">
+        <span class="project-title">Executive Dashboard</span>
         <span class="project-desc">An internal PennTAP dashboard built for executive stakeholders to monitor multi-million-dollar funding distribution and long-term program performance at scale.</span>
         <span class="project-tag"></span>
         <span class="project-arrow" aria-hidden="true">→</span>
@@ -650,6 +671,25 @@
         }
       });
     });
+
+    // ── Tubes cursor effect (hero banner background) ──────
+    (function () {
+      const canvas = document.getElementById('tubes-canvas');
+      if (!canvas) return;
+      import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js')
+        .then(function (mod) {
+          mod.default(canvas, {
+            tubes: {
+              colors: ['#f967fb', '#53bc28', '#6958d5'],
+              lights: {
+                intensity: 200,
+                colors: ['#83f36e', '#fe8a2e', '#ff008a', '#60aed5']
+              }
+            }
+          });
+        })
+        .catch(function () { /* offline / CDN unavailable: hero stays a dark banner */ });
+    })();
   </script>
 
 </body>
