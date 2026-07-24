@@ -362,7 +362,8 @@
       transform: translate(-50%, -50%) scale(1);
     }
 
-    .hover-preview img {
+    .hover-preview img,
+    .hover-preview video {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -544,16 +545,16 @@
         <span class="project-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="smartcharge.html" data-category="product" data-preview="images/smart-charge-mockup.png">
-        <span class="project-title">Smart Charge</span>
-        <span class="project-desc">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
+      <a class="project-card" href="executivedashboard.html" data-category="web" data-preview="" data-preview-video="images/executivedashboard-mockup.mp4">
+        <span class="project-title">Executive Dashboard</span>
+        <span class="project-desc">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
         <span class="project-tag"></span>
         <span class="project-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="executivedashboard.html" data-category="web" data-preview="" data-preview-text="Work in progress">
-        <span class="project-title">Executive Dashboard</span>
-        <span class="project-desc">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
+      <a class="project-card" href="smartcharge.html" data-category="product" data-preview="images/smart-charge-mockup.png">
+        <span class="project-title">Smart Charge</span>
+        <span class="project-desc">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
         <span class="project-tag"></span>
         <span class="project-arrow" aria-hidden="true">→</span>
       </a>
@@ -633,10 +634,19 @@
     cards.forEach(card => {
       card.addEventListener('mouseenter', () => {
         const src = card.dataset.preview;
+        const videoSrc = card.dataset.previewVideo;
         const customText = card.dataset.previewText;
-        // swap content: image if data-preview is set, otherwise placeholder text
-        preview.querySelectorAll('img').forEach(n => n.remove());
-        if (src) {
+        // swap content: video > image > placeholder text
+        preview.querySelectorAll('img, video').forEach(n => n.remove());
+        if (videoSrc) {
+          placeholderEl.style.display = 'none';
+          const vid = document.createElement('video');
+          vid.src = videoSrc;
+          vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
+          vid.setAttribute('aria-hidden', 'true');
+          preview.appendChild(vid);
+          const p = vid.play(); if (p && p.catch) p.catch(() => {});
+        } else if (src) {
           placeholderEl.style.display = 'none';
           const img = document.createElement('img');
           img.src = src;

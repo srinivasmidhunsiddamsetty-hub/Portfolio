@@ -276,6 +276,21 @@
       font-size: 12px; color: var(--soft); letter-spacing: -0.005em;
       font-variant-ligatures: none;
     }
+    /* Real recordings / images — natural aspect (no forced ratio, so no letterbox) */
+    .cs-media {
+      width: 100%; height: auto; display: block;
+      border-radius: 16px; object-fit: contain;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(0,0,0,0.12);
+    }
+    [data-theme="dark"] .cs-media {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.6);
+    }
+    .cs-media.hero { max-width: 1140px; margin: 0 auto; }
+    /* Skeleton wireframe stays a light card even when the whole site is in dark mode */
+    .cs-media.always-light { background: #ffffff; }
+    [data-theme="dark"] .cs-media.always-light {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 14px 36px -10px rgba(0,0,0,0.35);
+    }
 
     /* ── Section base ─────────────────────────────────── */
     section.story {
@@ -660,7 +675,7 @@
     /* ── Hero feature blocks (09) ─────────────────────── */
     .feature {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
       gap: clamp(40px, 5vw, 72px); align-items: start;
       padding: clamp(36px, 4vw, 56px) 0;
     }
@@ -815,6 +830,18 @@
     }
     .ba-frame .asset-note { font-size: 14px; color: var(--ink); font-weight: 500; letter-spacing: -0.005em; }
     .ba-frame .asset-file { font-size: 12px; color: var(--soft); }
+    /* Once a real recording is dropped in, the frame sheds its placeholder chrome and
+       the video keeps its natural aspect — no forced 16:9, so no letterbox bars. */
+    .ba-frame:has(video) {
+      background: transparent; border: none; padding: 0; aspect-ratio: auto;
+    }
+    /* keep the frame transparent in dark mode too, so no dark box shows beside the video */
+    [data-theme="dark"] .ba-frame:has(video) { background: transparent; }
+    .ba-frame.active:has(video) { display: block; }
+    .ba-frame video {
+      width: auto; max-width: 100%; height: auto; max-height: 72vh;
+      margin: 0; display: block; border-radius: 16px;
+    }
 
     /* numbered callout pins, shown only on the Iteration 2 frame */
     .ba-pins { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
@@ -1192,12 +1219,9 @@
 
   <!-- ── Hero visual ───────────────────────────────── -->
   <section class="hero-visual">
-    <!-- SWAP: <video class="hero-video" src="images/rise-pa/rise-pa-hero.mp4" autoplay loop muted playsinline controls preload="metadata"></video> -->
-    <div class="asset-slot ratio-hero">
-      <span class="asset-kind">▚ Hero walkthrough</span>
-      <span class="asset-note">Screen recording of the Iteration 2 Overview tab: the icon KPIs, the since-last-review digest, and the budget runway with its forecast, in motion.</span>
-      <span class="asset-file">images/rise-pa/rise-pa-hero.mp4</span>
-    </div>
+    <video class="cs-media hero" src="images/executive-dashboard/rise-pa-hero.mp4"
+      autoplay loop muted playsinline preload="metadata"
+      aria-label="Executive Dashboard hero: the Iteration 2 Overview tab in motion"></video>
   </section>
 
   <!-- ═══════════════════════════════════════════════ -->
@@ -1351,12 +1375,8 @@
         <div class="mapping-item"><span class="mapping-from">Committed vs realized</span><span class="mapping-arrow">→</span><span class="mapping-to">forecast vs verified outcome</span></div>
       </div>
       <div>
-        <!-- SWAP: <img src="images/rise-pa/dashboard-skeleton.svg" class="inline-img" alt="Skeleton layout of the dashboard"> -->
-        <div class="asset-slot" style="min-height: clamp(300px, 36vw, 420px);">
-          <span class="asset-kind">▚ Dashboard skeleton</span>
-          <span class="asset-note">A wireframe of the dashboard's layout: the banded Overview stack (filter, vital signs, budget runway, pipeline) and the map-left / insights-right Statewide Reach split.</span>
-          <span class="asset-file">images/rise-pa/dashboard-skeleton.svg</span>
-        </div>
+        <img class="cs-media always-light" src="images/executive-dashboard/dashboard-skeleton.png"
+          alt="Skeleton wireframe of the dashboard: the banded Overview stack (filter, vital signs, budget runway, pipeline) and the map-left / insights-right Statewide Reach split">
       </div>
     </div>
 
@@ -1367,23 +1387,21 @@
   <!-- ═══════════════════════════════════════════════ -->
   <section class="story" id="iteration1">
     <p class="section-label">05 — Iteration 1: Making It Visible</p>
-    <p class="thesis">The first version answered one question well: what the program has done so far.</p>
 
     <div class="grid-two" style="grid-template-columns: minmax(0,2fr) minmax(0,3fr); align-items: start; gap: clamp(32px,4vw,56px);">
-      <div class="build-list">
+      <div>
+        <p class="thesis" style="margin-bottom: 28px;">The first version answered one question well:<br>what the program has done so far.</p>
+        <div class="build-list">
         <div class="build-item"><div class="build-num">01</div><div><p class="build-title">The shell and the time filter</p><p class="build-desc">Two tabs, Overview and Statewide Reach.</p></div></div>
         <div class="build-item"><div class="build-num">02</div><div><p class="build-title">Five vital signs</p><p class="build-desc">Obligated, Disbursed, Projects Funded, GHG, Jobs.</p></div></div>
         <div class="build-item"><div class="build-num">03</div><div><p class="build-title">The Budget Deployment chart</p><p class="build-desc">Obligation and disbursement, historical only.</p></div></div>
         <div class="build-item"><div class="build-num">04</div><div><p class="build-title">The Trimester Pipeline</p><p class="build-desc">Volume bars and status chips, plus a funnel.</p></div></div>
+        </div>
       </div>
       <div>
-        <!-- SWAP: <video class="hero-video" src="images/rise-pa/iteration-1-prototype.mp4" autoplay loop muted playsinline controls preload="metadata"></video> -->
-        <div class="asset-slot ratio-wide">
-          <span class="asset-kind">▚ Prototype walkthrough</span>
-          <span class="asset-note">A recorded walkthrough of the Iteration 1 dashboard, both tabs end to end: the time filter re-framing every metric, the vital signs, the deployment chart, the pipeline, and the map.</span>
-          <span class="asset-file">images/rise-pa/iteration-1-prototype.mp4</span>
-        </div>
-        <p class="visual-caption">Iteration 1, the monitoring layer, walked through end to end.</p>
+        <video class="cs-media" src="images/executive-dashboard/iteration-1-prototype.mp4"
+          autoplay loop muted playsinline preload="metadata"
+          aria-label="Iteration 1 prototype walkthrough, both tabs end to end"></video>
       </div>
     </div>
   </section>
@@ -1432,12 +1450,9 @@
         </p>
       </div>
       <div class="feature-visual">
-        <!-- SWAP: <video src="images/rise-pa/runway-forecast.mp4" ...> or annotated <img src="images/rise-pa/runway-forecast.png"> -->
-        <div class="asset-slot ratio-wide">
-          <span class="asset-kind">▚ Runway close-up</span>
-          <span class="asset-note">The forecast fan continuing to the April 2028 deadline marker, against the full-pool ceiling line, with the at-risk-of-return band highlighted.</span>
-          <span class="asset-file">images/rise-pa/runway-forecast.png</span>
-        </div>
+        <video class="cs-media" src="images/executive-dashboard/runway-forecast.mp4"
+          autoplay loop muted playsinline preload="metadata"
+          aria-label="Budget runway and forecast close-up, with the at-risk-of-return band"></video>
       </div>
     </div>
 
@@ -1469,12 +1484,9 @@
         <p class="body-text" style="margin-bottom: 0;">The executives wanted to see impact, fund distribution, and the top-performing industries by region. I chose a choropleth map as the visualization: it delivers all of that in a far more interactive way than charts, tables, and filters could.</p>
       </div>
       <div class="feature-visual">
-        <!-- SWAP: <video src="images/rise-pa/map-interaction.mp4" ...> -->
-        <div class="asset-slot ratio-wide">
-          <span class="asset-kind">▚ Map interaction</span>
-          <span class="asset-note">Recording of the choropleth: hovering a county for the name, clicking to lock it, and the Area Insights panel cross-fading from statewide totals into the selected area.</span>
-          <span class="asset-file">images/rise-pa/map-interaction.mp4</span>
-        </div>
+        <video class="cs-media" src="images/executive-dashboard/map-interaction.mp4"
+          autoplay loop muted playsinline preload="metadata"
+          aria-label="Statewide Reach choropleth map interaction"></video>
       </div>
     </div>
 
@@ -1484,37 +1496,12 @@
       <button type="button" data-it="2" role="tab" aria-selected="true" class="active">Iteration 2</button>
     </div>
 
-    <div class="ba-stage show-pins" id="ba-stage">
-      <!-- SWAP each frame's inner content for the real screenshot <img> -->
+    <div class="ba-stage" id="ba-stage">
       <div class="ba-frame" data-it="1">
-        <span class="asset-kind">▚ Iteration 1 — Overview</span>
-        <span class="asset-note">Plainer chrome, current-value KPIs, historical-only deployment chart, simple pipeline bars.</span>
-        <span class="asset-file">images/rise-pa/ba-overview-i1.png</span>
+        <video src="images/executive-dashboard/ba-overview-i1.mp4" loop muted playsinline preload="metadata" aria-label="Iteration 1 Overview walkthrough"></video>
       </div>
       <div class="ba-frame active" data-it="2">
-        <span class="asset-kind">▚ Iteration 2 — Overview</span>
-        <span class="asset-note">Icon KPI medallions, the since-last-review digest, the runway with its forecast, committed-to-realized threading. The numbered pins mark what changed.</span>
-        <span class="asset-file">images/rise-pa/ba-overview-i2.png</span>
-      </div>
-      <div class="ba-pins" aria-hidden="true">
-        <span class="ba-pin" style="left: 26%; top: 15%;">1</span>
-        <span class="ba-pin" style="left: 72%; top: 44%;">2</span>
-        <span class="ba-pin" style="left: 30%; top: 62%;">3</span>
-      </div>
-    </div>
-
-    <div class="ba-legend">
-      <div class="ba-legend-item">
-        <span class="ba-legend-num">1</span>
-        <p class="ba-legend-text"><strong>Since-last-review digest</strong></p>
-      </div>
-      <div class="ba-legend-item">
-        <span class="ba-legend-num">2</span>
-        <p class="ba-legend-text"><strong>Forecast + at-risk callout</strong></p>
-      </div>
-      <div class="ba-legend-item">
-        <span class="ba-legend-num">3</span>
-        <p class="ba-legend-text"><strong>Committed → realized</strong></p>
+        <video src="images/executive-dashboard/ba-overview-i2.mp4" loop muted playsinline preload="metadata" aria-label="Iteration 2 Overview walkthrough"></video>
       </div>
     </div>
 
@@ -1651,6 +1638,15 @@
     const baBtns = document.querySelectorAll('.ba-toggle button');
     const baFrames = document.querySelectorAll('.ba-frame');
     const baStage = document.getElementById('ba-stage');
+    // Play only the visible iteration's video; pause the hidden one.
+    function syncBaVideos() {
+      baFrames.forEach(f => {
+        const v = f.querySelector('video');
+        if (!v) return;
+        if (f.classList.contains('active')) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+        else { v.pause(); }
+      });
+    }
     baBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const it = btn.dataset.it;
@@ -1660,10 +1656,21 @@
           b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
         baFrames.forEach(f => f.classList.toggle('active', f.dataset.it === it));
-        // callout pins only make sense on the Iteration 2 frame
-        baStage.classList.toggle('show-pins', it === '2');
+        syncBaVideos();
       });
     });
+    syncBaVideos();
+
+    // ── Play every case-study video at 1.5x, except the hero ──
+    (function () {
+      document.querySelectorAll('.cs-media:not(.hero), .ba-frame video').forEach(function (v) {
+        if (v.tagName !== 'VIDEO') return;
+        var setRate = function () { try { v.playbackRate = 1.5; } catch (e) {} };
+        setRate();
+        v.addEventListener('loadedmetadata', setRate);
+        v.addEventListener('play', setRate);
+      });
+    })();
 
     // ── Research testimonial fan (spread by default; lift one on hover/tap) ──
     (function () {
