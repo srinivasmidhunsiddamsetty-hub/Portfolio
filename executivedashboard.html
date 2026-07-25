@@ -287,7 +287,7 @@
     }
     .cs-media.hero { max-width: 1140px; margin: 0 auto; }
     /* Skeleton wireframe stays a light card even when the whole site is in dark mode */
-    .cs-media.always-light { background: #ffffff; }
+    .cs-media.always-light { background: #ffffff; border: 1px solid #E3E3DF; }
     [data-theme="dark"] .cs-media.always-light {
       box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 14px 36px -10px rgba(0,0,0,0.35);
     }
@@ -388,11 +388,14 @@
     .fact-inner {
       position: relative; width: 100%; height: 100%;
       transform-style: preserve-3d;
-      transition: transform 640ms cubic-bezier(0.34,1.05,0.4,1);
+      transition: none;   /* the card you leave snaps back instantly, so only the one you enter turns */
     }
     .fact-card:hover .fact-inner,
     .fact-card:focus-visible .fact-inner,
-    .fact-card.is-flipped .fact-inner { transform: rotateY(180deg); }
+    .fact-card.is-flipped .fact-inner {
+      transform: rotateY(180deg);
+      transition: transform 620ms cubic-bezier(0.34,1.05,0.4,1);
+    }
     .fact-front, .fact-back {
       position: absolute; inset: 0; box-sizing: border-box;
       -webkit-backface-visibility: hidden; backface-visibility: hidden;
@@ -468,52 +471,29 @@
     .focus-num { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.04em; }
     .focus-text { font-size: 15px; color: var(--ink); line-height: 1.45; letter-spacing: -0.005em; }
 
-    /* ── Research testimonial fan (spread by default; lift one on hover) ── */
-    .qfan { position: relative; height: 508px; margin-top: 10px; }
+    /* ── Research testimonials — a clean, stable, selectable stack ── */
+    .qstack { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
     .qcard {
-      position: absolute; left: 8px; top: 50%; width: min(500px, 87%);
-      box-sizing: border-box;
-      display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 16px;
-      padding: 20px 24px;
-      background: var(--tint); border: 1px solid var(--rule); border-radius: 14px;
-      transform-origin: left center; cursor: pointer; outline: none;
-      box-shadow: 0 12px 30px -16px rgba(0,0,0,0.24);
-      transition: transform 520ms cubic-bezier(0.34,1.28,0.5,1),
-        opacity 340ms ease, box-shadow 360ms ease, background 260ms ease;
+      display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: start;
+      padding: 18px 22px; box-sizing: border-box;
+      background: var(--tint); border: 1px solid var(--rule); border-radius: 14px; outline: none;
+      transition: transform 240ms cubic-bezier(0.22,1,0.36,1), border-color 200ms ease,
+        box-shadow 240ms ease, background 200ms ease;
     }
     [data-theme="dark"] .qcard { background: #1A1A17; }
-    .qc-role { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--soft); line-height: 1.3; }
-    .qc-quote { font-size: 13.5px; line-height: 1.5; color: var(--ink); letter-spacing: -0.005em; }
-
-    /* default: a wider fan, all cards spread from the one left pivot */
-    .qcard[data-i="0"] { transform: translateY(-50%) rotate(-23deg);  z-index: 4; }
-    .qcard[data-i="1"] { transform: translateY(-50%) rotate(-7.7deg); z-index: 3; }
-    .qcard[data-i="2"] { transform: translateY(-50%) rotate(7.7deg);  z-index: 2; }
-    .qcard[data-i="3"] { transform: translateY(-50%) rotate(23deg);   z-index: 1; }
-
-    /* fade the rest when one card is singled out */
-    .qfan:has(.qcard:hover) .qcard, .qfan.has-pick .qcard { opacity: 0.22; }
-
-    /* the singled-out card: straighten flat, clearly enlarge, lift to front */
-    .qcard:hover, .qcard.is-picked {
-      opacity: 1 !important; z-index: 60 !important;
-      transform: translateY(-50%) rotate(0deg) scale(1.12) !important;
-      background: var(--bg);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.07), 0 30px 56px -22px rgba(0,0,0,0.32);
+    .qcard:hover, .qcard:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--accent); background: var(--bg);
+      box-shadow: 0 12px 30px -16px rgba(0,0,0,0.22);
     }
-    [data-theme="dark"] .qcard:hover, [data-theme="dark"] .qcard.is-picked { background: #17171F; }
-    .qcard:focus-visible { box-shadow: 0 0 0 2px var(--accent), 0 12px 30px -16px rgba(0,0,0,0.24); }
-
-    @media (prefers-reduced-motion: reduce) {
-      .qcard { transition: opacity 200ms ease, background 200ms ease; }
+    [data-theme="dark"] .qcard:hover, [data-theme="dark"] .qcard:focus-visible { background: #17171F; }
+    .qc-role {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); line-height: 1.4; padding-top: 3px;
     }
-    /* mobile fallback: static stacked cards, all readable */
+    .qc-quote { font-size: 13.5px; line-height: 1.55; color: var(--ink); letter-spacing: -0.005em; }
     @media (max-width: 560px) {
-      .qfan { height: auto; display: flex; flex-direction: column; gap: 12px; }
-      .qcard, .qcard[data-i="0"], .qcard[data-i="1"], .qcard[data-i="2"], .qcard[data-i="3"] {
-        position: static; width: 100%; transform: none !important; opacity: 1 !important;
-        grid-template-columns: 84px 1fr; cursor: default; box-shadow: 0 12px 30px -16px rgba(0,0,0,0.24);
-      }
+      .qcard { grid-template-columns: 1fr; gap: 6px; }
     }
 
     /* ── Insight ──────────────────────────────────────── */
@@ -795,6 +775,40 @@
     }
     .reach-item p { font-size: 13.5px; color: var(--muted); line-height: 1.55; letter-spacing: -0.005em; }
     @media (max-width: 760px) { .reach-list { grid-template-columns: 1fr; } }
+
+    /* Impact cards: flip to reveal the detail (only the one you enter turns) */
+    .reach-item.flip {
+      background: transparent; border: none; padding: 0;
+      height: 150px; perspective: 1000px; cursor: pointer; outline: none;
+    }
+    .reach-item.flip:hover { transform: none; background: transparent; }
+    .reach-inner {
+      position: relative; width: 100%; height: 100%;
+      transform-style: preserve-3d; transition: none;
+    }
+    .reach-item.flip:hover .reach-inner,
+    .reach-item.flip:focus-visible .reach-inner,
+    .reach-item.flip.is-flipped .reach-inner {
+      transform: rotateY(180deg);
+      transition: transform 620ms cubic-bezier(0.34,1.05,0.4,1);
+    }
+    .reach-front, .reach-back {
+      position: absolute; inset: 0; box-sizing: border-box;
+      -webkit-backface-visibility: hidden; backface-visibility: hidden;
+      border: 1px solid var(--rule); border-radius: 14px; padding: 22px 24px;
+      display: flex; flex-direction: column; justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .reach-front { background: var(--bg); }
+    .reach-back {
+      transform: rotateY(180deg);
+      background: var(--tint); border-color: color-mix(in srgb, var(--accent) 42%, var(--rule));
+    }
+    [data-theme="dark"] .reach-front { background: #1A1A17; }
+    [data-theme="dark"] .reach-back { background: #17171F; }
+    .reach-item.flip:hover .reach-front, .reach-item.flip:focus-visible .reach-front { border-color: var(--ink); }
+    .reach-front h4 { font-size: 15.5px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; margin: 0; }
+    .reach-back p { font-size: 13.5px; color: var(--ink); line-height: 1.55; letter-spacing: -0.005em; margin: 0; }
 
     /* ══════════════════════════════════════════════════
        BEFORE / AFTER — interactive centerpiece (11)
@@ -1335,20 +1349,20 @@
 
       <div>
         <h3 style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin-bottom: 4px;">What they said</h3>
-        <div class="qfan" id="qfan">
-          <article class="qcard" data-i="0" tabindex="0" role="button" aria-label="Testimonial from the Vice President">
+        <div class="qstack">
+          <article class="qcard">
             <span class="qc-role">Vice President</span>
             <p class="qc-quote">"Every board prep, someone spends three or four days pulling numbers into a deck. By the time we're in the room, the picture's already weeks old."</p>
           </article>
-          <article class="qcard" data-i="1" tabindex="0" role="button" aria-label="Testimonial from a Director">
+          <article class="qcard">
             <span class="qc-role">Director</span>
             <p class="qc-quote">"The one question I always get asked is whether we'll commit all the funding before the deadline. I should be able to answer that without a spreadsheet."</p>
           </article>
-          <article class="qcard" data-i="2" tabindex="0" role="button" aria-label="Testimonial from the Finance Lead">
+          <article class="qcard">
             <span class="qc-role">Finance Lead</span>
             <p class="qc-quote">"Committed and spent are very different in a reimbursement program. In meetings, people still read committed as money already out the door. I need the two separated."</p>
           </article>
-          <article class="qcard" data-i="3" tabindex="0" role="button" aria-label="Testimonial from a Director">
+          <article class="qcard">
             <span class="qc-role">Director</span>
             <p class="qc-quote">"I don't need per-project detail, that's in the operational system. I need the overall read and the breakdown: where we stand, are we on pace, is it landing across the state."</p>
           </article>
@@ -1377,6 +1391,7 @@
       <div>
         <img class="cs-media always-light" src="images/executive-dashboard/dashboard-skeleton.png"
           alt="Skeleton wireframe of the dashboard: the banded Overview stack (filter, vital signs, budget runway, pipeline) and the map-left / insights-right Statewide Reach split">
+        <p class="visual-caption" style="text-align: center;">A wireframe of the layout</p>
       </div>
     </div>
 
@@ -1484,7 +1499,7 @@
         <p class="body-text" style="margin-bottom: 0;">The executives wanted to see impact, fund distribution, and the top-performing industries by region. I chose a choropleth map as the visualization: it delivers all of that in a far more interactive way than charts, tables, and filters could.</p>
       </div>
       <div class="feature-visual">
-        <video class="cs-media" src="images/executive-dashboard/map-interaction.mp4"
+        <video class="cs-media rate1x" src="images/executive-dashboard/map-interaction.mp4"
           autoplay loop muted playsinline preload="metadata"
           aria-label="Statewide Reach choropleth map interaction"></video>
       </div>
@@ -1546,17 +1561,23 @@
     </div>
 
     <div class="reach-list" style="grid-template-columns: repeat(3, 1fr); margin-top: 44px;">
-      <div class="reach-item">
-        <h4>Decision support, not just monitoring</h4>
-        <p>The forecast predicts where the program lands, so leadership decides, not just reads.</p>
+      <div class="reach-item flip" tabindex="0" role="button" aria-label="Decision support, not just monitoring">
+        <div class="reach-inner">
+          <div class="reach-front"><h4>Decision support, not just monitoring</h4></div>
+          <div class="reach-back"><p>The forecast predicts where the program lands, so leadership decides, not just reads.</p></div>
+        </div>
       </div>
-      <div class="reach-item">
-        <h4>Self-serve, always current</h4>
-        <p>Leadership opens a live view on their own cadence. No report to wait on.</p>
+      <div class="reach-item flip" tabindex="0" role="button" aria-label="Self-serve, always current">
+        <div class="reach-inner">
+          <div class="reach-front"><h4>Self-serve, always current</h4></div>
+          <div class="reach-back"><p>Leadership opens a live view on their own cadence. No report to wait on.</p></div>
+        </div>
       </div>
-      <div class="reach-item">
-        <h4>The whole state in one place</h4>
-        <p>Funding, projects, and impact across every county and region, in one view.</p>
+      <div class="reach-item flip" tabindex="0" role="button" aria-label="The whole state in one place">
+        <div class="reach-inner">
+          <div class="reach-front"><h4>The whole state in one place</h4></div>
+          <div class="reach-back"><p>Funding, projects, and impact across every county and region, in one view.</p></div>
+        </div>
       </div>
     </div>
 
@@ -1663,7 +1684,7 @@
 
     // ── Play every case-study video at 1.5x, except the hero ──
     (function () {
-      document.querySelectorAll('.cs-media:not(.hero), .ba-frame video').forEach(function (v) {
+      document.querySelectorAll('.cs-media:not(.hero):not(.rate1x), .ba-frame video').forEach(function (v) {
         if (v.tagName !== 'VIDEO') return;
         var setRate = function () { try { v.playbackRate = 1.5; } catch (e) {} };
         setRate();
@@ -1672,42 +1693,11 @@
       });
     })();
 
-    // ── Research testimonial fan (spread by default; lift one on hover/tap) ──
-    (function () {
-      var fan = document.getElementById('qfan');
-      if (!fan) return;
-      var cards = Array.prototype.slice.call(fan.querySelectorAll('.qcard'));
-      var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-      function pick(card) {
-        cards.forEach(function (c) { c.classList.toggle('is-picked', c === card); });
-        fan.classList.toggle('has-pick', !!card);
-      }
-
-      if (canHover) {
-        // keyboard: focusing a card singles it out (mouse handled by CSS :hover)
-        cards.forEach(function (card) {
-          card.addEventListener('focus', function () { pick(card); });
-          card.addEventListener('blur', function () { if (card.classList.contains('is-picked')) pick(null); });
-        });
-        return;
-      }
-
-      // touch: tap a card to single it out, tap it again or elsewhere to reset
-      cards.forEach(function (card) {
-        card.addEventListener('click', function (e) {
-          e.stopPropagation();
-          pick(card.classList.contains('is-picked') ? null : card);
-        });
-      });
-      document.addEventListener('click', function () { pick(null); });
-    })();
-
     // ── Program fact cards: tap to flip on touch (hover/keyboard use CSS) ──
     (function () {
       var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
       if (canHover) return;
-      document.querySelectorAll('.fact-card').forEach(function (card) {
+      document.querySelectorAll('.fact-card, .reach-item.flip').forEach(function (card) {
         card.addEventListener('click', function () { card.classList.toggle('is-flipped'); });
       });
     })();
