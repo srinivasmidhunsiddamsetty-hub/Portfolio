@@ -700,11 +700,19 @@
                 intensity: 200,
                 colors: ['#83f36e', '#fe8a2e', '#ff008a', '#60aed5']
               }
-            }
+            },
+            // Defaults (300/150) trace a small streak near the centre, which on a
+            // wide, short hero reads as "nothing there" until you mouse over it.
+            // Sweep wider so the idle state is clearly alive on large monitors.
+            sleepRadiusX: 900,
+            sleepRadiusY: 260,
+            sleepTimeScale1: 0.8,
+            sleepTimeScale2: 1.5
           });
+          console.info('[hero] 3D tubes running (WebGL)');
         })
         .catch(function (err) {
-          console.warn('3D tubes unavailable, using 2D fallback:', err);
+          console.warn('[hero] 3D tubes unavailable, using 2D fallback:', err);
           start2DFallback();
         });
     })();
@@ -796,10 +804,7 @@
         ctx.beginPath(); ctx.arc(hx, hy, rad, 0, Math.PI * 2); ctx.fill();
       }
 
-      function frame(now) {
-        raf = 0;
-        if (!visible) return;
-        if (now - lastMove > 1600) drift(now);
+      function step() {
         for (let i = 0; i < strands.length; i++) {
           const s = strands[i];
           s.vx = (s.vx + (tx - s.x) * s.stiff) * s.damp;
@@ -811,11 +816,22 @@
           s.pts.push(s.x - s.vy * k, s.y + s.vx * k);
           if (s.pts.length > TRAIL * 2) s.pts.splice(0, 2);
         }
+      }
+
+      function paint() {
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
         ctx.globalCompositeOperation = 'lighter';
         ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         for (let i = 0; i < strands.length; i++) draw(strands[i]);
+      }
+
+      function frame(now) {
+        raf = 0;
+        if (!visible) return;
+        if (now - lastMove > 1600) drift(now);
+        step();
+        paint();
         raf = requestAnimationFrame(frame);
       }
 
@@ -843,8 +859,16 @@
       }
 
       resize();
-      if (REDUCED) { ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H); }
-      else start();
+      if (REDUCED) {
+        // Reduced motion: no animation, but still show the ribbons rather than
+        // an empty black band. Run the sim silently, then paint one frame.
+        for (let i = 0; i < 150; i++) { drift(t0 + i * 16); step(); }
+        paint();
+        console.info('[hero] 2D fallback, static (prefers-reduced-motion)');
+      } else {
+        start();
+        console.info('[hero] 2D fallback, animated');
+      }
     }
   </script>
 
