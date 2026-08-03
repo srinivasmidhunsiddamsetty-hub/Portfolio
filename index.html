@@ -682,11 +682,16 @@
       });
     });
 
-    // ── Tubes cursor effect (hero banner background) ──────
+    // ── Neon tubes cursor effect (hero banner) ────────────
+    // Real 3D: three.js tube meshes on a spline, lit by point lights, with a
+    // bloom pass. Served from js/tubes-cursor.js (self-hosted, so it can't
+    // vanish if a CDN hiccups). If WebGL or the module is unavailable we fall
+    // back to the 2D ribbon version below rather than leaving a black box.
     (function () {
       const canvas = document.getElementById('tubes-canvas');
       if (!canvas) return;
-      import('https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js')
+
+      import('./js/tubes-cursor.js')
         .then(function (mod) {
           mod.default(canvas, {
             tubes: {
@@ -698,8 +703,149 @@
             }
           });
         })
-        .catch(function () { /* offline / CDN unavailable: hero stays a dark banner */ });
+        .catch(function (err) {
+          console.warn('3D tubes unavailable, using 2D fallback:', err);
+          start2DFallback();
+        });
     })();
+
+    // 2D ribbon fallback — only runs if the 3D effect can't start.
+    function start2DFallback() {
+      const canvas = document.getElementById('tubes-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) return;
+
+      const BG = '#0a0a0b';
+      const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // off = sideways offset, so the strands ride as a fanned ribbon bundle
+      const STRANDS = [
+        { rgb: '249,103,251', stiff: 0.115, damp: 0.760, w: 4.8, off: -17 },
+        { rgb: '255,0,138',   stiff: 0.092, damp: 0.790, w: 4.2, off:  -8 },
+        { rgb: '131,243,110', stiff: 0.072, damp: 0.812, w: 3.8, off:   1 },
+        { rgb: '105,88,213',  stiff: 0.056, damp: 0.832, w: 3.4, off:  10 },
+        { rgb: '254,138,46',  stiff: 0.043, damp: 0.850, w: 3.0, off:  19 }
+      ];
+      const TRAIL  = 55;   // points remembered per strand
+      const CHUNKS = 7;    // sub-strokes, so the trail can taper
+      const PASSES = [[8, 0.055], [3.2, 0.105], [1, 0.85]];   // wide halo → bright core
+
+      const strands = STRANDS.map(function (s) {
+        return { rgb: s.rgb, stiff: s.stiff, damp: s.damp, w: s.w, off: s.off,
+                 x: 0, y: 0, vx: 0, vy: 0, pts: [] };
+      });
+
+      let W = 0, H = 0, tx = 0, ty = 0, lastMove = -1e9, raf = 0, visible = true, seeded = false;
+      const t0 = performance.now();
+
+      function resize() {
+        const r = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = Math.max(1, r.width); H = Math.max(1, r.height);
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (!seeded) {
+          seeded = true; tx = W * 0.5; ty = H * 0.5;
+          strands.forEach(function (s) { s.x = tx; s.y = ty; s.pts.length = 0; });
+        }
+      }
+
+      // When the cursor is away, the target eases along a slow lissajous drift.
+      function drift(now) {
+        const t = (now - t0) / 1000;
+        const dx = W * 0.5 + Math.cos(t * 1.05) * W * 0.34 + Math.cos(t * 0.41) * W * 0.07;
+        const dy = H * 0.5 + Math.sin(t * 1.43) * H * 0.30 + Math.sin(t * 0.53) * H * 0.08;
+        tx += (dx - tx) * 0.10;
+        ty += (dy - ty) * 0.10;
+      }
+
+      function subPath(p, i0, i1) {
+        ctx.beginPath();
+        ctx.moveTo(p[i0 * 2], p[i0 * 2 + 1]);
+        for (let i = i0 + 1; i < i1; i++) {
+          const x = p[i * 2], y = p[i * 2 + 1];
+          const nx = p[(i + 1) * 2], ny = p[(i + 1) * 2 + 1];
+          ctx.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2);
+        }
+        ctx.lineTo(p[i1 * 2], p[i1 * 2 + 1]);
+      }
+
+      function draw(s) {
+        const p = s.pts, n = p.length / 2;
+        if (n < 4) return;
+        for (let k = 0; k < PASSES.length; k++) {
+          const mul = PASSES[k][0], a = PASSES[k][1];
+          for (let c = 0; c < CHUNKS; c++) {
+            const i0 = Math.floor(c * (n - 1) / CHUNKS);
+            const i1 = Math.floor((c + 1) * (n - 1) / CHUNKS);
+            if (i1 - i0 < 1) continue;
+            const f = (c + 1) / CHUNKS;                 // 0 at the tail → 1 at the head
+            ctx.lineWidth = s.w * mul * (0.10 + f * 0.90);
+            ctx.strokeStyle = 'rgba(' + s.rgb + ',' + (a * f * f) + ')';
+            subPath(p, i0, i1);
+            ctx.stroke();
+          }
+        }
+        const hx = p[(n - 1) * 2], hy = p[(n - 1) * 2 + 1], rad = s.w * 13;
+        const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, rad);
+        g.addColorStop(0, 'rgba(' + s.rgb + ',0.20)');
+        g.addColorStop(1, 'rgba(' + s.rgb + ',0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(hx, hy, rad, 0, Math.PI * 2); ctx.fill();
+      }
+
+      function frame(now) {
+        raf = 0;
+        if (!visible) return;
+        if (now - lastMove > 1600) drift(now);
+        for (let i = 0; i < strands.length; i++) {
+          const s = strands[i];
+          s.vx = (s.vx + (tx - s.x) * s.stiff) * s.damp;
+          s.vy = (s.vy + (ty - s.y) * s.stiff) * s.damp;
+          s.x += s.vx; s.y += s.vy;
+          // ride slightly to the side of the path, spreading wider the faster it travels
+          const sp = Math.hypot(s.vx, s.vy);
+          const k = sp > 0.001 ? (s.off * Math.min(1, sp / 9)) / sp : 0;
+          s.pts.push(s.x - s.vy * k, s.y + s.vx * k);
+          if (s.pts.length > TRAIL * 2) s.pts.splice(0, 2);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (let i = 0; i < strands.length; i++) draw(strands[i]);
+        raf = requestAnimationFrame(frame);
+      }
+
+      function start() { if (!raf && visible && !REDUCED) raf = requestAnimationFrame(frame); }
+      function stop()  { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+      window.addEventListener('pointermove', function (e) {
+        const r = canvas.getBoundingClientRect();
+        // only follow while the pointer is near the hero; otherwise let it drift
+        if (e.clientY < r.top - 140 || e.clientY > r.bottom + 140) return;
+        tx = e.clientX - r.left;
+        ty = e.clientY - r.top;
+        lastMove = performance.now();
+      }, { passive: true });
+
+      window.addEventListener('resize', resize);
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop(); else start();
+      });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) {
+          visible = es[0].isIntersecting;
+          if (visible) start(); else stop();
+        }, { threshold: 0 }).observe(canvas);
+      }
+
+      resize();
+      if (REDUCED) { ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H); }
+      else start();
+    }
   </script>
 
 </body>
