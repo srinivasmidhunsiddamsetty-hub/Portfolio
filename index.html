@@ -700,14 +700,11 @@
                 intensity: 200,
                 colors: ['#83f36e', '#fe8a2e', '#ff008a', '#60aed5']
               }
-            },
-            // Defaults (300/150) trace a small streak near the centre, which on a
-            // wide, short hero reads as "nothing there" until you mouse over it.
-            // Sweep wider so the idle state is clearly alive on large monitors.
-            sleepRadiusX: 900,
-            sleepRadiusY: 260,
-            sleepTimeScale1: 0.8,
-            sleepTimeScale2: 1.5
+            }
+            // Idle sweep intentionally left at the library defaults
+            // (sleepRadiusX 300 / sleepRadiusY 150, timeScales 1 and 2) - that is
+            // the original path and bounds, and keeps the tubes travelling as a
+            // tight bundle rather than spreading apart.
           });
           console.info('[hero] 3D tubes running (WebGL)');
         })
