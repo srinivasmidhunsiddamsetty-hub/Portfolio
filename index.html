@@ -268,121 +268,6 @@
       margin-bottom: clamp(80px, 10vw, 120px);
     }
 
-    .project-card {
-      display: grid;
-      grid-template-columns: 22% 1fr 160px 60px;
-      align-items: center;
-      gap: 32px;
-      padding: 28px 16px;
-      border-bottom: 1px solid var(--rule);
-      cursor: pointer;
-      transition: background 0.2s;
-      position: relative;
-    }
-
-    .project-card:hover {
-      background: var(--hover-bg);
-    }
-
-    .project-title {
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--ink);
-      letter-spacing: -0.01em;
-    }
-
-    .project-desc {
-      font-size: 15px;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.55;
-      max-width: 620px;
-      letter-spacing: -0.005em;
-    }
-
-    .project-tag {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink);
-      justify-self: start;
-      white-space: nowrap;
-      visibility: hidden;
-    }
-    .project-tag:not(:empty) { visibility: visible; }
-
-    .project-arrow {
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--ink);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      color: var(--ink);
-      justify-self: end;
-      transition: background 0.2s, color 0.2s, transform 0.25s;
-      flex-shrink: 0;
-    }
-
-    .project-card:hover .project-arrow {
-      background: var(--ink);
-      color: var(--bg);
-      transform: translateX(4px);
-    }
-
-    /* Placeholder slot for case studies (empty by design) */
-    .project-card.placeholder {
-      opacity: 0.55;
-    }
-
-    /* ── Floating preview on hover ────────────────────── */
-    .hover-preview {
-      position: fixed;
-      pointer-events: none;
-      z-index: 200;
-      width: 320px;
-      height: 200px;
-      border-radius: 6px;
-      background: var(--preview-bg);
-      box-shadow: 0 18px 40px -12px rgba(0,0,0,0.18), 0 6px 14px -6px rgba(0,0,0,0.10);
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.96);
-      transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hover-preview.visible {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .hover-preview img,
-    .hover-preview video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      image-rendering: auto;
-    }
-
-    /* Placeholder content inside preview when no image */
-    .hover-preview .preview-placeholder {
-      color: #999;
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 0.02em;
-    }
-
-    @media (max-width: 720px) {
-      .hover-preview { display: none !important; }
-    }
-
     /* ── Footer ───────────────────────────────────────── */
     footer {
       background: var(--footer-bg);
@@ -452,26 +337,6 @@
     .footer-links a:hover::after { width: 100%; }
 
     /* ── Responsive ───────────────────────────────────── */
-    @media (max-width: 1100px) {
-      .project-card {
-        grid-template-columns: 25% 1fr 120px 50px;
-        gap: 20px;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .project-card {
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-        padding: 24px 12px;
-      }
-
-      .project-title { grid-column: 1 / -1; }
-      .project-desc  { grid-column: 1 / -1; }
-      .project-tag   { grid-column: 1 / 2; justify-self: start; }
-      .project-arrow { grid-column: 2 / 3; grid-row: 1; align-self: start; }
-    }
-
     @media (max-width: 720px) {
       nav { padding: 22px var(--side) 18px; gap: 32px; }
       .nav-links { gap: 28px; }
@@ -490,6 +355,140 @@
       .hero-statement { font-size: clamp(26px, 8vw, 36px); }
       .filters { gap: 6px; }
       .filter-btn { padding: 6px 14px; font-size: 13px; }
+    }
+
+    /* ══ PROTOTYPE: project rows, variants A & B ══════════ */
+
+
+    .projects-list { border-top: 1px solid var(--rule); }
+
+    /* Register the angle so the border can animate in pure CSS */
+    @property --gb-angle {
+      syntax: "<angle>";
+      inherits: false;
+      initial-value: 0deg;
+    }
+
+    .project-card {
+      display: grid;
+      grid-template-columns: 20% minmax(0, 1fr) 360px 56px;
+      align-items: center; gap: 34px;
+      padding: 0 18px;
+      position: relative;          /* anchors the border pseudo-elements */
+      isolation: isolate;
+      border-radius: 0;            /* rounds out on hover, so the ring matches */
+      border-bottom: 1px solid var(--rule);
+      /* NB: no overflow:hidden here - it would clip the blurred outer glow.
+         .p-media and .p-text clip their own content instead. */
+      transition: height 340ms cubic-bezier(0.22,1,0.36,1),
+                  padding 340ms cubic-bezier(0.22,1,0.36,1),
+                  border-radius 200ms ease, border-color 200ms ease,
+                  background-color 200ms ease, color 200ms ease;
+    }
+    .project-card:hover {
+      border-radius: 12px;
+      border-bottom-color: transparent;   /* the ring replaces the divider */
+      padding: 0 34px;                    /* pull content off the glowing edge */
+    }
+    /* ...and hide the neighbouring rules too, otherwise the divider above the
+       hovered row (or the list's top rule) cuts straight across its rounded
+       corners, reading as a doubled line right where the glow curves. */
+    .projects-list > .project-card:has(+ .project-card:hover) { border-bottom-color: transparent; }
+    .projects-list:has(> .project-card:first-child:hover) { border-top-color: transparent; }
+
+    /* the traced gradient border (masked to just the 1.75px ring) */
+    .project-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 2.75px;             /* one clean, slightly thicker line */
+      background: conic-gradient(from var(--gb-angle),
+        #c7f000, #8CF0B4, #f4c85f, #ef5f56, #5b95e8, #c7f000);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+              mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    /* No second blurred ring — a single crisp gradient line reads cleaner. */
+
+    .project-card:hover::before { opacity: 1; animation: gb-spin 5s linear infinite; }
+
+    @keyframes gb-spin { to { --gb-angle: 360deg; } }
+    @media (prefers-reduced-motion: reduce) {
+      .project-card:hover::before { animation: none; }
+    }
+
+
+    .p-title { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; color: inherit; }
+
+    .p-text { position: relative; min-width: 0; overflow: hidden; transition: height 340ms cubic-bezier(0.22,1,0.36,1); }
+    .p-line, .p-full {
+      position: absolute; top: 0; left: 0; right: 0;
+      font-size: 15px; line-height: 1.55; letter-spacing: -0.005em; color: inherit;
+      transition: opacity 200ms ease;
+    }
+    /* the compact line must never wrap — .p-text is only one line tall at rest */
+    .p-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-full { opacity: 0; }
+
+    /* Nothing is cropped, and every thumbnail gets real rounded corners.
+       Key detail: the media element is sized by HEIGHT with width:auto, so its
+       box takes the asset's own aspect ratio (Campus Copilot is 1.5, the rest
+       1.6) and the painted image fills that box exactly. border-radius then
+       clips the actual image edge. With width:100% + object-fit:contain the
+       box stayed 360px wide while the image sat inset inside it, so the
+       rounded corners were nowhere near the image — which is why that one
+       still looked sharp. */
+    .p-media {
+      width: 100%; overflow: hidden; background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: height 340ms cubic-bezier(0.22,1,0.36,1),
+                  opacity 260ms ease, transform 340ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .p-media img, .p-media video {
+      height: 100%; width: auto; max-width: 100%;
+      object-fit: contain; display: block;
+      border-radius: 10px;
+    }
+
+    .p-arrow {
+      width: 44px; height: 44px; border: 1px solid currentColor; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: inherit; justify-self: end;
+      transition: transform 250ms ease;
+    }
+    .project-card:hover .p-arrow { transform: translateX(4px); }
+
+    /* ── Row states: compact, growing on hover ──
+       Expanded height = media height (360 / 1.6 = 225) + breathing room,
+       so the whole thumbnail is visible at full size, never cropped. */
+    .project-card { height: 88px; }
+    .p-text  { height: 24px; }
+    .p-media { height: 0; opacity: 0; transform: translateY(12px); }
+    .project-card:hover { height: 279px; }
+    .project-card:hover .p-text  { height: 96px; }
+    .project-card:hover .p-media { height: 225px; opacity: 1; transform: none; }
+    .project-card:hover .p-line  { opacity: 0; }
+    .project-card:hover .p-full  { opacity: 1; }
+
+    /* ── Touch / small screens: always expanded, no hover needed ── */
+    /* ── Touch / small screens: always expanded, no hover needed ── */
+    @media (max-width: 1150px) {
+      .project-card, .project-card:hover {
+        height: auto; grid-template-columns: 1fr; gap: 14px; padding: 24px 16px;
+        border-radius: 0; border-bottom-color: var(--rule);
+      }
+      .project-card:hover::before { opacity: 0; animation: none; }
+      .p-text, .project-card:hover .p-text { position: static; height: auto; }
+      .p-line { display: none; }
+      .p-full, .project-card:hover .p-full { position: static; opacity: 1; }
+      .p-media, .project-card:hover .p-media { height: 190px; opacity: 1; transform: none; }
+      .p-arrow { display: none; }
     }
 
     /* Filter hidden cards */
@@ -538,48 +537,61 @@
     <!-- Case studies placeholder grid -->
     <div class="projects-list fade-in">
 
-      <a class="project-card" href="campus-copilot.html" data-category="web product" data-preview="images/Campus-copilot-Mockup.png">
-        <span class="project-title">Campus Copilot</span>
-        <span class="project-desc">A conversational AI assistant designed to simplify campus onboarding and service discovery for 10,000+ incoming students annually.</span>
-        <span class="project-tag"></span>
-        <span class="project-arrow" aria-hidden="true">→</span>
+      <a class="project-card" href="campus-copilot.html" data-category="web product">
+        <span class="p-title">Campus Copilot</span>
+        <span class="p-text">
+          <span class="p-line">Conversational AI assistant for students</span>
+          <span class="p-full">A conversational AI assistant designed to simplify campus onboarding and service discovery for 10,000+ incoming students annually.</span>
+        </span>
+        <span class="p-media"><img src="images/Campus-copilot-Mockup.png" alt="" loading="lazy"></span>
+        <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="executivedashboard.html" data-category="web" data-preview="" data-preview-video="images/executivedashboard-mockup.mp4">
-        <span class="project-title">Executive Dashboard</span>
-        <span class="project-desc">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
-        <span class="project-tag"></span>
-        <span class="project-arrow" aria-hidden="true">→</span>
+      <a class="project-card" href="executivedashboard.html" data-category="web">
+        <span class="p-title">Executive Dashboard</span>
+        <span class="p-text">
+          <span class="p-line">Grant oversight for program leadership</span>
+          <span class="p-full">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
+        </span>
+        <span class="p-media"><video src="images/executivedashboard-mockup.mp4" autoplay loop muted playsinline preload="metadata"></video></span>
+        <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="smartcharge.html" data-category="product" data-preview="images/smart-charge-mockup.png">
-        <span class="project-title">Smart Charge</span>
-        <span class="project-desc">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
-        <span class="project-tag"></span>
-        <span class="project-arrow" aria-hidden="true">→</span>
+      <a class="project-card" href="smartcharge.html" data-category="product">
+        <span class="p-title">Smart Charge</span>
+        <span class="p-text">
+          <span class="p-line">Charging that acts before the anxiety does</span>
+          <span class="p-full">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
+        </span>
+        <span class="p-media"><img src="images/smart-charge-mockup.png" alt="" loading="lazy"></span>
+        <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="paypal.html" data-category="product" data-preview="images/PayPal-Mockup.png">
-        <span class="project-title">PayPal Activity</span>
-        <span class="project-desc">Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload.</span>
-        <span class="project-tag"></span>
-        <span class="project-arrow" aria-hidden="true">→</span>
+      <a class="project-card" href="paypal.html" data-category="product">
+        <span class="p-title">PayPal Activity</span>
+        <span class="p-text">
+          <span class="p-line">Order for a cluttered activity feed</span>
+          <span class="p-full">Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload.</span>
+        </span>
+        <span class="p-media"><img src="images/PayPal-Mockup.png" alt="" loading="lazy"></span>
+        <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="project-card" href="designiq.html" data-category="product" data-preview="images/Interior-design-mockup.png">
-        <span class="project-title">DesigniQ</span>
-        <span class="project-desc">Transforming interior design exploration through an AI-enhanced platform that delivered 10× higher engagement and contributed to over 10M in sales growth.</span>
-        <span class="project-tag"></span>
-        <span class="project-arrow" aria-hidden="true">→</span>
+      <a class="project-card" href="designiq.html" data-category="product">
+        <span class="p-title">DesigniQ</span>
+        <span class="p-text">
+          <span class="p-line">An interior design app</span>
+          <span class="p-full">Transforming interior design exploration through an AI-enhanced platform that delivered 10× higher engagement and contributed to over 10M in sales growth.</span>
+        </span>
+        <span class="p-media"><img src="images/Interior-design-mockup.png" alt="" loading="lazy"></span>
+        <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
     </div>
   </section>
 
   <!-- ── Floating preview tooltip (follows cursor on case-study hover) ─ -->
-  <div class="hover-preview" id="hover-preview" aria-hidden="true">
-    <span class="preview-placeholder">Case study preview</span>
-  </div>
+  <!-- floating cursor preview retired: the visual now lives inside each row -->
 
   <!-- ── Footer ───────────────────────────────────────── -->
   <footer id="contact">
@@ -625,49 +637,6 @@
       });
     });
 
-    // ── Floating preview (follows cursor) ─────────────────
-    const preview = document.getElementById('hover-preview');
-    const placeholderEl = preview.querySelector('.preview-placeholder');
-
-    const defaultPlaceholderText = placeholderEl.textContent;
-
-    cards.forEach(card => {
-      card.addEventListener('mouseenter', () => {
-        const src = card.dataset.preview;
-        const videoSrc = card.dataset.previewVideo;
-        const customText = card.dataset.previewText;
-        // swap content: video > image > placeholder text
-        preview.querySelectorAll('img, video').forEach(n => n.remove());
-        if (videoSrc) {
-          placeholderEl.style.display = 'none';
-          const vid = document.createElement('video');
-          vid.src = videoSrc;
-          vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
-          vid.setAttribute('aria-hidden', 'true');
-          preview.appendChild(vid);
-          const p = vid.play(); if (p && p.catch) p.catch(() => {});
-        } else if (src) {
-          placeholderEl.style.display = 'none';
-          const img = document.createElement('img');
-          img.src = src;
-          img.alt = '';
-          preview.appendChild(img);
-        } else {
-          placeholderEl.textContent = customText || defaultPlaceholderText;
-          placeholderEl.style.display = '';
-        }
-        preview.classList.add('visible');
-      });
-
-      card.addEventListener('mouseleave', () => {
-        preview.classList.remove('visible');
-      });
-
-      card.addEventListener('mousemove', (e) => {
-        preview.style.left = e.clientX + 'px';
-        preview.style.top  = (e.clientY - 30) + 'px';
-      });
-    });
 
     // ── Smooth anchor scroll ──────────────────────────────
     document.querySelectorAll('a[href^="#"]').forEach(a => {
