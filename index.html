@@ -34,6 +34,7 @@
       --bg:        #FFFFFF;
       --ink:       #0A0A0A;
       --muted:     #8A8A8A;
+      --desc:      #46554F;   /* row descriptions: readable, clearly secondary */
       --rule:      #E5E5E5;
       --hover-bg:  #F7F7F7;
       --preview-bg:#EDEDEA;
@@ -52,6 +53,7 @@
       --bg:        #0a0a0b;
       --ink:       #F2F2EE;
       --muted:     #888885;
+      --desc:      #A9BCB5;
       --rule:      #232320;
       --hover-bg:  #1A1A18;
       --preview-bg:#1A1A18;
@@ -371,8 +373,8 @@
 
     .project-card {
       display: grid;
-      grid-template-columns: 20% minmax(0, 1fr) 360px 56px;
-      align-items: center; gap: 34px;
+      grid-template-columns: auto minmax(0, 1fr) 56px;
+      align-items: center; column-gap: 0;
       padding: 0 18px;
       position: relative;          /* anchors the border pseudo-elements */
       isolation: isolate;
@@ -424,14 +426,37 @@
     }
 
 
-    .p-title { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; color: inherit; }
-
-    .p-text { position: relative; min-width: 0; overflow: hidden; transition: height 340ms cubic-bezier(0.22,1,0.36,1); }
-    .p-line, .p-full {
-      position: absolute; top: 0; left: 0; right: 0;
-      font-size: 15px; line-height: 1.55; letter-spacing: -0.005em; color: inherit;
-      transition: opacity 200ms ease;
+    /* title sits above its description in BOTH states, so nothing has to jump
+       grid cells on hover — the thumbnail just slides in and pushes it across */
+    /* At rest: title in its own column with the one-liner beside it.
+       On hover: the same elements stack, title above description. */
+    .p-body { min-width: 0; display: flex; flex-direction: row; align-items: baseline; gap: 34px;
+              transition: gap 340ms cubic-bezier(0.22,1,0.36,1); }
+    .p-title { flex: 0 0 210px; }
+    .p-text  { flex: 1 1 auto; }
+    .project-card:hover .p-body {
+      /* stretch, not flex-start: .p-text has absolutely-positioned children,
+         so it has no intrinsic width and would collapse to zero */
+      flex-direction: column; align-items: stretch;
     }
+    .project-card:hover .p-title { flex: 0 0 auto; }
+    .p-title {
+      font-size: 17px; font-weight: 500; letter-spacing: -0.01em; color: inherit;
+      line-height: 1.25;
+      transition: font-size 340ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .p-text { position: relative; min-width: 0; }
+    /* The visible line is always in normal flow and the hidden one is taken
+       out of it, so .p-text is exactly as tall as its content - a fixed height
+       clipped longer descriptions once the column narrowed. */
+    .p-line, .p-full {
+      font-size: 15px; line-height: 1.55; letter-spacing: -0.005em; color: inherit;
+      transition: opacity 200ms ease, font-size 340ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .p-full { position: absolute; top: 0; left: 0; right: 0; }
+    .project-card:hover .p-line { position: absolute; top: 0; left: 0; right: 0; }
+    .project-card:hover .p-full { position: static; }
+    .p-full { color: var(--desc); }
     /* the compact line must never wrap — .p-text is only one line tall at rest */
     .p-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .p-full { opacity: 0; }
@@ -445,10 +470,12 @@
        rounded corners were nowhere near the image — which is why that one
        still looked sharp. */
     .p-media {
-      width: 100%; overflow: hidden; background: transparent;
+      overflow: hidden; background: transparent;
       display: flex; align-items: center; justify-content: center;
-      transition: height 340ms cubic-bezier(0.22,1,0.36,1),
-                  opacity 260ms ease, transform 340ms cubic-bezier(0.22,1,0.36,1);
+      transition: width 340ms cubic-bezier(0.22,1,0.36,1),
+                  height 340ms cubic-bezier(0.22,1,0.36,1),
+                  margin-right 340ms cubic-bezier(0.22,1,0.36,1),
+                  opacity 260ms ease;
     }
     .p-media img, .p-media video {
       height: 100%; width: auto; max-width: 100%;
@@ -467,16 +494,17 @@
     /* ── Row states: compact, growing on hover ──
        Expanded height = media height (360 / 1.6 = 225) + breathing room,
        so the whole thumbnail is visible at full size, never cropped. */
-    .project-card { height: 88px; }
-    .p-text  { height: 24px; }
-    .p-media { height: 0; opacity: 0; transform: translateY(12px); }
-    .project-card:hover { height: 279px; }
-    .project-card:hover .p-text  { height: 96px; }
-    .project-card:hover .p-media { height: 225px; opacity: 1; transform: none; }
-    .project-card:hover .p-line  { opacity: 0; }
-    .project-card:hover .p-full  { opacity: 1; }
+    .project-card { height: 92px; }
+    .p-media { width: 0; height: 0; margin-right: 0; opacity: 0; }
 
-    /* ── Touch / small screens: always expanded, no hover needed ── */
+    /* expanded: 380px-wide thumbnail (380 / 1.6 = 238 tall) + larger type */
+    .project-card:hover { height: 332px; }
+    .project-card:hover .p-media { width: 440px; height: 275px; margin-right: 40px; opacity: 1; }
+    .project-card:hover .p-body  { gap: 12px; }
+    .project-card:hover .p-title { font-size: 25px; }
+    .project-card:hover .p-full  { opacity: 1; font-size: 17px; }
+    .project-card:hover .p-line  { opacity: 0; }
+
     /* ── Touch / small screens: always expanded, no hover needed ── */
     @media (max-width: 1150px) {
       .project-card, .project-card:hover {
@@ -487,7 +515,10 @@
       .p-text, .project-card:hover .p-text { position: static; height: auto; }
       .p-line { display: none; }
       .p-full, .project-card:hover .p-full { position: static; opacity: 1; }
-      .p-media, .project-card:hover .p-media { height: 190px; opacity: 1; transform: none; }
+      .p-media, .project-card:hover .p-media { width: 100%; height: 190px; margin-right: 0; opacity: 1; }
+      .p-body, .project-card:hover .p-body { flex-direction: column; align-items: stretch; gap: 10px; }
+      .p-title, .project-card:hover .p-title { font-size: 19px; flex: 0 0 auto; }
+      .p-full, .project-card:hover .p-full { font-size: 15px; }
       .p-arrow { display: none; }
     }
 
@@ -538,52 +569,62 @@
     <div class="projects-list fade-in">
 
       <a class="project-card" href="campus-copilot.html" data-category="web product">
-        <span class="p-title">Campus Copilot</span>
-        <span class="p-text">
-          <span class="p-line">Conversational AI assistant for students</span>
-          <span class="p-full">A conversational AI assistant designed to simplify campus onboarding and service discovery for 10,000+ incoming students annually.</span>
-        </span>
         <span class="p-media"><img src="images/Campus-copilot-Mockup.png" alt="" loading="lazy"></span>
+        <span class="p-body">
+          <span class="p-title">Campus Copilot</span>
+          <span class="p-text">
+            <span class="p-line">Conversational AI assistant for students</span>
+            <span class="p-full">A conversational AI assistant designed to simplify campus onboarding and service discovery for 10,000+ incoming students annually.</span>
+          </span>
+        </span>
         <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
       <a class="project-card" href="executivedashboard.html" data-category="web">
-        <span class="p-title">Executive Dashboard</span>
-        <span class="p-text">
-          <span class="p-line">Grant oversight for program leadership</span>
-          <span class="p-full">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
-        </span>
         <span class="p-media"><video src="images/executivedashboard-mockup.mp4" autoplay loop muted playsinline preload="metadata"></video></span>
+        <span class="p-body">
+          <span class="p-title">Executive Dashboard</span>
+          <span class="p-text">
+            <span class="p-line">Grant oversight for program leadership</span>
+            <span class="p-full">An internal PennTAP dashboard built for executive stakeholders to monitor $40M funding distribution and long-term program performance at scale.</span>
+          </span>
+        </span>
         <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
       <a class="project-card" href="smartcharge.html" data-category="product">
-        <span class="p-title">Smart Charge</span>
-        <span class="p-text">
-          <span class="p-line">Charging that acts before the anxiety does</span>
-          <span class="p-full">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
-        </span>
         <span class="p-media"><img src="images/smart-charge-mockup.png" alt="" loading="lazy"></span>
+        <span class="p-body">
+          <span class="p-title">Smart Charge</span>
+          <span class="p-text">
+            <span class="p-line">Charging that acts before the anxiety does</span>
+            <span class="p-full">A proactive charging experience that addresses the low-battery anxiety experienced by nearly 90% of smartphone users.</span>
+          </span>
+        </span>
         <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
       <a class="project-card" href="paypal.html" data-category="product">
-        <span class="p-title">PayPal Activity</span>
-        <span class="p-text">
-          <span class="p-line">Order for a cluttered activity feed</span>
-          <span class="p-full">Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload.</span>
-        </span>
         <span class="p-media"><img src="images/PayPal-Mockup.png" alt="" loading="lazy"></span>
+        <span class="p-body">
+          <span class="p-title">PayPal Activity</span>
+          <span class="p-text">
+            <span class="p-line">Order for a cluttered activity feed</span>
+            <span class="p-full">Reimagining financial activity management for 200M+ users through smarter organization, personalized categorization, and reduced cognitive overload.</span>
+          </span>
+        </span>
         <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
       <a class="project-card" href="designiq.html" data-category="product">
-        <span class="p-title">DesigniQ</span>
-        <span class="p-text">
-          <span class="p-line">An interior design app</span>
-          <span class="p-full">Transforming interior design exploration through an AI-enhanced platform that delivered 10× higher engagement and contributed to over 10M in sales growth.</span>
-        </span>
         <span class="p-media"><img src="images/Interior-design-mockup.png" alt="" loading="lazy"></span>
+        <span class="p-body">
+          <span class="p-title">DesigniQ</span>
+          <span class="p-text">
+            <span class="p-line">An interior design app</span>
+            <span class="p-full">Transforming interior design exploration through an AI-enhanced platform that delivered 10× higher engagement and contributed to over 10M in sales growth.</span>
+          </span>
+        </span>
         <span class="p-arrow" aria-hidden="true">→</span>
       </a>
 
