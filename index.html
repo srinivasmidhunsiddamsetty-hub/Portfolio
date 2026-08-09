@@ -35,6 +35,14 @@
       --ink:       #0A0A0A;
       --muted:     #8A8A8A;
       --desc:      #46554F;   /* row descriptions: readable, clearly secondary */
+
+      /* Row motion. The old curve (.22,1,.36,1) was 77% done in the first
+         quarter of its duration, which read as a snap however long it ran.
+         This one eases in as well as out; expanding takes longer than
+         collapsing, and hover-intent is applied in JS via .is-open. */
+      --row-ease: cubic-bezier(0.5, 0, 0.15, 1);
+      --row-in:   720ms;
+      --row-out:  520ms;
       --rule:      #E5E5E5;
       --hover-bg:  #F7F7F7;
       --preview-bg:#EDEDEA;
@@ -382,21 +390,27 @@
       border-bottom: 1px solid var(--rule);
       /* NB: no overflow:hidden here - it would clip the blurred outer glow.
          .p-media and .p-text clip their own content instead. */
-      transition: height 340ms cubic-bezier(0.22,1,0.36,1),
-                  padding 340ms cubic-bezier(0.22,1,0.36,1),
-                  border-radius 200ms ease, border-color 200ms ease,
-                  background-color 200ms ease, color 200ms ease;
+      transition: height var(--row-out) var(--row-ease),
+                  padding var(--row-out) var(--row-ease),
+                  border-radius 200ms ease, border-color 200ms ease;
     }
-    .project-card:hover {
+    .project-card.is-open {
       border-radius: 12px;
       border-bottom-color: transparent;   /* the ring replaces the divider */
       padding: 0 34px;                    /* pull content off the glowing edge */
+      transition: height var(--row-in) var(--row-ease),
+                  padding var(--row-in) var(--row-ease),
+                  border-radius 380ms ease, border-color 380ms ease;
     }
     /* ...and hide the neighbouring rules too, otherwise the divider above the
        hovered row (or the list's top rule) cuts straight across its rounded
        corners, reading as a doubled line right where the glow curves. */
-    .projects-list > .project-card:has(+ .project-card:hover) { border-bottom-color: transparent; }
-    .projects-list:has(> .project-card:first-child:hover) { border-top-color: transparent; }
+    .projects-list > .project-card:has(+ .project-card.is-open) { border-bottom-color: transparent; }
+    .projects-list:has(> .project-card:first-child.is-open) { border-top-color: transparent; }
+
+    /* used for one synchronous frame while JS measures the open layout */
+    .project-card.is-measuring,
+    .project-card.is-measuring * { transition: none !important; }
 
     /* the traced gradient border (masked to just the 1.75px ring) */
     .project-card::before {
@@ -418,11 +432,12 @@
 
     /* No second blurred ring — a single crisp gradient line reads cleaner. */
 
-    .project-card:hover::before { opacity: 1; animation: gb-spin 5s linear infinite; }
+    .project-card.is-open::before { opacity: 1; animation: gb-spin 8s linear infinite;
+      transition: opacity 460ms ease 90ms; }
 
     @keyframes gb-spin { to { --gb-angle: 360deg; } }
     @media (prefers-reduced-motion: reduce) {
-      .project-card:hover::before { animation: none; }
+      .project-card.is-open::before { animation: none; }
     }
 
 
@@ -431,31 +446,46 @@
     /* At rest: title in its own column with the one-liner beside it.
        On hover: the same elements stack, title above description. */
     .p-body { min-width: 0; display: flex; flex-direction: row; align-items: baseline; gap: 34px;
-              transition: gap 340ms cubic-bezier(0.22,1,0.36,1); }
+              transition: gap var(--row-out) var(--row-ease); }
+    .project-card.is-open .p-body { transition: gap var(--row-in) var(--row-ease); }
     .p-title { flex: 0 0 210px; }
     .p-text  { flex: 1 1 auto; }
-    .project-card:hover .p-body {
+    .project-card.is-open .p-body {
       /* stretch, not flex-start: .p-text has absolutely-positioned children,
          so it has no intrinsic width and would collapse to zero */
       flex-direction: column; align-items: stretch;
     }
-    .project-card:hover .p-title { flex: 0 0 auto; }
+    .project-card.is-open .p-title { flex: 0 0 auto; }
     .p-title {
       font-size: 17px; font-weight: 500; letter-spacing: -0.01em; color: inherit;
       line-height: 1.25;
-      transition: font-size 340ms cubic-bezier(0.22,1,0.36,1);
+      transition: font-size var(--row-out) var(--row-ease);
     }
+    .project-card.is-open .p-title { transition: font-size 620ms var(--row-ease) 80ms; }
     .p-text { position: relative; min-width: 0; }
     /* The visible line is always in normal flow and the hidden one is taken
        out of it, so .p-text is exactly as tall as its content - a fixed height
        clipped longer descriptions once the column narrowed. */
     .p-line, .p-full {
-      font-size: 15px; line-height: 1.55; letter-spacing: -0.005em; color: inherit;
-      transition: opacity 200ms ease, font-size 340ms cubic-bezier(0.22,1,0.36,1);
+      line-height: 1.55; letter-spacing: -0.005em; color: inherit;
     }
+    /* Fixed sizes on purpose. Animating the description's font-size re-wrapped
+       it on every frame, which read as the paragraph crawling around. */
+    .p-line { font-size: 15px; }
+    .p-full { font-size: 17px; }
+
+    /* Opening: the one-liner leaves at once and the paragraph comes in with the
+       title. It can do that without churning because JS pins .p-text to its
+       final width first, so the text wraps once and then simply travels. */
+    .project-card.is-open .p-line { transition: opacity 160ms ease; }
+    .project-card.is-open .p-full { transition: opacity 460ms ease 90ms; }
+
+    /* Closing: the paragraph goes first, the one-liner returns after. */
+    .p-full { transition: opacity 180ms ease; }
+    .p-line { transition: opacity 260ms ease 180ms; }
     .p-full { position: absolute; top: 0; left: 0; right: 0; }
-    .project-card:hover .p-line { position: absolute; top: 0; left: 0; right: 0; }
-    .project-card:hover .p-full { position: static; }
+    .project-card.is-open .p-line { position: absolute; top: 0; left: 0; right: 0; }
+    .project-card.is-open .p-full { position: static; }
     .p-full { color: var(--desc); }
     /* the compact line must never wrap — .p-text is only one line tall at rest */
     .p-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -472,10 +502,17 @@
     .p-media {
       overflow: hidden; background: transparent;
       display: flex; align-items: center; justify-content: center;
-      transition: width 340ms cubic-bezier(0.22,1,0.36,1),
-                  height 340ms cubic-bezier(0.22,1,0.36,1),
-                  margin-right 340ms cubic-bezier(0.22,1,0.36,1),
-                  opacity 260ms ease;
+      transition: width var(--row-out) var(--row-ease),
+                  height var(--row-out) var(--row-ease),
+                  margin-right var(--row-out) var(--row-ease),
+                  opacity 200ms ease;
+    }
+    /* the space opens first, the picture fades in behind it */
+    .project-card.is-open .p-media {
+      transition: width var(--row-in) var(--row-ease),
+                  height var(--row-in) var(--row-ease),
+                  margin-right var(--row-in) var(--row-ease),
+                  opacity 460ms ease 180ms;
     }
     .p-media img, .p-media video {
       height: 100%; width: auto; max-width: 100%;
@@ -489,7 +526,7 @@
       font-size: 17px; color: inherit; justify-self: end;
       transition: transform 250ms ease;
     }
-    .project-card:hover .p-arrow { transform: translateX(4px); }
+    .project-card.is-open .p-arrow { transform: translateX(6px); transition: transform 620ms var(--row-ease) 80ms; }
 
     /* ── Row states: compact, growing on hover ──
        Expanded height = media height (360 / 1.6 = 225) + breathing room,
@@ -498,27 +535,27 @@
     .p-media { width: 0; height: 0; margin-right: 0; opacity: 0; }
 
     /* expanded: 380px-wide thumbnail (380 / 1.6 = 238 tall) + larger type */
-    .project-card:hover { height: 332px; }
-    .project-card:hover .p-media { width: 440px; height: 275px; margin-right: 40px; opacity: 1; }
-    .project-card:hover .p-body  { gap: 12px; }
-    .project-card:hover .p-title { font-size: 25px; }
-    .project-card:hover .p-full  { opacity: 1; font-size: 17px; }
-    .project-card:hover .p-line  { opacity: 0; }
+    .project-card.is-open { height: 332px; }
+    .project-card.is-open .p-media { width: 440px; height: 275px; margin-right: 40px; opacity: 1; }
+    .project-card.is-open .p-body  { gap: 12px; }
+    .project-card.is-open .p-title { font-size: 25px; }
+    .project-card.is-open .p-full  { opacity: 1; }
+    .project-card.is-open .p-line  { opacity: 0; }
 
     /* ── Touch / small screens: always expanded, no hover needed ── */
     @media (max-width: 1150px) {
-      .project-card, .project-card:hover {
+      .project-card, .project-card.is-open {
         height: auto; grid-template-columns: 1fr; gap: 14px; padding: 24px 16px;
         border-radius: 0; border-bottom-color: var(--rule);
       }
-      .project-card:hover::before { opacity: 0; animation: none; }
-      .p-text, .project-card:hover .p-text { position: static; height: auto; }
+      .project-card.is-open::before { opacity: 0; animation: none; }
+      .p-text, .project-card.is-open .p-text { position: static; height: auto; }
       .p-line { display: none; }
-      .p-full, .project-card:hover .p-full { position: static; opacity: 1; }
-      .p-media, .project-card:hover .p-media { width: 100%; height: 190px; margin-right: 0; opacity: 1; }
-      .p-body, .project-card:hover .p-body { flex-direction: column; align-items: stretch; gap: 10px; }
-      .p-title, .project-card:hover .p-title { font-size: 19px; flex: 0 0 auto; }
-      .p-full, .project-card:hover .p-full { font-size: 15px; }
+      .p-full, .project-card.is-open .p-full { position: static; opacity: 1; }
+      .p-media, .project-card.is-open .p-media { width: 100%; height: 190px; margin-right: 0; opacity: 1; }
+      .p-body, .project-card.is-open .p-body { flex-direction: column; align-items: stretch; gap: 10px; }
+      .p-title, .project-card.is-open .p-title { font-size: 19px; flex: 0 0 auto; }
+      .p-full, .project-card.is-open .p-full { font-size: 15px; }
       .p-arrow { display: none; }
     }
 
@@ -678,6 +715,51 @@
       });
     });
 
+
+    // ── Project rows: hover intent ────────────────────────
+    // Expanding is driven by .is-open rather than :hover, so a short delay can
+    // gate it. Sweeping the cursor down the list no longer detonates every row
+    // it crosses. Collapsing is immediate. Keyboard focus opens with no delay.
+    (function () {
+      var HOVER_INTENT = 90; // ms the pointer must rest on a row
+      var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (!canHover) return;   // touch: the responsive rules show rows expanded
+
+      document.querySelectorAll('.project-card').forEach(function (card) {
+        var timer = null;
+        var text  = card.querySelector('.p-text');
+
+        // The text column narrows as the thumbnail slides open, which would
+        // re-wrap the paragraph on every frame. So measure the open layout
+        // first (transitions off, all within one synchronous block, so nothing
+        // paints) and pin .p-text to that width. The paragraph then wraps once
+        // and simply travels across with the title.
+        function pinFinalWidth() {
+          card.classList.add('is-measuring');
+          card.classList.add('is-open');
+          var w = text.getBoundingClientRect().width;
+          card.classList.remove('is-open');
+          void card.offsetHeight;                 // flush, so the real open animates
+          card.classList.remove('is-measuring');
+          text.style.width = w + 'px';
+        }
+
+        var open  = function () { pinFinalWidth(); card.classList.add('is-open'); };
+        var close = function () {
+          clearTimeout(timer);
+          card.classList.remove('is-open');
+          text.style.width = '';
+        };
+
+        card.addEventListener('mouseenter', function () {
+          clearTimeout(timer);
+          timer = setTimeout(open, HOVER_INTENT);
+        });
+        card.addEventListener('mouseleave', close);
+        card.addEventListener('focus', open);
+        card.addEventListener('blur', close);
+      });
+    })();
 
     // ── Smooth anchor scroll ──────────────────────────────
     document.querySelectorAll('a[href^="#"]').forEach(a => {
