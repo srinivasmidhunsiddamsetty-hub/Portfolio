@@ -108,7 +108,7 @@
       top: 0;
       background: var(--bg);
       z-index: 100;
-      padding: 28px var(--side) 24px;
+      padding: 16px var(--side) 16px;   /* 16 + 40px toggle + 16 = 72px */
       display: flex;
       align-items: center;
       gap: 64px;
@@ -374,7 +374,7 @@
 
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 720px) {
-      nav { padding: 22px var(--side) 18px; gap: 32px; }
+      nav { padding: 14px var(--side) 14px; gap: 32px; }
       .nav-links { gap: 28px; }
       .nav-links a { font-size: 15px; }
 
