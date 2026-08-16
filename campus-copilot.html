@@ -67,8 +67,6 @@
     [data-theme="dark"] .mock-card,
     [data-theme="dark"] .ba-before { background: #1A1A17; }
     [data-theme="dark"] ul.user-quotes li { background: #1A1A17; }
-    [data-theme="dark"] .card:hover,
-    [data-theme="dark"] .next-item:hover { background: #1A1A17; }
 
     html { scroll-behavior: smooth; }
     body {
@@ -382,13 +380,11 @@
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 16px; margin-top: 36px;
     }
+    /* Static container — no hover response, so it never reads as clickable. */
     .interview-card {
       padding: 28px 26px; border: 1px solid var(--rule);
       border-radius: 14px; background: var(--bg);
-      transition: background 0.2s, border-color 0.2s, transform 0.25s cubic-bezier(0.22,1,0.36,1);
     }
-    .interview-card:hover { background: var(--tint); border-color: var(--ink); transform: translateY(-2px); }
-    [data-theme="dark"] .interview-card:hover { background: #1A1A17; }
     .iq-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .iq-avatar {
       width: 38px; height: 38px; border-radius: 50%;
@@ -413,8 +409,7 @@
     }
     .insight em { font-style: normal; color: var(--soft); }
     .insight-beats { display: flex; flex-direction: column; gap: 28px; }
-    .insight-beat { padding-left: 22px; border-left: 2px solid var(--rule); transition: border-color 0.2s; }
-    .insight-beat:hover { border-left-color: var(--ink); }
+    .insight-beat { padding-left: 22px; border-left: 2px solid var(--rule); }
     .insight-beat .beat-label {
       display: block; font-size: 11px; font-weight: 600;
       letter-spacing: 0.18em; text-transform: uppercase;
@@ -433,9 +428,7 @@
     .card {
       padding: 28px 26px; border: 1px solid var(--rule);
       border-radius: 14px; background: var(--bg);
-      transition: background 0.2s, border-color 0.2s, transform 0.25s cubic-bezier(0.22,1,0.36,1);
     }
-    .card:hover { background: var(--tint); border-color: var(--ink); transform: translateY(-2px); }
     .card .card-num {
       font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
       text-transform: uppercase; color: var(--soft); margin-bottom: 14px;
@@ -474,10 +467,7 @@
       background: transparent;
       border: 1px solid var(--rule);
       border-radius: 10px;
-      transition: border-color 0.2s, background 0.2s;
     }
-    .anatomy-item:hover { background: var(--tint); border-color: var(--ink); }
-    [data-theme="dark"] .anatomy-item:hover { background: #1A1A17; }
     .anatomy-item .an-num {
       font-size: 10px; font-weight: 600; color: var(--accent);
       letter-spacing: 0.16em; margin-bottom: 8px;
@@ -500,8 +490,6 @@
     }
     .anatomy-side.left .anatomy-item::after { left: 100%; }
     .anatomy-side.right .anatomy-item::before { right: 100%; }
-    .anatomy-item:hover::after,
-    .anatomy-item:hover::before { border-top-color: var(--ink); }
 
     @media (max-width: 900px) {
       .anatomy { grid-template-columns: 1fr; gap: 28px; }
@@ -562,12 +550,12 @@
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 16px; margin-top: 36px;
     }
+    /* Was dimmed to 0.92 and lit up on hover. With the hover gone it just
+       reads at full strength — nothing here was ever clickable. */
     .alt-item {
       padding: 26px 24px; border: 1px solid var(--rule);
-      border-radius: 14px; background: var(--bg); opacity: 0.92;
-      transition: opacity 0.2s, border-color 0.2s;
+      border-radius: 14px; background: var(--bg);
     }
-    .alt-item:hover { opacity: 1; border-color: var(--ink); }
     .alt-name {
       font-size: 16px; font-weight: 500; color: var(--ink);
       margin-bottom: 10px; display: flex; align-items: center; gap: 9px;
@@ -601,10 +589,7 @@
       font-size: 15px; font-weight: 500; color: var(--ink);
       padding: 16px 20px; border: 1px solid var(--rule);
       border-radius: 12px; background: var(--bg); letter-spacing: -0.01em;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
     }
-    .category-chip:hover { background: var(--tint); border-color: var(--ink); transform: translateY(-2px); }
-    [data-theme="dark"] .category-chip:hover { background: #1A1A17; }
     @media (max-width: 620px) { .category-grid { grid-template-columns: 1fr 1fr; } }
 
     /* ── Approach: the principle (inverted block) ─────── */
@@ -703,9 +688,8 @@
     .next-item {
       display: grid; grid-template-columns: 44px 1fr; gap: 20px;
       padding: 22px 24px; border: 1px solid var(--rule);
-      border-radius: 12px; align-items: baseline; transition: background 0.2s, border-color 0.2s;
+      border-radius: 12px; align-items: baseline;
     }
-    .next-item:hover { background: var(--tint); border-color: var(--ink); }
     .next-num { font-size: 20px; font-weight: 500; color: var(--soft); letter-spacing: -0.02em; }
     .next-title { font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
     .next-desc { font-size: 14px; color: var(--muted); line-height: 1.55; letter-spacing: -0.005em; }
@@ -719,9 +703,7 @@
       border: 1px solid var(--rule); border-radius: 14px;
       padding: 30px 28px; background: var(--bg);
       display: flex; flex-direction: column; gap: 22px;
-      transition: border-color 0.2s, transform 0.25s cubic-bezier(0.22,1,0.36,1);
     }
-    .craft-cell:hover { border-color: var(--ink); transform: translateY(-2px); }
     .craft-visual {
       flex: 1; display: flex; align-items: center; gap: 10px;
       flex-wrap: wrap; min-height: 76px;
@@ -852,14 +834,52 @@
       font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
       color: var(--footer-muted); margin-bottom: 12px;
     }
-    .footer-right ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
-    .footer-right a { font-size: 16px; position: relative; padding-bottom: 2px; }
-    .footer-right a::after {
-      content: ''; position: absolute; left: 0; bottom: 0;
-      width: 0; height: 1px; background: var(--footer-ink);
-      transition: width 0.25s cubic-bezier(0.22,1,0.36,1);
+
+    /* Icon links. Circular buttons that invert on hover, matching the
+       .theme-toggle in the nav — the underline-grow used for text links
+       has nothing to sit under once the label is gone. */
+    .footer-right ul { list-style: none; display: flex; flex-direction: row; gap: 14px; }
+    .footer-right a {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: var(--footer-ink);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
-    .footer-right a:hover::after { width: 100%; }
+    .footer-right a:hover,
+    .footer-right a:focus-visible {
+      transform: translateY(-2px);
+      background: var(--footer-ink); color: var(--footer-bg);
+      border-color: var(--footer-ink);
+    }
+    .footer-right a svg { width: 19px; height: 19px; display: block; }
+
+    /* Visible label on hover and on keyboard focus. The text is pulled from
+       aria-label with attr(), so there is exactly one source for the name and
+       the two can never drift apart. Not a `title` attribute: that only
+       appears after a delay, cannot be styled, and never shows for keyboard
+       users. Pseudo-element content is not added to the accessible name when
+       aria-label is present, so nothing is announced twice. */
+    .footer-right a::after {
+      content: attr(aria-label);
+      position: absolute; top: calc(100% + 9px); left: 50%;
+      transform: translateX(-50%) translateY(-3px);
+      color: var(--footer-muted);
+      font-size: 11.5px; font-weight: 400; letter-spacing: 0.01em;
+      line-height: 1.3; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .footer-right a:hover::after,
+    .footer-right a:focus-visible::after {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) { .footer-right a::after { transition: none; } }
+
+    @media (prefers-reduced-motion: reduce) { .footer-right a { transition: none; } }
+
 
     /* ═══════ RESPONSIVE ═══════ */
     @media (max-width: 1024px) {
@@ -906,6 +926,82 @@
       :root { --side: 16px; }
       .main-nav ul { gap: 14px; }
       .section-nav-inner { gap: 14px; }
+    }
+
+    /* ══ Reading response on the static boxes ══════════════
+       None of these containers holds a link or a button, so none of them may
+       borrow a control's vocabulary. Nothing below touches a border, a
+       background, an elevation or a position — the only things that change
+       are opacity and text colour.
+
+       FOCUS: the group recedes so the one you are reading comes forward.
+       0.8 is a floor, not a preference. Body copy at #6B6B68 on white is
+       5.35:1 at rest; at 0.8 it is 3.52:1 (large-text AA) and at the 0.42
+       that looks best it collapses to 1.80:1 — unreadable for anyone who
+       needs the contrast.
+
+       The dim is gated behind :has(), so hovering the gap between two cards
+       (or the mockup in the middle of the anatomy diagram) does nothing.
+       Where :has() is unsupported the rule is dropped and only READ applies. */
+    .response-types .card,
+    .interview-grid .interview-card,
+    .category-grid .category-chip,
+    .craft-grid .craft-cell,
+    .anatomy .anatomy-item,
+    .whats-next .next-item,
+    .alt-list .alt-item,
+    .insight-beats .insight-beat { transition: opacity 260ms ease; }
+
+    .response-types:has(.card:hover) .card,
+    .interview-grid:has(.interview-card:hover) .interview-card,
+    .category-grid:has(.category-chip:hover) .category-chip,
+    .craft-grid:has(.craft-cell:hover) .craft-cell,
+    .anatomy:has(.anatomy-item:hover) .anatomy-item,
+    .whats-next:has(.next-item:hover) .next-item,
+    .alt-list:has(.alt-item:hover) .alt-item,
+    .insight-beats:has(.insight-beat:hover) .insight-beat { opacity: 0.8; }
+
+    /* The :has() prefix is repeated here on purpose. :has() carries the
+       specificity of its argument, so the dim above scores 0,4,0 — without
+       matching it, this rule loses at 0,3,0 and the hovered card dims too. */
+    .response-types:has(.card:hover) .card:hover,
+    .interview-grid:has(.interview-card:hover) .interview-card:hover,
+    .category-grid:has(.category-chip:hover) .category-chip:hover,
+    .craft-grid:has(.craft-cell:hover) .craft-cell:hover,
+    .anatomy:has(.anatomy-item:hover) .anatomy-item:hover,
+    .whats-next:has(.next-item:hover) .next-item:hover,
+    .alt-list:has(.alt-item:hover) .alt-item:hover,
+    .insight-beats:has(.insight-beat:hover) .insight-beat:hover { opacity: 1; }
+
+    /* READ: the copy under the cursor comes up one tier — soft to muted,
+       muted to ink. Only ever an increase in contrast.
+
+       Body copy only. The eyebrow labels (.card-num, .next-num) deliberately
+       stay put: lifting them too is a different treatment, and two things
+       changing at once starts to read as a state rather than as legibility. */
+    .card .card-body,
+    .craft-cell .craft-cap,
+    .anatomy-item .an-desc,
+    .next-item .next-desc,
+    .alt-item .alt-why { transition: color 300ms ease; }
+
+    .card:hover .card-body       { color: var(--ink); }
+    .craft-cell:hover .craft-cap { color: var(--ink); }
+    .anatomy-item:hover .an-desc { color: var(--muted); }
+    .next-item:hover .next-desc  { color: var(--ink); }
+    .alt-item:hover .alt-why     { color: var(--ink); }
+
+    /* .interview-card and .insight-beat carry ink-coloured copy already, and
+       .category-chip is a single ink line — those three get FOCUS only. */
+
+    @media (prefers-reduced-motion: reduce) {
+      .response-types .card, .interview-grid .interview-card,
+      .category-grid .category-chip, .craft-grid .craft-cell,
+      .anatomy .anatomy-item, .whats-next .next-item,
+      .alt-list .alt-item, .insight-beats .insight-beat,
+      .card .card-body, .craft-cell .craft-cap,
+      .anatomy-item .an-desc, .next-item .next-desc,
+      .alt-item .alt-why { transition: none; }
     }
   </style>
 </head>
@@ -1504,13 +1600,13 @@
   <footer class="site">
     <div class="footer-left">
       <h2>You made it through!</h2>
-      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+      <p class="footer-tagline">This website was vibe coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
     </div>
     <div class="footer-right">
       <h3>SAY Hi!</h3>
       <ul>
-        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank">LinkedIn</a></li>
-        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.83v1.64h.06c.53-1 1.84-2.06 3.79-2.06C21.4 8.58 22 11 22 14.16V21h-4v-6.06c0-1.45-.03-3.31-2.02-3.31-2.02 0-2.33 1.58-2.33 3.21V21h-4V9z"/></svg></a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 5h18a1 1 0 0 1 1 1v.24l-9.47 5.93a1 1 0 0 1-1.06 0L2 6.24V6a1 1 0 0 1 1-1zm19 3.6V18a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.6l8.94 5.6a2 2 0 0 0 2.12 0L22 8.6z"/></svg></a></li>
       </ul>
     </div>
   </footer>

@@ -315,36 +315,55 @@
       margin-bottom: 12px;
     }
 
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
+    /* Icon links. Circular buttons that invert on hover, matching the
+       .theme-toggle in the nav — the underline-grow used for text links
+       has nothing to sit under once the label is gone. */
+    .footer-links { list-style: none; display: flex; flex-direction: row; gap: 14px; }
     .footer-links a {
-      font-size: 16px;
-      font-weight: 400;
-      color: var(--footer-ink);
-      letter-spacing: -0.005em;
-      transition: opacity 0.2s;
-      display: inline-block;
       position: relative;
-      padding-bottom: 2px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: var(--footer-ink);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      transform: translateY(-2px);
+      background: var(--footer-ink); color: var(--footer-bg);
+      border-color: var(--footer-ink);
+    }
+    .footer-links a svg { width: 19px; height: 19px; display: block; }
 
+    /* Visible label on hover and on keyboard focus. The text is pulled from
+       aria-label with attr(), so there is exactly one source for the name and
+       the two can never drift apart. Not a `title` attribute: that only
+       appears after a delay, cannot be styled, and never shows for keyboard
+       users. Pseudo-element content is not added to the accessible name when
+       aria-label is present, so nothing is announced twice. */
     .footer-links a::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 1px;
-      background: var(--footer-ink);
-      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      content: attr(aria-label);
+      position: absolute; top: calc(100% + 9px); left: 50%;
+      transform: translateX(-50%) translateY(-3px);
+      color: var(--footer-muted);
+      font-size: 11.5px; font-weight: 400; letter-spacing: 0.01em;
+      line-height: 1.3; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
     }
+    .footer-links a:hover::after,
+    .footer-links a:focus-visible::after {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) { .footer-links a::after { transition: none; } }
 
-    .footer-links a:hover::after { width: 100%; }
+    @media (prefers-reduced-motion: reduce) { .footer-links a { transition: none; } }
+
+
+
+
+
 
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 720px) {
@@ -675,13 +694,13 @@
   <footer id="contact">
     <div class="footer-left">
       <h2>You made it through!</h2>
-      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+      <p class="footer-tagline">This website was vibe coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
     </div>
     <div class="footer-right">
       <h3>SAY Hi!</h3>
       <ul class="footer-links">
-        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.83v1.64h.06c.53-1 1.84-2.06 3.79-2.06C21.4 8.58 22 11 22 14.16V21h-4v-6.06c0-1.45-.03-3.31-2.02-3.31-2.02 0-2.33 1.58-2.33 3.21V21h-4V9z"/></svg></a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 5h18a1 1 0 0 1 1 1v.24l-9.47 5.93a1 1 0 0 1-1.06 0L2 6.24V6a1 1 0 0 1 1-1zm19 3.6V18a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.6l8.94 5.6a2 2 0 0 0 2.12 0L22 8.6z"/></svg></a></li>
       </ul>
     </div>
   </footer>

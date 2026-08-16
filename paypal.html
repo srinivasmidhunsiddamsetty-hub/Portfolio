@@ -568,15 +568,8 @@
       padding: 28px 26px;
       border: 1px solid var(--rule);
       border-radius: 14px;
-      transition: background 0.2s, border-color 0.2s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
       background: var(--bg);
     }
-    .impact-card:hover {
-      background: var(--tint);
-      border-color: var(--ink);
-      transform: translateY(-2px);
-    }
-    [data-theme="dark"] .impact-card:hover { background: #1A1A17; }
     .impact-num {
       font-size: 11px;
       font-weight: 600;
@@ -618,16 +611,9 @@
       padding: 22px 24px;
       background: var(--tint);
       border-radius: 12px;
-      transition: background 0.2s;
-    }
-    ul.user-quotes li:hover {
-      background: var(--hover-bg);
     }
     [data-theme="dark"] ul.user-quotes li {
       background: #1A1A17;
-    }
-    [data-theme="dark"] ul.user-quotes li:hover {
-      background: #20201D;
     }
     ul.user-quotes .uq-num {
       font-size: 11px;
@@ -770,9 +756,7 @@
       border: 1px solid var(--rule);
       border-radius: 10px;
       background: var(--bg);
-      transition: background 0.2s, border-color 0.2s;
     }
-    .card:hover { background: var(--tint); border-color: var(--ink); }
     .card .card-num {
       font-size: 12px;
       font-weight: 500;
@@ -933,23 +917,52 @@
       color: var(--footer-muted);
       margin-bottom: 12px;
     }
-    .footer-right ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+
+    /* Icon links. Circular buttons that invert on hover, matching the
+       .theme-toggle in the nav — the underline-grow used for text links
+       has nothing to sit under once the label is gone. */
+    .footer-right ul { list-style: none; display: flex; flex-direction: row; gap: 14px; }
     .footer-right a {
-      font-size: 16px;
       position: relative;
-      padding-bottom: 2px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: var(--footer-ink);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
+    .footer-right a:hover,
+    .footer-right a:focus-visible {
+      transform: translateY(-2px);
+      background: var(--footer-ink); color: var(--footer-bg);
+      border-color: var(--footer-ink);
+    }
+    .footer-right a svg { width: 19px; height: 19px; display: block; }
+
+    /* Visible label on hover and on keyboard focus. The text is pulled from
+       aria-label with attr(), so there is exactly one source for the name and
+       the two can never drift apart. Not a `title` attribute: that only
+       appears after a delay, cannot be styled, and never shows for keyboard
+       users. Pseudo-element content is not added to the accessible name when
+       aria-label is present, so nothing is announced twice. */
     .footer-right a::after {
-      content: ''; position: absolute; left: 0; bottom: 0;
-      width: 0; height: 1px; background: var(--footer-ink);
-      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      content: attr(aria-label);
+      position: absolute; top: calc(100% + 9px); left: 50%;
+      transform: translateX(-50%) translateY(-3px);
+      color: var(--footer-muted);
+      font-size: 11.5px; font-weight: 400; letter-spacing: 0.01em;
+      line-height: 1.3; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
     }
-    .footer-right a:hover::after { width: 100%; }
+    .footer-right a:hover::after,
+    .footer-right a:focus-visible::after {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) { .footer-right a::after { transition: none; } }
+
+    @media (prefers-reduced-motion: reduce) { .footer-right a { transition: none; } }
+
 
     /* ─────────────────────────────────────────────
        Responsive
@@ -1116,6 +1129,51 @@
       .main-nav ul { gap: 14px; }
       .section-nav-inner { gap: 14px; }
     }
+
+    /* ══ Reading response on the static boxes ══════════════
+       Ported from Campus Copilot. None of these containers holds a link or a
+       button, so none of them may borrow a control's vocabulary: nothing here
+       touches a border, a background, an elevation or a position. The only
+       things that change are opacity and text colour.
+
+       FOCUS: the group recedes so the one you are reading comes forward.
+       0.8 is a floor, not a preference — body copy at #6B6B68 on white is
+       5.35:1 at rest and 3.52:1 at 0.8, but collapses to 1.80:1 at 0.42.
+
+       The dim is gated behind :has(), so hovering the gap between two cards
+       does nothing. The gate is repeated on the restore rule because :has()
+       carries its argument's specificity — without it the dim (0,4,0) beats
+       the restore (0,3,0) and the hovered card dims along with the rest.
+
+       READ: body copy only, one tier up. Eyebrow labels deliberately hold
+       still; two things moving at once starts to read as a state. */
+    .impact-grid .impact-card,
+    .card-row .card,
+    ul.user-quotes li { transition: opacity 260ms ease; }
+
+    .impact-grid:has(.impact-card:hover) .impact-card,
+    .card-row:has(.card:hover) .card,
+    ul.user-quotes:has(li:hover) li { opacity: 0.8; }
+
+    .impact-grid:has(.impact-card:hover) .impact-card:hover,
+    .card-row:has(.card:hover) .card:hover,
+    ul.user-quotes:has(li:hover) li:hover { opacity: 1; }
+
+    .impact-card .impact-body,
+    .card .card-body { transition: color 300ms ease; }
+
+    .impact-card:hover .impact-body { color: var(--ink); }
+    .card:hover .card-body { color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .impact-grid .impact-card,
+      .card-row .card,
+      ul.user-quotes li,
+      .impact-card .impact-body,
+      .card .card-body { transition: none; }
+    }
+
+    /* ul.user-quotes gets FOCUS only — the quote text is already ink. */
   </style>
 </head>
 <body>
@@ -1581,13 +1639,13 @@
   <footer class="site">
     <div class="footer-left">
       <h2>You made it through!</h2>
-      <p class="footer-tagline">This website was hard coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+      <p class="footer-tagline">This website was vibe coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
     </div>
     <div class="footer-right">
       <h3>SAY Hi!</h3>
       <ul>
-        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank">LinkedIn</a></li>
-        <li><a href="mailto:srinivasmidhunw@gmail.com">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.83v1.64h.06c.53-1 1.84-2.06 3.79-2.06C21.4 8.58 22 11 22 14.16V21h-4v-6.06c0-1.45-.03-3.31-2.02-3.31-2.02 0-2.33 1.58-2.33 3.21V21h-4V9z"/></svg></a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 5h18a1 1 0 0 1 1 1v.24l-9.47 5.93a1 1 0 0 1-1.06 0L2 6.24V6a1 1 0 0 1 1-1zm19 3.6V18a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.6l8.94 5.6a2 2 0 0 0 2.12 0L22 8.6z"/></svg></a></li>
       </ul>
     </div>
   </footer>
