@@ -21,7 +21,7 @@
   </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
 
     /* ── Reset & Base ─────────────────────────────────── */
     *, *::before, *::after {
@@ -50,7 +50,7 @@
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
 
-      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
 
       --nav-h:     72px;
       --side:      clamp(28px, 6vw, 144px);
@@ -211,16 +211,23 @@
 
     .hero > *:not(#tubes-canvas) { position: relative; z-index: 1; }
 
+    /* Two lines across every desktop width. Two things were fighting it:
+       max-width capped the line at 1180px when the hero column is 1267px, and
+       the type scaled at 3.6vw while the column only grows at 88vw — so the
+       sentence outran its container as the screen got wider. 3.3vw/46px keeps
+       it at two lines from 1150px up; the 1500px cap stops it collapsing to a
+       single line on an ultrawide. balance evens the two lines out. */
     .hero-statement {
       font-family: var(--font-sans);
       font-weight: 400;
-      font-size: clamp(30px, 3.6vw, 48px);
+      font-size: clamp(30px, 3.3vw, 46px);
       line-height: 1.25;
-      letter-spacing: 0em;
+      letter-spacing: -0.02em;   /* Montserrat is wide; a touch tighter at display size */
       word-spacing: 0.08em;
       color: #ffffff;
       text-shadow: 0 2px 26px rgba(0, 0, 0, 0.55);
-      max-width: 1180px;
+      max-width: 1500px;
+      text-wrap: balance;
     }
 
     /* ── Work section ─────────────────────────────────── */
@@ -300,12 +307,12 @@
 
     .footer-tagline {
       font-size: 13px;
-      color: var(--footer-muted);
+      color: var(--footer-ink);
       font-weight: 400;
       letter-spacing: -0.005em;
     }
 
-    .footer-tagline .heart { color: var(--footer-ink); margin: 0 2px; }
+    .footer-tagline .heart { margin: 0 2px; }
 
     .footer-right h3 {
       font-size: 11px;
