@@ -146,59 +146,80 @@
     }
     .about-block.intro p:last-child { margin-bottom: 0; }
 
-    /* — What drives me (2x2 cards) — */
+    /* — What drives me —
+       These were four outlined cards that darkened their border and lifted 4px
+       on hover: the vocabulary of a button, on four boxes that do nothing.
+
+       The boxes are gone rather than just the hover. Each entry is now a small
+       two-column composition — an oversized numeral set light in the page's
+       terracotta, then the title and copy — with one hairline between the rows
+       for structure. The big numeral is the same decorative device the Beyond
+       design block already uses with its 220px star, so the scale contrast is
+       borrowed from the page rather than invented for this section.
+
+       Hover matches the rest of the site: the group recedes, the copy under
+       the cursor sharpens, and nothing touches a border, a background or a
+       position. */
     .drives-grid {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      column-gap: clamp(30px, 3.6vw, 64px);
+      row-gap: 0;
     }
     .drive-card {
-      position: relative;
-      padding: 30px 28px 26px 32px;
-      border: 1px solid var(--rule);
-      border-radius: 14px;
-      background: var(--bg);
-      overflow: hidden;
-      transition: border-color 0.25s, transform 0.3s cubic-bezier(0.22,1,0.36,1);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: clamp(16px, 1.4vw, 22px);
+      align-items: start;
+      padding-bottom: 6px;
+      transition: opacity 260ms ease;
     }
-    .drive-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: #B8654A;
-      opacity: 0.7;
-      transition: width 0.25s, opacity 0.25s;
+    /* one rule under the top row, broken by the column gap */
+    .drive-card:nth-child(3),
+    .drive-card:nth-child(4) {
+      border-top: 1px solid var(--rule);
+      margin-top: 36px;
+      padding-top: 36px;
     }
-    [data-theme="dark"] .drive-card::before { background: #D8896E; }
-    .drive-card:hover {
-      border-color: var(--ink);
-      transform: translateY(-4px);
-    }
-    .drive-card:hover::before { width: 6px; opacity: 1; }
+
     .drive-num {
-      position: absolute;
-      top: 22px; right: 24px;
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0.5;
+      grid-row: 1 / span 2;
+      font-size: clamp(42px, 4.2vw, 56px);
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 0.8;            /* pulls the digits up to the title's cap height */
+      color: #B8654A;
+      opacity: 0.55;
+      font-variant-numeric: lining-nums tabular-nums;
+      user-select: none;
     }
+    [data-theme="dark"] .drive-num { color: #D8896E; opacity: 0.62; }
+
     .drive-card h4 {
-      font-size: clamp(18px, 1.5vw, 21px);
+      grid-column: 2;
+      font-size: clamp(19px, 1.6vw, 22px);
       font-weight: 500;
       letter-spacing: -0.018em;
       line-height: 1.2;
       color: var(--ink);
-      margin-bottom: 10px;
+      margin: -2px 0 9px;
       max-width: 22ch;
-      padding-right: 36px;
     }
     .drive-card p {
-      font-size: 13.5px;
-      line-height: 1.55;
+      grid-column: 2;
+      font-size: 14px;
+      line-height: 1.6;
       color: var(--muted);
       letter-spacing: -0.005em;
-      max-width: 32ch;
+      max-width: 38ch;
+      transition: color 300ms ease;
+    }
+
+    .drives-grid:has(.drive-card:hover) .drive-card { opacity: 0.8; }
+    .drives-grid:has(.drive-card:hover) .drive-card:hover { opacity: 1; }
+    .drive-card:hover p { color: var(--ink); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drive-card, .drive-card p { transition: none; }
     }
 
     /* — Beyond design (warm tinted card + hobby chips) — */
@@ -362,6 +383,7 @@
     }
     @media (max-width: 600px) {
       .drives-grid { grid-template-columns: 1fr; }
+      .drive-card:nth-child(2) { border-top: 1px solid var(--rule); margin-top: 34px; padding-top: 34px; }
       .about-block.beyond { padding: 24px 22px; }
       nav.main-nav { padding: 20px var(--side) 16px; gap: 24px; }
       .nav-links { gap: 24px; }
@@ -562,7 +584,7 @@
             <span class="tl-marker"></span>
             <div class="tl-content">
               <span class="tl-type work">Work</span>
-              <span class="tl-date">May 2023 — Jan 2024</span>
+              <span class="tl-date">May 2022 — Jan 2024</span>
               <h4 class="tl-title">UX Designer</h4>
               <p class="tl-org">Tandem Digital</p>
             </div>
