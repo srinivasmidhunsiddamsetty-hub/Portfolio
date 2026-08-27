@@ -220,7 +220,13 @@
     }
 
     .intro-tagline {
-      font-size: clamp(24px, 2.8vw, 38px);
+      /* This tagline runs 26 words against 14 on Campus Copilot, Smart Charge
+         and DesigniQ. At the shared 38px cap it set five lines and a 224px
+         block — 66% taller than their 135px — which is what made it look
+         oversized rather than the type itself. 30px brings it to four lines and a
+         block in family with the others (Executive Dashboard, the only other
+         long tagline, caps at 31px). */
+      font-size: clamp(21px, 2.4vw, 30px);
       font-weight: 500;
       line-height: 1.18;
       letter-spacing: -0.025em;
@@ -1222,7 +1228,6 @@
       </p>
       <div class="intro-body">
         <p>PayPal processes payments for over 200 million users worldwide, but its Activity feed treats every transaction the same — a chronological list that works fine for casual users and falls apart for anyone who's using PayPal as part of their work.</p>
-        <p>My role was to research the problem space, design toward the opportunity, and prototype the solution. Grounded in real conversations with freelancers who knew exactly where the Activity feed got in the way.</p>
       </div>
       <div class="intro-meta">
         <div class="meta-row"><strong>Role</strong> Product Designer, UX Researcher</div>
