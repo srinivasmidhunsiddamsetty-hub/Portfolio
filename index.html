@@ -38,11 +38,18 @@
 
       /* Row motion. The old curve (.22,1,.36,1) was 77% done in the first
          quarter of its duration, which read as a snap however long it ran.
-         This one eases in as well as out; expanding takes longer than
-         collapsing, and hover-intent is applied in JS via .is-open. */
+         This one eases in as well as out, and hover-intent is applied in JS
+         via .is-open.
+
+         --row-out MUST equal --row-in. In a hand-off the outgoing row shrinks
+         by 240px while the incoming one grows by the same 240px, so the target
+         row's lower edge only holds still if both run on the same clock. At
+         520 against 720 that edge swept 83px upward at t=220ms and back again
+         — more than enough to slide out from under a moving cursor, fire
+         mouseleave, and dump you on the row below the one you aimed at. */
       --row-ease: cubic-bezier(0.5, 0, 0.15, 1);
       --row-in:   720ms;
-      --row-out:  520ms;
+      --row-out:  720ms;
       --rule:      #E5E5E5;
       --hover-bg:  #F7F7F7;
       --preview-bg:#EDEDEA;
@@ -745,46 +752,66 @@
     // ── Project rows: hover intent ────────────────────────
     // Expanding is driven by .is-open rather than :hover, so a short delay can
     // gate it. Sweeping the cursor down the list no longer detonates every row
-    // it crosses. Collapsing is immediate. Keyboard focus opens with no delay.
+    // it crosses. Keyboard focus opens with no delay.
+    //
+    // A row stays open until another row takes over, or until the pointer
+    // leaves the list. Closing on the row's own mouseleave used to pull 240px
+    // out of the layout mid-gesture: crossing the open row's lower edge aimed
+    // at the next project, the list would snap up and the row that slid under
+    // the cursor was three further down (332 / 92 = 3.6 rows). Handing over
+    // instead means the incoming row is already beneath the cursor when it
+    // grows, so the pointer never lands on a project it did not aim at.
     (function () {
       var HOVER_INTENT = 90; // ms the pointer must rest on a row
       var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
       if (!canHover) return;   // touch: the responsive rules show rows expanded
 
-      document.querySelectorAll('.project-card').forEach(function (card) {
-        var timer = null;
-        var text  = card.querySelector('.p-text');
+      var list  = document.querySelector('.projects-list');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.project-card'));
+      // One timer for the whole list, not one per row: a fast sweep must not
+      // leave an earlier row still queued to open behind the one you settle on.
+      var timer = null;
 
-        // The text column narrows as the thumbnail slides open, which would
-        // re-wrap the paragraph on every frame. So measure the open layout
-        // first (transitions off, all within one synchronous block, so nothing
-        // paints) and pin .p-text to that width. The paragraph then wraps once
-        // and simply travels across with the title.
-        function pinFinalWidth() {
-          card.classList.add('is-measuring');
-          card.classList.add('is-open');
-          var w = text.getBoundingClientRect().width;
-          card.classList.remove('is-open');
-          void card.offsetHeight;                 // flush, so the real open animates
-          card.classList.remove('is-measuring');
-          text.style.width = w + 'px';
-        }
+      // The text column narrows as the thumbnail slides open, which would
+      // re-wrap the paragraph on every frame. So measure the open layout
+      // first (transitions off, all within one synchronous block, so nothing
+      // paints) and pin .p-text to that width. The paragraph then wraps once
+      // and simply travels across with the title.
+      function pinFinalWidth(card, text) {
+        card.classList.add('is-measuring');
+        card.classList.add('is-open');
+        var w = text.getBoundingClientRect().width;
+        card.classList.remove('is-open');
+        void card.offsetHeight;                 // flush, so the real open animates
+        card.classList.remove('is-measuring');
+        text.style.width = w + 'px';
+      }
 
-        var open  = function () { pinFinalWidth(); card.classList.add('is-open'); };
-        var close = function () {
-          clearTimeout(timer);
-          card.classList.remove('is-open');
-          text.style.width = '';
-        };
+      function closeCard(card) {
+        card.classList.remove('is-open');
+        card.querySelector('.p-text').style.width = '';
+      }
 
+      function openCard(card) {
+        cards.forEach(function (other) { if (other !== card) closeCard(other); });
+        pinFinalWidth(card, card.querySelector('.p-text'));
+        card.classList.add('is-open');
+      }
+
+      function closeAll() { clearTimeout(timer); cards.forEach(closeCard); }
+
+      cards.forEach(function (card) {
         card.addEventListener('mouseenter', function () {
           clearTimeout(timer);
-          timer = setTimeout(open, HOVER_INTENT);
+          timer = setTimeout(function () { openCard(card); }, HOVER_INTENT);
         });
-        card.addEventListener('mouseleave', close);
-        card.addEventListener('focus', open);
-        card.addEventListener('blur', close);
+        card.addEventListener('focus', function () { clearTimeout(timer); openCard(card); });
+        card.addEventListener('blur',  function () { closeCard(card); });
       });
+
+      // The only way out is out of the list — including downward past the last
+      // row, since an open row makes the list taller than its resting height.
+      if (list) list.addEventListener('mouseleave', closeAll);
     })();
 
     // ── Smooth anchor scroll ──────────────────────────────
