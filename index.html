@@ -594,6 +594,42 @@
 
     /* Filter hidden cards */
     .project-card[data-hidden="true"] { display: none; }
+
+    /* A launching row travels to 112vw, which widens the document and would
+       hand the page a horizontal scrollbar for the length of the flight.
+       Deliberately clip and not hidden: hidden would make <html> a scroll
+       container and break the sticky nav. */
+    html.is-launching { overflow-x: clip; }
+
+    /* The launch animates transform on a row that has never been animated
+       before, so the browser builds its compositor layer during the first
+       frame — a hitch you see once per row and never again, which is exactly
+       when it was being reported. Promoting on list hover gives that work
+       hundreds of milliseconds of warning, and it is dropped the moment the
+       pointer leaves so nothing is held on a layer it does not need. */
+    .projects-list:hover .project-card { will-change: transform, opacity; }
+
+    /* box-shadow cannot be composited: interpolating it in the launch keyframes
+       repainted the row — including its 440px thumbnail — on every frame of the
+       lift, and the first repaint of each row is the expensive one because
+       nothing is rastered yet. As a CSS transition on its own it is one
+       property the browser can handle independently of the transform running
+       on the compositor. */
+    .project-card.is-lifting {
+      box-shadow: 0 26px 62px -20px rgba(0, 0, 0, 0.34);
+      transition: box-shadow 200ms cubic-bezier(.22,.7,.3,1);
+    }
+    /* While a row is in flight the list answers to nothing. The guard in JS is
+       the real defence; this makes it impossible for a stray mouseenter to be
+       generated in the first place as the flying row leaves the cursor. */
+    html.is-launching .projects-list { pointer-events: none; }
+
+    /* gb-spin animates --gb-angle inside a conic-gradient, so the ring repaints
+       every frame for as long as a row is open — including all 1120ms of the
+       launch, competing with it for the main thread. Nobody can see an 8s
+       rotation during a flight that lasts one eighth of it, so it stands still
+       until the row has gone. */
+    html.is-launching .project-card::before { animation: none; }
   </style>
 </head>
 <body>
@@ -749,28 +785,46 @@
     });
 
 
-    // ── Project rows: hover intent ────────────────────────
-    // Expanding is driven by .is-open rather than :hover, so a short delay can
-    // gate it. Sweeping the cursor down the list no longer detonates every row
-    // it crosses. Keyboard focus opens with no delay.
+    // ── Project rows: hover intent, hand-off, and launch ──────────────
+    // One block, because hovering and launching share state and the launch has
+    // to be able to shut hovering down.
     //
-    // A row stays open until another row takes over, or until the pointer
-    // leaves the list. Closing on the row's own mouseleave used to pull 240px
-    // out of the layout mid-gesture: crossing the open row's lower edge aimed
-    // at the next project, the list would snap up and the row that slid under
-    // the cursor was three further down (332 / 92 = 3.6 rows). Handing over
-    // instead means the incoming row is already beneath the cursor when it
-    // grows, so the pointer never lands on a project it did not aim at.
+    // Hover. Expanding is driven by .is-open rather than :hover, so a short
+    // delay can gate it and a sweep down the list does not detonate every row
+    // it crosses. A row stays open until another takes over, or until the
+    // pointer leaves the list: closing on the row's own mouseleave used to pull
+    // 240px out of the layout mid-gesture, and the row that slid under the
+    // cursor was three further down (332 / 92 = 3.6 rows).
+    //
+    // Launch. The row lifts, loads backwards, then fires off the right edge
+    // while the rest recede. Two things this must not do, both of which it did:
+    //   · let a pending hover-intent fire after the click, so the row expands
+    //     first and only then launches;
+    //   · let the list keep reacting to the pointer, because a flying row moves
+    //     out from under the cursor and whatever is beneath it takes the hover,
+    //     opens, and shoves the launching row's own slot 240px down — which
+    //     reads as the row vanishing and a different one opening.
+    // `launching` closes both doors, and is only reopened by pageshow.
     (function () {
       var HOVER_INTENT = 90; // ms the pointer must rest on a row
       var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      var reduced  = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!canHover) return;   // touch: the responsive rules show rows expanded
+
+      // Below 1150px the stylesheet switches to the always-expanded layout:
+      // every row is open, there is nothing left for hover to reveal, and
+      // .p-text goes position:static. Running any of this there pinned and
+      // unpinned the text column's width on every hover and every click, for
+      // no visual gain. It is a live query, not a one-off read, so resizing
+      // the window across the breakpoint does the right thing either way.
+      var DESKTOP = window.matchMedia('(min-width: 1151px)');
 
       var list  = document.querySelector('.projects-list');
       var cards = Array.prototype.slice.call(document.querySelectorAll('.project-card'));
       // One timer for the whole list, not one per row: a fast sweep must not
       // leave an earlier row still queued to open behind the one you settle on.
       var timer = null;
+      var launching = false;
 
       // The text column narrows as the thumbnail slides open, which would
       // re-wrap the paragraph on every frame. So measure the open layout
@@ -793,6 +847,7 @@
       }
 
       function openCard(card) {
+        if (launching) return;
         cards.forEach(function (other) { if (other !== card) closeCard(other); });
         pinFinalWidth(card, card.querySelector('.p-text'));
         card.classList.add('is-open');
@@ -800,18 +855,174 @@
 
       function closeAll() { clearTimeout(timer); cards.forEach(closeCard); }
 
+      // A mouseenter that arrives without the pointer having moved is the page
+      // moving underneath a stationary cursor, not a choice. Hover must answer
+      // to the pointer only, or a scroll silently reassigns which project you
+      // are looking at.
+      var lastMove = { x: -1, y: -1, at: -1e9 };
+      addEventListener('mousemove', function (e) {
+        lastMove.x = e.clientX; lastMove.y = e.clientY; lastMove.at = performance.now();
+      }, { passive: true });
+      // Timing alone is the reliable test. A real mouseenter is dispatched as a
+      // direct consequence of pointer movement, so a mousemove landed a frame
+      // or two ago; one caused by the page moving has no movement behind it at
+      // all. Comparing coordinates cannot tell them apart — a scroll-induced
+      // enter reports the same clientX/Y the pointer already had.
+      function pointerActuallyMoved() {
+        return performance.now() - lastMove.at < 60;
+      }
+
       cards.forEach(function (card) {
-        card.addEventListener('mouseenter', function () {
+        // The browser focuses an anchor on mousedown, and scrolls it into view
+        // when it does not fit. An open row is 332px tall, so pressing one near
+        // the fold scrolled the list out from under the cursor: the pointer
+        // left the row, landed on the next one, the hand-off opened that
+        // instead — and because mouseup then happened on a different element,
+        // no click was ever dispatched and the launch never ran at all.
+        card.addEventListener('mousedown', function (e) {
+          if (e.button !== 0 || !DESKTOP.matches) return;
+          e.preventDefault();   // no focus, therefore no scroll-into-view
+        });
+
+        card.addEventListener('mouseenter', function (e) {
+          if (launching || !DESKTOP.matches) return;
+          if (!pointerActuallyMoved()) return;
           clearTimeout(timer);
           timer = setTimeout(function () { openCard(card); }, HOVER_INTENT);
         });
-        card.addEventListener('focus', function () { clearTimeout(timer); openCard(card); });
-        card.addEventListener('blur',  function () { closeCard(card); });
+        card.addEventListener('focus', function () {
+          if (launching || !DESKTOP.matches) return;
+          clearTimeout(timer); openCard(card);
+        });
+        card.addEventListener('blur', function () {
+          if (launching) return;
+          closeCard(card);
+        });
       });
 
       // The only way out is out of the list — including downward past the last
       // row, since an open row makes the list taller than its resting height.
-      if (list) list.addEventListener('mouseleave', closeAll);
+      if (list) list.addEventListener('mouseleave', function () {
+        if (!launching) closeAll();
+      });
+
+      // ── the launch ──────────────────────────────────────────────────
+      // Reduced motion asked not to be moved, and a browser without WAAPI has
+      // nothing to sequence with. Both keep the plain link.
+      if (reduced || !document.documentElement.animate) return;
+
+      var LIFT = { ms: 200, px: 20, scale: 1.02, ease: 'cubic-bezier(.22,.7,.3,1)' };
+      var BACK = { ms: 200, px: 40,              ease: 'cubic-bezier(.4,0,.2,1)'   };
+      var FIRE = { ms: 720, tilt: 0.5,           ease: 'cubic-bezier(.3,0,.7,.55)' };
+      var RECEDE = 0.52;
+
+      var UP   = 'translate3d(0,-' + LIFT.px + 'px,0) scale(' + LIFT.scale + ')';
+      var LOAD = 'translate3d(-' + BACK.px + 'px,-' + LIFT.px + 'px,0) scale(' + LIFT.scale +
+                 ') rotate(-' + (FIRE.tilt / 2) + 'deg)';
+      var GONE = 'translate3d(112vw,-' + LIFT.px + 'px,0) scale(' + LIFT.scale +
+                 ') rotate(' + FIRE.tilt + 'deg)';
+
+      // Bring the list to a dead stop before anything flies, and change nothing
+      // else. Every row jumps to its own terminal size, which kills any height
+      // transition still in flight — a row caught mid-expansion or mid-collapse
+      // would otherwise keep resizing for the whole 1120ms, either changing
+      // size as it travels or dragging the launching row's slot with it.
+      //
+      // Rows that are already settled are not touched, which is the point. An
+      // earlier version force-closed every other row so that only the launched
+      // one was open; that rearranged a list nobody had asked to rearrange, and
+      // clicking a compact row while a different row sat open yanked the whole
+      // list 240px upward in the frame the click landed on.
+      function settle() {
+        cards.forEach(function (row) {
+          row.classList.add('is-measuring');   // transition:none on it and its children
+          void row.offsetHeight;               // flush, so the jump lands now
+          row.classList.remove('is-measuring');
+        });
+      }
+
+      function unwind() {
+        launching = false;
+        clearTimeout(timer);
+        document.documentElement.classList.remove('is-launching');
+        cards.forEach(function (c) {
+          c.getAnimations().forEach(function (a) { a.cancel(); });
+          c.style.zIndex = ''; c.style.willChange = ''; c.style.pointerEvents = '';
+          c.classList.remove('is-lifting');
+          // a bfcache restore can hand back a row still flagged open, with its
+          // .p-text width pinned from a measurement taken before the launch
+          closeCard(c);
+        });
+      }
+
+      cards.forEach(function (card) {
+        card.addEventListener('click', function (e) {
+          // a deliberate open-in-new-tab is never hijacked
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          if (!DESKTOP.matches) return;   // narrow window: plain navigation
+          e.preventDefault();
+          if (launching) return;
+
+          launching = true;
+          clearTimeout(timer);    // a queued hover-intent must not fire mid-launch
+          settle();
+
+          document.documentElement.classList.add('is-launching');
+          card.style.zIndex = '20';
+          card.style.willChange = 'transform';
+
+          cards.forEach(function (other) {
+            if (other === card) return;
+            other.animate([{ opacity: 1,      transform: 'scale(1)' },
+                           { opacity: RECEDE, transform: 'scale(.988)' }],
+                          { duration: LIFT.ms + BACK.ms, easing: LIFT.ease, fill: 'forwards' });
+          });
+
+          card.classList.add('is-lifting');   // shadow rides a CSS transition, not the keyframes
+          card.animate([{ transform: 'translate3d(0,0,0) scale(1)' }, { transform: UP }],
+                       { duration: LIFT.ms, easing: LIFT.ease, fill: 'forwards' }).finished
+            .then(function () {
+              return card.animate([{ transform: UP }, { transform: LOAD }],
+                                  { duration: BACK.ms, easing: BACK.ease, fill: 'forwards' }).finished;
+            })
+            .then(function () {
+              return card.animate([{ transform: LOAD }, { transform: GONE }],
+                                  { duration: FIRE.ms, easing: FIRE.ease, fill: 'forwards' }).finished;
+            })
+            .then(function () {
+              // Set on completion, never at click time: a launch that gets
+              // cancelled must not leave a flag behind to fire on some later,
+              // unrelated navigation.
+              try { sessionStorage.setItem('arrive-from-row', '1'); } catch (err) {}
+              location.href = card.getAttribute('href');
+            })
+            // cancel() rejects an animation's finished promise, which is the
+            // expected path when pageshow unwinds a launch. It must not surface
+            // as an unhandled rejection, and the list has to be usable after.
+            .catch(unwind);
+        });
+      });
+
+      // Warm the destination while the row is open. The launch holds navigation
+      // for 1120ms; prefetching means that time buys motion instead of a fetch
+      // that could have started when the pointer arrived.
+      var warmed = {};
+      cards.forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+          var href = card.getAttribute('href');
+          if (!href || warmed[href]) return;
+          warmed[href] = 1;
+          var link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.href = href;
+          document.head.appendChild(link);
+        });
+      });
+
+      // Back out of a case study and the browser may hand this page back from
+      // bfcache exactly as it was left: launching still true, a row still
+      // pointer-locked, and fill:forwards frames holding it off the right edge.
+      addEventListener('pageshow', unwind);
     })();
 
     // ── Smooth anchor scroll ──────────────────────────────

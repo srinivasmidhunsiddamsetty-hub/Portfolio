@@ -22,6 +22,30 @@
     })();
   </script>
 
+  <!-- One-shot arrival flag, read before first paint. The home page sets it
+       only when a row launch actually completes, so a direct visit, a refresh,
+       a Back, or a link from search all arrive with no animation at all. -->
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem('arrive-from-row') === '1') {
+          sessionStorage.removeItem('arrive-from-row');
+          document.documentElement.classList.add('arriving');
+          // Failsafe. Every arrival rule lives under .arriving and ends on the
+          // element's resting style, so dropping the class once the longest
+          // one has finished is seamless — and if anything stalls, it is what
+          // guarantees the page cannot be left holding content off-screen.
+          addEventListener('load', function () {
+            setTimeout(function () {
+              document.documentElement.classList.remove('arriving');
+            }, 1200);
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
 
@@ -34,6 +58,7 @@
       --soft:      #8A8A8A;
       --rule:      #E5E5E5;
       --hover-bg:  #F7F7F7;
+      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
       --tint:      #F4F4F1;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
@@ -55,6 +80,7 @@
       --soft:      #6B6B68;
       --rule:      #232320;
       --hover-bg:  #1A1A18;
+      --subnav-bg: #161616;
       --tint:      #18181590;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
@@ -146,7 +172,7 @@
     }
     .section-nav-inner {
       display: flex;
-      gap: 32px;
+      --sn-gap: 32px; gap: var(--sn-gap);
       overflow-x: auto;
       scrollbar-width: none;
       height: var(--section-nav-h);
@@ -1084,7 +1110,7 @@
       }
       .main-nav ul { gap: 24px; }
       .main-nav a  { font-size: 15px; }
-      .section-nav-inner { gap: 22px; height: 50px; }
+      .section-nav-inner { --sn-gap: 22px; gap: var(--sn-gap); height: 50px; }
 
       /* Footer collapses */
       footer.site {
@@ -1107,7 +1133,7 @@
       .main-nav ul { gap: 18px; }
       .main-nav a  { font-size: 14px; }
 
-      .section-nav-inner { gap: 18px; height: 46px; }
+      .section-nav-inner { --sn-gap: 18px; gap: var(--sn-gap); height: 46px; }
       .section-nav a { font-size: 12.5px; }
 
       .theme-toggle {
@@ -1133,7 +1159,7 @@
     @media (max-width: 380px) {
       :root { --side: 16px; }
       .main-nav ul { gap: 14px; }
-      .section-nav-inner { gap: 14px; }
+      .section-nav-inner { --sn-gap: 14px; gap: var(--sn-gap); }
     }
 
     /* ══ Reading response on the static boxes ══════════════
@@ -1180,6 +1206,73 @@
     }
 
     /* ul.user-quotes gets FOCUS only — the quote text is already ink. */
+  
+    /* ── Arrival ──────────────────────────────────────────────────────
+       Runs only when you got here by launching a row off the home page.
+       The row exited to the right, so the page it carried you to enters
+       from the right and settles: the same vector, continued rather than
+       restarted.
+
+       Everything is scoped under .arriving and every keyframe ends on the
+       element's natural resting style, so the page's default rendering is
+       untouched and no failure mode here can leave content invisible. */
+    @keyframes arrive-in {
+      from { opacity: 0; transform: translate3d(46px, 0, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes arrive-fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .arriving .intro-title,
+    .arriving .intro-disciplines,
+    .arriving .intro-award,
+    .arriving .intro-tagline,
+    .arriving .intro-body,
+    .arriving .intro-meta,
+    .arriving .section-nav {
+      animation: arrive-in 640ms cubic-bezier(.22, .7, .26, 1) both;
+    }
+    .arriving .intro-title       { animation-delay:   0ms; }
+    .arriving .intro-disciplines { animation-delay:  70ms; }
+    .arriving .intro-award       { animation-delay:  95ms; }
+    .arriving .intro-tagline     { animation-delay: 115ms; }
+    .arriving .intro-body        { animation-delay: 170ms; }
+    .arriving .intro-meta        { animation-delay: 220ms; }
+    .arriving .section-nav       { animation-delay: 270ms; }
+    /* the bar is a fixed frame around the page; it resolves rather than slides */
+    .arriving .main-nav { animation: arrive-fade 520ms ease both; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .arriving .intro-title, .arriving .intro-disciplines, .arriving .intro-award,
+      .arriving .intro-tagline, .arriving .intro-body, .arriving .intro-meta,
+      .arriving .section-nav, .arriving .main-nav { animation: none; }
+    }
+  
+    /* ── Section bar: separated from the header, and self-locating ──────
+       The two bars sit flush, both sticky and both on --bg, which read as one
+       tall slab. A half-step of tint tells them apart without introducing a
+       second colour. */
+    .section-nav { background: var(--subnav-bg); }
+
+    /* Separators live in the flex gap as ::after on every link but the last,
+       so they cost no layout and the gap stays authoritative. --sn-gap tracks
+       that gap through the breakpoints, so a separator is always centred in
+       whatever gap is current. */
+    .section-nav a:not(:last-child)::after {
+      content: '|';
+      position: absolute;
+      right: calc(var(--sn-gap) / -2);
+      top: 50%;
+      transform: translate(50%, -50%);
+      color: var(--rule);
+      font-weight: 400;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    /* Both separators flanking the current section light up with it. A link's
+       own ::after is the one on its right; :has(+ a.active) reaches back to
+       the link before the active one to catch the separator on its left. */
+    .section-nav a.active::after,
+    .section-nav a:has(+ a.active)::after { color: var(--ink); }
   </style>
 </head>
 <body>
