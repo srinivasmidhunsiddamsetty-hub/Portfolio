@@ -147,48 +147,71 @@
     .about-block.intro p:last-child { margin-bottom: 0; }
 
     /* — What drives me —
-       These were four outlined cards that darkened their border and lifted 4px
-       on hover: the vocabulary of a button, on four boxes that do nothing.
+       One box, four quadrants, one idea. A single outline holds all four
+       drives together, a cross divides it, and the section's title sits where
+       the cross meets. The cross runs solid from edge to edge: inside a frame,
+       lines that faded out short of it would look unfinished.
 
-       The boxes are gone rather than just the hover. Each entry is now a small
-       two-column composition — an oversized numeral set light in the page's
-       terracotta, then the title and copy — with one hairline between the rows
-       for structure. The big numeral is the same decorative device the Beyond
-       design block already uses with its 220px star, so the scale contrast is
-       borrowed from the page rather than invented for this section.
-
-       Hover matches the rest of the site: the group recedes, the copy under
-       the cursor sharpens, and nothing touches a border, a background or a
-       position. */
+       It is one container, not four cards, and it never reacts to the
+       pointer: no border change, no lift. Hover matches the rest of the site:
+       the group recedes and the copy under the cursor sharpens. */
+    .about-block.drives { position: relative; }
     .drives-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      column-gap: clamp(30px, 3.6vw, 64px);
-      row-gap: 0;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      /* Equal rows keep the horizontal line exactly on the boundary between
+         them. Left to size themselves, uneven wrapping would push the boundary
+         off-centre and the line, and the title on it, would cut through copy. */
+      grid-auto-rows: 1fr;
+      border: 1px solid var(--rule);
+      border-radius: 18px;             /* the page's card radius, as on "Beyond design" */
     }
+    /* the cross, meeting the frame on all four sides */
+    .drives-grid::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(var(--rule), var(--rule)) center / 1px 100% no-repeat,
+        linear-gradient(var(--rule), var(--rule)) center / 100% 1px no-repeat;
+    }
+    /* The title where the lines meet: text only, on a patch of the page's own
+       colour so the cross stops short of the words instead of running through
+       them. It stays first in the markup for reading order; the centring is
+       purely visual, and 50% of the block is 50% of the grid because the
+       block holds nothing else in flow. */
+    .about-block.drives .block-label {
+      position: absolute; left: 50%; top: 50%; z-index: 1;
+      transform: translate(-50%, -50%);
+      margin: 0; padding: 7px 14px;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
     .drive-card {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
-      column-gap: clamp(16px, 1.4vw, 22px);
+      column-gap: clamp(14px, 1.3vw, 20px);
       align-items: start;
-      padding-bottom: 6px;
+      /* Inside a frame each quadrant needs padding on both sides, which the
+         open layout never did. Sized so all four headings stay on one line
+         and the copy on two at 1280 and 1440, one at 1920. */
+      padding: clamp(28px, 2.4vw, 36px) clamp(18px, 1.4vw, 28px);
       transition: opacity 260ms ease;
     }
-    /* one rule under the top row, broken by the column gap */
-    .drive-card:nth-child(3),
-    .drive-card:nth-child(4) {
-      border-top: 1px solid var(--rule);
-      margin-top: 36px;
-      padding-top: 36px;
-    }
 
+    /* The numerals are large text, so they need 3:1. At the old 55% they
+       were 2.07:1 on white; 83% is the lightest that clears it. Dark mode's
+       62% already did (3.39:1) and is unchanged. */
     .drive-num {
       grid-row: 1 / span 2;
-      font-size: clamp(42px, 4.2vw, 56px);
+      font-size: clamp(40px, 3.4vw, 46px);
       font-weight: 300;
       letter-spacing: -0.04em;
       line-height: 0.8;            /* pulls the digits up to the title's cap height */
       color: #B8654A;
-      opacity: 0.55;
+      opacity: 0.83;
       font-variant-numeric: lining-nums tabular-nums;
       user-select: none;
     }
@@ -196,7 +219,7 @@
 
     .drive-card h4 {
       grid-column: 2;
-      font-size: clamp(19px, 1.6vw, 22px);
+      font-size: clamp(19px, 1.55vw, 21px);
       font-weight: 500;
       letter-spacing: -0.018em;
       line-height: 1.2;
@@ -204,15 +227,18 @@
       margin: -2px 0 9px;
       max-width: 22ch;
     }
+    /* #757572 is the lightest grey that still clears 4.5:1 on white;
+       the #8A8A8A this used to be was 3.45:1. */
     .drive-card p {
       grid-column: 2;
       font-size: 14px;
       line-height: 1.6;
-      color: var(--muted);
+      color: #757572;
       letter-spacing: -0.005em;
       max-width: 38ch;
       transition: color 300ms ease;
     }
+    [data-theme="dark"] .drive-card p { color: #888885; }
 
     .drives-grid:has(.drive-card:hover) .drive-card { opacity: 0.8; }
     .drives-grid:has(.drive-card:hover) .drive-card:hover { opacity: 1; }
@@ -382,8 +408,15 @@
       .about-grid { grid-template-columns: 1fr; gap: clamp(48px, 6vw, 72px); }
     }
     @media (max-width: 600px) {
-      .drives-grid { grid-template-columns: 1fr; }
-      .drive-card:nth-child(2) { border-top: 1px solid var(--rule); margin-top: 34px; padding-top: 34px; }
+      /* one column: still one box, now stacked. There is no crossing to sit
+         on, so the title goes above it and the cross gives way to dividers. */
+      .drives-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+      .drives-grid::before { display: none; }
+      .about-block.drives .block-label {
+        position: static; transform: none; display: block;
+        padding: 0; margin-bottom: 16px; background: none; }
+      .drive-card { padding: 24px 22px; }
+      .drive-card + .drive-card { border-top: 1px solid var(--rule); }
       .about-block.beyond { padding: 24px 22px; }
       nav.main-nav { padding: 20px var(--side) 16px; gap: 24px; }
       .nav-links { gap: 24px; }
@@ -512,22 +545,22 @@
             <div class="drive-card">
               <span class="drive-num">01</span>
               <h4>Curiosity</h4>
-              <p>The best ideas come from asking questions, exploring possibilities, and staying open to new perspectives.</p>
+              <p>The best ideas start with a good question.</p>
             </div>
             <div class="drive-card">
               <span class="drive-num">02</span>
               <h4>Problem solving</h4>
-              <p>Transforming complexity into clarity through thoughtful, user-centered design and strategic thinking.</p>
+              <p>Turning complex problems into clear design.</p>
             </div>
             <div class="drive-card">
               <span class="drive-num">03</span>
               <h4>Collaboration</h4>
-              <p>My favorite work happens at the intersection of design, research, engineering, and business, where different perspectives create stronger outcomes.</p>
+              <p>My best work happens where disciplines meet.</p>
             </div>
             <div class="drive-card">
               <span class="drive-num">04</span>
               <h4>Perpetual learning</h4>
-              <p>Whether through side projects, experimentation, research, or emerging technologies, I'm always looking for opportunities to grow and refine my craft.</p>
+              <p>Always experimenting, always refining my craft.</p>
             </div>
           </div>
         </div>
