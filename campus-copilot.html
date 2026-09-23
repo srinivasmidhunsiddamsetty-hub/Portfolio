@@ -254,6 +254,9 @@
       height: auto; display: block;
       border-radius: 12px; object-fit: contain;
     }
+    /* The recording in Solution sits left, on the same edge as the section's
+       text, instead of centred in the page. */
+    #solution .hero-video { margin-left: 0; }
     .inline-img {
       width: 100%; height: auto; max-height: 560px; display: block;
       border-radius: 14px; object-fit: contain; object-position: center;
@@ -1678,9 +1681,6 @@
     <a class="live-cta" href="https://campus-copilot-gamma.vercel.app/" target="_blank" rel="noopener">
       Try Campus Copilot <span class="arrow">→</span>
     </a>
-    <p style="font-size: 12.5px; color: var(--soft); line-height: 1.6; max-width: 52ch; margin: 28px auto 0; letter-spacing: -0.005em;">
-      Note: the demo runs a focused set of core capabilities. A few options are illustrative, showing where it can extend rather than being interactive yet.
-    </p>
   </section>
 
   <!-- ── Case study nav ────────────────────────────── -->
