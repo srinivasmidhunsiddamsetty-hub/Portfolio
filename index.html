@@ -50,6 +50,12 @@
       --row-ease: cubic-bezier(0.5, 0, 0.15, 1);
       --row-in:   720ms;
       --row-out:  720ms;
+      /* How long the pointer must rest on a row before it opens. Lives here
+         rather than in the script so the two halves of "how fast does this
+         feel" — the wait and the motion — sit together and can be tuned
+         together. At 0 a row opens the instant the pointer crosses into it,
+         which also means a sweep down the list opens each row it passes. */
+      --hover-intent: 0ms;
       --rule:      #E5E5E5;
       --hover-bg:  #F7F7F7;
       --preview-bg:#EDEDEA;
@@ -806,7 +812,12 @@
     //     reads as the row vanishing and a different one opening.
     // `launching` closes both doors, and is only reopened by pageshow.
     (function () {
-      var HOVER_INTENT = 90; // ms the pointer must rest on a row
+      // read per hover, so --hover-intent can be changed live
+      function hoverIntent() {
+        var v = getComputedStyle(document.documentElement).getPropertyValue('--hover-intent').trim();
+        var n = parseFloat(v) || 0;
+        return /ms\s*$/.test(v) ? n : n * 1000;
+      }
       var canHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
       var reduced  = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!canHover) return;   // touch: the responsive rules show rows expanded
@@ -855,21 +866,28 @@
 
       function closeAll() { clearTimeout(timer); cards.forEach(closeCard); }
 
-      // A mouseenter that arrives without the pointer having moved is the page
-      // moving underneath a stationary cursor, not a choice. Hover must answer
-      // to the pointer only, or a scroll silently reassigns which project you
-      // are looking at.
-      var lastMove = { x: -1, y: -1, at: -1e9 };
+      // A mouseenter the pointer did not cause is the page moving underneath a
+      // still cursor, and must not reassign which project you are looking at.
+      var ptr = { x: -1, y: -1, movedAt: -1e9 }, scrolledAt = -1e9;
       addEventListener('mousemove', function (e) {
-        lastMove.x = e.clientX; lastMove.y = e.clientY; lastMove.at = performance.now();
+        ptr.x = e.clientX; ptr.y = e.clientY; ptr.movedAt = performance.now();
       }, { passive: true });
-      // Timing alone is the reliable test. A real mouseenter is dispatched as a
-      // direct consequence of pointer movement, so a mousemove landed a frame
-      // or two ago; one caused by the page moving has no movement behind it at
-      // all. Comparing coordinates cannot tell them apart — a scroll-induced
-      // enter reports the same clientX/Y the pointer already had.
-      function pointerActuallyMoved() {
-        return performance.now() - lastMove.at < 60;
+      addEventListener('scroll', function () { scrolledAt = performance.now(); }, { passive: true });
+
+      // Two things have to be true for the page, rather than the pointer, to be
+      // responsible: the enter arrives at the coordinates the pointer already
+      // had, and the most recent thing to happen was a scroll rather than a
+      // movement.
+      //
+      // Time since the last mousemove cannot be used for this, which an earlier
+      // version got wrong. The browser dispatches mouseenter BEFORE the
+      // mousemove of the movement that caused it, so on entering a row the
+      // newest mousemove is the one from before. Rest the pointer beside a row
+      // and move in, and a time test reads "nothing moved" and drops a real
+      // hover — you then had to leave and come back to open it.
+      function movedByPage(e) {
+        var samePlace = Math.abs(e.clientX - ptr.x) <= 1 && Math.abs(e.clientY - ptr.y) <= 1;
+        return samePlace && scrolledAt > ptr.movedAt;
       }
 
       cards.forEach(function (card) {
@@ -886,9 +904,9 @@
 
         card.addEventListener('mouseenter', function (e) {
           if (launching || !DESKTOP.matches) return;
-          if (!pointerActuallyMoved()) return;
+          if (movedByPage(e)) return;
           clearTimeout(timer);
-          timer = setTimeout(function () { openCard(card); }, HOVER_INTENT);
+          timer = setTimeout(function () { openCard(card); }, hoverIntent());
         });
         card.addEventListener('focus', function () {
           if (launching || !DESKTOP.matches) return;
