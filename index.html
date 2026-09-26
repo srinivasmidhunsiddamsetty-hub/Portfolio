@@ -232,7 +232,9 @@
        single line on an ultrawide. balance evens the two lines out. */
     .hero-statement {
       font-family: var(--font-sans);
-      font-weight: 400;
+      /* Montserrat is loaded as a variable font (300-700), so 440 is a real
+         interpolation rather than a value rounded to the nearest cut. */
+      font-weight: 440;
       font-size: clamp(30px, 3.3vw, 46px);
       line-height: 1.25;
       letter-spacing: -0.02em;   /* Montserrat is wide; a touch tighter at display size */
