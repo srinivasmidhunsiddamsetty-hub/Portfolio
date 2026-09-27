@@ -1,0 +1,71 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Morphism — About.
+
+   Like the case studies, About carries the style chosen on the home page
+   and has no switcher. Flat, or no choice, sets no attribute: the page is
+   then exactly as designed. Header and footer come from shell.css.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* This page's --muted (#8A8A8A) is its labels and dates. shell.css points
+   it at --text-muted, which clears 4.5:1 in every system. */
+
+/* The one hard-coded grey: the "What drives me" descriptions (#757572
+   would fall to 4.0:1 on a clay or stone card). */
+html[data-morphism] .drive-card p { color: var(--text-secondary); }
+html[data-morphism] .drive-card:hover p { color: var(--text-primary); }
+
+
+/* ── What drives me ───────────────────────────────────────────────────
+   The outlined box becomes one raised card in the system's material, and
+   keeps its cross. The centred label used to hide the cross with a patch
+   of page colour; on a gradient ground (glass, clay) that patch would show
+   as a flat rectangle, so the cross is cut away behind the label instead
+   and the label needs no background at all. */
+html[data-morphism] .drives-grid {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--card-shadow);
+}
+html[data-morphism] .drives-grid::before {
+  -webkit-mask:
+    linear-gradient(#000 0 0),
+    linear-gradient(#000 0 0) center / 12.5rem 2.25rem no-repeat;
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0),
+    linear-gradient(#000 0 0) center / 12.5rem 2.25rem no-repeat;
+          mask-composite: exclude;
+}
+html[data-morphism] .about-block.drives .block-label { background: transparent; }
+/* The 01–04 numerals were softened to 83% (62% in dark), which leaves the
+   terracotta at 2.4–2.7:1 on a material card. At full strength it is
+   3.3:1 or better — enough for numerals this large. */
+html[data-morphism] .drive-num { opacity: 1; }
+/* a touch deeper in light mode, for neumorphism's darker stone (3.9:1) */
+html[data-morphism]:not([data-theme="dark"]) .drive-num { color: #A85A40; }
+
+
+/* ── Timeline: the Education / Work chips ─────────────────────────────
+   Same hues, deepened in light and lifted in dark, so the tiny uppercase
+   labels clear 4.5:1 on their tints over every system's ground. */
+html[data-morphism] .tl-type.edu  { color: #445236; }
+html[data-morphism] .tl-type.work { color: #8C4630; }
+html[data-morphism][data-theme="dark"] .tl-type.edu  { color: #A9C295; }
+html[data-morphism][data-theme="dark"] .tl-type.work { color: #E8A58C; }
+
+
+/* ── Beyond work: a card in the system's material ─────────────────────
+   Its warm gradient and shadow belonged to the flat page; the ✦ watermark
+   stays. */
+html[data-morphism] .about-block.beyond {
+  background: var(--card-bg);
+  border: 1px solid;
+  border-color: var(--card-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--card-shadow);
+}
+html[data-morphism] .beyond-tag {
+  background: var(--surface-secondary);
+  border-color: var(--border-subtle);
+}

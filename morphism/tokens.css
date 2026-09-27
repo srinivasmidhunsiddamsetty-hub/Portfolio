@@ -1,0 +1,921 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Morphism tokens
+
+   One component structure, five visual systems: the hosted flat design
+   and four material ones. shell.css and home.css read only these; neither
+   hard-codes a colour, shadow or radius. Each system has a light and a
+   dark variant, because the site's light/dark toggle works in all five.
+
+   Attribute: html[data-morphism] = flat | skeuomorphic | neumorphic | glass | clay.
+   Deliberately not data-theme: that attribute, and localStorage "theme",
+   already carry light/dark on every page of the site.
+
+   The system's accent is --ui-accent, not --accent: each case study uses
+   --accent for its product's own brand colour (Penn State navy, PayPal
+   blue…), and a system must never repaint the work it is framing.
+
+   Borders are always 1px in every system (transparent where a system has
+   none), and spacing lives outside this file, so switching systems can
+   never move a single element.
+
+   Lighting is part of each system and every shadow in it agrees:
+     skeuomorphic  lit from directly above
+     neumorphic    lit from the top left
+     clay          lit from the top left
+     glass         no directional light; edges catch ambient light
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --control-h: 44px;              /* every switch segment, filter and icon button */
+  --card-gap: 16px;               /* room for depth: at 12px neumorphic shadows met in the gap */
+  --transition-fast: 160ms cubic-bezier(.2, .7, .3, 1);
+  --transition-medium: 320ms cubic-bezier(.4, 0, .2, 1);
+  --morph-duration: 340ms;        /* the cross-fade between systems */
+}
+
+/* ── 0. FLAT ─────────────────────────────────────────────────────────
+   The site as designed and hosted: flat, monochrome, hairline rules, ink
+   pills, the rainbow ring on an open row. It runs on the same structure as
+   the four material systems (44px controls, a 16px gap between rows with
+   the rule drawn in the middle of it), so switching still moves nothing. */
+[data-morphism="flat"] {
+  --page-bg: #FFFFFF;
+  --page-layer: none;
+
+  --text-primary: #0A0A0A;
+  --text-secondary: #46554F;
+  --text-muted: #8A8A8A;
+  --ui-accent: #0A0A0A;
+  --ui-accent-hover: #000000;
+  --ui-accent-ink: #FFFFFF;
+  --focus-ring: #0A0A0A;
+
+  --surface-primary: #FFFFFF;
+  --surface-secondary: #F7F7F7;
+  --surface-raised: #FFFFFF;
+  --surface-inset: #F7F7F7;
+  --border-primary: #0A0A0A;
+  --border-subtle: #E5E5E5;
+
+  --shadow-small: none;
+  --shadow-medium: none;
+  --shadow-large: none;
+  --shadow-inset: none;
+
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 12px;
+  --radius-card: 12px;
+  --blur-strength: 0px;
+
+  --header-bg: #FFFFFF;
+  --header-border: transparent;
+  --header-shadow: none;
+
+  --track-bg: transparent;
+  --track-shadow: inset 0 0 0 1px #E5E5E5;
+  --radius-track: 999px;
+  --radius-seg: 999px;
+  --seg-bg: transparent;
+  --seg-border: transparent;
+  --seg-shadow: none;
+  --seg-ink: #0A0A0A;
+  --seg-bg-hover: #F7F7F7;
+  --seg-shadow-hover: none;
+
+  --control-bg: transparent;
+  --control-border: #E5E5E5;
+  --control-border-hover: #0A0A0A;
+  --control-shadow: none;
+  --control-ink: #0A0A0A;
+  --control-bg-hover: transparent;
+  --control-shadow-hover: none;
+  --control-bg-active: #0A0A0A;
+  --control-border-active: #0A0A0A;
+  --control-shadow-active: none;
+  --control-ink-active: #FFFFFF;
+  --control-shadow-press: none;
+  --control-weight-active: 500;     /* the hosted pills never changed weight */
+  --radius-filter: 100px;
+
+  --icon-bg: transparent;
+  --icon-border: #0A0A0A;
+  --icon-shadow: none;
+  --icon-bg-hover: #0A0A0A;
+  --icon-ink-hover: #FFFFFF;
+  --icon-shadow-hover: none;
+  --icon-shadow-press: none;
+  --icon-ink: #0A0A0A;
+  --arrow-bg-open: transparent;
+  --arrow-ink-open: #0A0A0A;
+  --arrow-shift: 6px;
+
+  --card-bg: transparent;
+  --card-bg-hover: transparent;
+  --card-border: transparent;
+  --card-shadow: none;
+  --card-border-hover: transparent;
+  --card-shadow-hover: none;
+  --card-shadow-lift: 0 26px 62px -20px rgba(0,0,0,.34);
+  --card-lift: 0px;
+  --media-radius: 10px;
+  --media-shadow: none;
+
+  --hero-bg: #0A0A0B;
+  --hero-radius: 0px;
+  --hero-edge: none;
+  --hero-overlay: none;
+
+  --footer-bg: #000000;
+  --footer-layer: none;
+  --footer-ink: #FFFFFF;
+  --footer-muted: #8A8A8A;
+  --footer-edge: none;
+  --footer-radius: 0px;
+  --footer-focus: #FFFFFF;
+  --footer-btn-bg: transparent;
+  --footer-btn-border: rgba(255,255,255,.28);
+  --footer-btn-shadow: none;
+  --footer-btn-bg-hover: #FFFFFF;
+  --footer-btn-border-hover: #FFFFFF;
+  --footer-btn-ink-hover: #000000;
+  --footer-btn-shadow-hover: none;
+  --footer-btn-ink: #FFFFFF;
+}
+
+[data-morphism="flat"][data-theme="dark"] {
+  --page-bg: #0A0A0B;
+
+  --text-primary: #F2F2EE;
+  --text-secondary: #A9BCB5;
+  --text-muted: #888885;
+  --ui-accent: #F2F2EE;
+  --ui-accent-hover: #FFFFFF;
+  --ui-accent-ink: #0A0A0B;
+  --focus-ring: #F2F2EE;
+
+  --surface-primary: #0A0A0B;
+  --surface-secondary: #1A1A18;
+  --surface-raised: #1A1A18;
+  --surface-inset: #1A1A18;
+  --border-primary: #F2F2EE;
+  --border-subtle: #232320;
+
+  --header-bg: #0A0A0B;
+
+  --track-shadow: inset 0 0 0 1px #232320;
+  --seg-ink: #F2F2EE;
+  --seg-bg-hover: #1A1A18;
+
+  --control-border: #232320;
+  --control-border-hover: #F2F2EE;
+  --control-ink: #F2F2EE;
+  --control-bg-active: #F2F2EE;
+  --control-border-active: #F2F2EE;
+  --control-ink-active: #0A0A0B;
+
+  --icon-border: #F2F2EE;
+  --icon-bg-hover: #F2F2EE;
+  --icon-ink-hover: #0A0A0B;
+  --icon-ink: #F2F2EE;
+  --arrow-ink-open: #F2F2EE;
+}
+
+/* Fine grain for the skeuomorphic paper. One 180px tile, rasterised once. */
+[data-morphism="skeuomorphic"] {
+  --grain-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .22  0 0 0 0 .16  0 0 0 0 .09  0 0 0 .11 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --grain-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+
+/* ── 1. SKEUOMORPHIC ─────────────────────────────────────────────────
+   Warm matte paper, raised keys, pressed selections, a mounted print.
+   Light from above: highlights on top edges, shadows fall straight down. */
+[data-morphism="skeuomorphic"] {
+  --page-bg: #F2EFE9;
+  --page-layer: var(--grain-dark);
+  --page-layer-size: 180px;
+
+  --text-primary: #1D1A16;
+  --text-secondary: #4A443B;
+  --text-muted: #655D52;        /* 4.8:1 even on the pressed wells (#E3DED5) */
+  --ui-accent: #B24E1E;
+  --ui-accent-hover: #963F15;
+  --ui-accent-ink: #FFFFFF;
+  --focus-ring: #1D1A16;
+
+  --surface-primary: #FAF8F4;
+  --surface-secondary: #EEEAE3;
+  --surface-raised: linear-gradient(180deg, #FDFCFA 0%, #F1EDE6 100%);
+  --surface-inset: #E3DED5;
+  --border-primary: rgba(58, 44, 26, .20);
+  --border-subtle: rgba(58, 44, 26, .10);
+
+  --shadow-small: inset 0 1px 0 rgba(255,255,255,.95), 0 1px 1px rgba(40,28,12,.14), 0 2px 4px -1px rgba(40,28,12,.12);
+  --shadow-medium: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 1px rgba(40,28,12,.07), 0 4px 8px -4px rgba(40,28,12,.13), 0 16px 32px -20px rgba(40,28,12,.26);
+  --shadow-large: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 2px rgba(40,28,12,.07), 0 10px 18px -8px rgba(40,28,12,.17), 0 30px 50px -26px rgba(40,28,12,.36);
+  --shadow-inset: inset 0 2px 3px rgba(40,28,12,.22), inset 0 0 0 1px rgba(40,28,12,.04), 0 1px 0 rgba(255,255,255,.8);
+
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 14px;
+  --radius-card: 14px;
+  --blur-strength: 0px;
+
+  /* header: a refined toolbar strip, not a floating card */
+  --header-bg: linear-gradient(180deg, #F9F7F3 0%, #F0EDE7 100%);
+  --header-border: transparent transparent rgba(58,44,26,.14) transparent;
+  --header-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 0 rgba(255,255,255,.55), 0 6px 14px -10px rgba(40,28,12,.30);
+
+  /* the switcher: a recessed slot holding raised keys */
+  --track-bg: #E2DDD4;
+  --track-shadow: inset 0 0 0 1px rgba(58,44,26,.13), inset 0 2px 3px rgba(40,28,12,.16), 0 1px 0 rgba(255,255,255,.9);
+  --radius-track: 12px;
+  --radius-seg: 8px;
+
+  --control-bg: linear-gradient(180deg, #FDFCFA 0%, #EFEBE4 100%);
+  --control-border: rgba(58,44,26,.17);
+  --control-shadow: inset 0 1px 0 #FFFFFF, 0 1px 1px rgba(40,28,12,.15), 0 2px 3px -1px rgba(40,28,12,.12);
+  --control-ink: #3D372F;
+  --control-bg-hover: linear-gradient(180deg, #FFFFFF 0%, #F4F0EA 100%);
+  --control-shadow-hover: inset 0 1px 0 #FFFFFF, 0 1px 1px rgba(40,28,12,.15), 0 4px 7px -2px rgba(40,28,12,.16);
+  --control-bg-active: linear-gradient(180deg, #D9D3C8 0%, #E4DFD6 100%);
+  --control-border-active: rgba(58,44,26,.22);
+  --control-shadow-active: inset 0 2px 3px rgba(40,28,12,.24), inset 0 0 0 1px rgba(40,28,12,.03), 0 1px 0 rgba(255,255,255,.85);
+  --control-ink-active: #1D1A16;
+  --control-shadow-press: inset 0 1px 2px rgba(40,28,12,.22), 0 1px 0 rgba(255,255,255,.8);
+  --radius-filter: 10px;
+  /* A small amber indicator lamp, lit on the selected key. Only this
+     system has one: it is part of the hardware metaphor. Everywhere else
+     the full name, the pressed/filled face and the weight already say
+     which option is on. */
+  --indicator-display: block;
+  --indicator: #C4561C;
+  --indicator-glow: 0 0 0 1px rgba(120,40,0,.18), 0 0 6px 1px rgba(236,120,50,.55);
+
+  --icon-bg: linear-gradient(180deg, #FDFCFA 0%, #EEEAE3 100%);
+  --icon-border: rgba(58,44,26,.20);
+  --icon-shadow: inset 0 1px 0 #FFFFFF, 0 1px 1px rgba(40,28,12,.16), 0 3px 6px -2px rgba(40,28,12,.18);
+  --icon-shadow-hover: inset 0 1px 0 #FFFFFF, 0 2px 2px rgba(40,28,12,.14), 0 8px 14px -6px rgba(40,28,12,.26);
+  --icon-shadow-press: inset 0 2px 3px rgba(40,28,12,.24), 0 1px 0 rgba(255,255,255,.8);
+  --icon-ink: #1D1A16;
+
+  /* project cards: presentation boards with a little thickness */
+  --card-bg: linear-gradient(180deg, #FCFBF8 0%, #F6F3EE 100%);
+  --card-border: rgba(58,44,26,.13);
+  --card-shadow: var(--shadow-medium);
+  --card-border-hover: rgba(58,44,26,.17);
+  --card-shadow-hover: var(--shadow-large);
+  --card-shadow-lift: inset 0 1px 0 rgba(255,255,255,.9), 0 30px 60px -22px rgba(40,28,12,.42);
+  --card-lift: -3px;
+  --media-radius: 6px;
+  --media-shadow: 0 0 0 1px rgba(40,28,12,.10), 0 1px 2px rgba(40,28,12,.10), 0 10px 20px -12px rgba(40,28,12,.38);
+
+  --hero-bg: #0D0B09;
+  --hero-radius: 0px;
+  /* the band's lower lip: a dark seam, then paper catching the light */
+  --hero-edge: 0 1px 0 rgba(40,28,12,.30), 0 2px 0 rgba(255,255,255,.85);
+  --hero-overlay: radial-gradient(130% 150% at 50% 38%, transparent 58%, rgba(0,0,0,.42) 100%);
+
+  /* footer: a graphite plate the page rests on */
+  --footer-bg: #1F1D1A;
+  --footer-layer: var(--grain-light);
+  --footer-ink: #F4F1EB;
+  --footer-muted: #AFA799;
+  --footer-edge: inset 0 1px 0 rgba(255,255,255,.07), 0 -1px 0 rgba(40,28,12,.28);
+  --footer-radius: 0px;
+  --footer-focus: #F4F1EB;
+  --footer-btn-bg: linear-gradient(180deg, #37342F 0%, #282521 100%);
+  --footer-btn-border: rgba(0,0,0,.55);
+  --footer-btn-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 1px 1px rgba(0,0,0,.45), 0 3px 6px -2px rgba(0,0,0,.5);
+  --footer-btn-bg-hover: linear-gradient(180deg, #403C37 0%, #2E2B27 100%);
+  --footer-btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.13), 0 2px 2px rgba(0,0,0,.4), 0 9px 16px -6px rgba(0,0,0,.6);
+  --footer-btn-ink: #F4F1EB;
+}
+
+[data-morphism="skeuomorphic"][data-theme="dark"] {
+  --page-bg: #1A1917;
+  --page-layer: var(--grain-light);
+
+  --text-primary: #F3F0EA;
+  --text-secondary: #CBC4B8;
+  --text-muted: #A59E92;
+  --ui-accent: #F08A4B;
+  --ui-accent-hover: #F59E66;
+  --ui-accent-ink: #1A1917;
+  --focus-ring: #F3F0EA;
+
+  --surface-primary: #24221F;
+  --surface-secondary: #1F1D1A;
+  --surface-raised: linear-gradient(180deg, #2E2C28 0%, #24221F 100%);
+  --surface-inset: #121110;
+  --border-primary: rgba(255,255,255,.12);
+  --border-subtle: rgba(255,255,255,.07);
+
+  --shadow-small: inset 0 1px 0 rgba(255,255,255,.08), 0 1px 1px rgba(0,0,0,.5), 0 2px 4px -1px rgba(0,0,0,.45);
+  --shadow-medium: inset 0 1px 0 rgba(255,255,255,.07), 0 1px 1px rgba(0,0,0,.4), 0 6px 12px -6px rgba(0,0,0,.5), 0 18px 34px -20px rgba(0,0,0,.72);
+  --shadow-large: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 2px rgba(0,0,0,.4), 0 12px 20px -8px rgba(0,0,0,.55), 0 32px 54px -26px rgba(0,0,0,.82);
+  --shadow-inset: inset 0 2px 4px rgba(0,0,0,.6), inset 0 0 0 1px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.06);
+
+  --header-bg: linear-gradient(180deg, #23211E 0%, #1C1B18 100%);
+  --header-border: transparent transparent rgba(0,0,0,.6) transparent;
+  --header-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 1px 0 rgba(255,255,255,.04), 0 8px 18px -10px rgba(0,0,0,.7);
+
+  --track-bg: #121110;
+  --track-shadow: inset 0 0 0 1px rgba(0,0,0,.55), inset 0 2px 4px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.06);
+
+  --control-bg: linear-gradient(180deg, #35332F 0%, #292724 100%);
+  --control-border: rgba(0,0,0,.55);
+  --control-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 1px 1px rgba(0,0,0,.5), 0 2px 3px -1px rgba(0,0,0,.45);
+  --control-ink: #D8D2C7;
+  --control-bg-hover: linear-gradient(180deg, #3B3934 0%, #2D2B27 100%);
+  --control-shadow-hover: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 1px rgba(0,0,0,.5), 0 4px 7px -2px rgba(0,0,0,.55);
+  --control-bg-active: linear-gradient(180deg, #151412 0%, #1C1B18 100%);
+  --control-border-active: rgba(0,0,0,.7);
+  --control-shadow-active: inset 0 2px 4px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.06);
+  --control-ink-active: #FFFFFF;
+  --control-shadow-press: inset 0 2px 3px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.05);
+  --indicator: #FF9A57;
+  --indicator-glow: 0 0 0 1px rgba(0,0,0,.4), 0 0 7px 1px rgba(255,140,70,.6);
+
+  --icon-bg: linear-gradient(180deg, #35332F 0%, #282623 100%);
+  --icon-border: rgba(0,0,0,.55);
+  --icon-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 1px 1px rgba(0,0,0,.5), 0 3px 6px -2px rgba(0,0,0,.5);
+  --icon-shadow-hover: inset 0 1px 0 rgba(255,255,255,.1), 0 2px 2px rgba(0,0,0,.45), 0 9px 16px -6px rgba(0,0,0,.65);
+  --icon-shadow-press: inset 0 2px 4px rgba(0,0,0,.65), 0 1px 0 rgba(255,255,255,.05);
+  --icon-ink: #F3F0EA;
+
+  --card-bg: linear-gradient(180deg, #282623 0%, #22201D 100%);
+  --card-border: rgba(255,255,255,.07);
+  --card-border-hover: rgba(255,255,255,.1);
+  --card-shadow-lift: inset 0 1px 0 rgba(255,255,255,.07), 0 34px 64px -22px rgba(0,0,0,.88);
+  --media-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.4), 0 10px 20px -10px rgba(0,0,0,.8);
+
+  --hero-bg: #0B0A09;
+  --hero-edge: 0 1px 0 rgba(0,0,0,.8), 0 2px 0 rgba(255,255,255,.06);
+
+  --footer-bg: #121110;
+  --footer-muted: #A59E92;
+  --footer-edge: inset 0 1px 0 rgba(255,255,255,.05), 0 -1px 0 rgba(0,0,0,.7);
+}
+
+
+/* ── 2. NEUMORPHIC ───────────────────────────────────────────────────
+   One warm stone surface; everything is extruded from it or pressed into
+   it. The accessible version: chamfered 1px borders keep every boundary
+   visible, and a selection is never shown by shadow alone (inset + weight
+   + an accent pip + real radio/aria-pressed state).
+   Light from the top left: pale shadow up-left, dark shadow down-right. */
+[data-morphism="neumorphic"] {
+  --page-bg: #E8E6E2;
+  --page-layer: none;
+
+  --text-primary: #1E1D1B;
+  --text-secondary: #46443F;
+  --text-muted: #5C5953;
+  --ui-accent: #2C6B61;
+  --ui-accent-hover: #22564E;
+  --ui-accent-ink: #FFFFFF;
+  --focus-ring: #2C6B61;
+
+  --surface-primary: #E8E6E2;
+  --surface-secondary: #E2E0DB;
+  --surface-raised: linear-gradient(145deg, #EEECE8 0%, #E2E0DC 100%);
+  --surface-inset: #E3E1DD;
+  --border-primary: rgba(110,102,90,.22);
+  --border-subtle: rgba(110,102,90,.12);
+  /* chamfer: the lit edges are pale, the shaded edges are dark */
+  --chamfer: rgba(255,255,255,.75) rgba(140,132,120,.24) rgba(140,132,120,.24) rgba(255,255,255,.75);
+  --chamfer-in: rgba(140,132,120,.26) rgba(255,255,255,.7) rgba(255,255,255,.7) rgba(140,132,120,.26);
+
+  --shadow-small: -3px -3px 7px rgba(255,255,255,.92), 3px 3px 7px rgba(163,155,143,.46);
+  --shadow-medium: -7px -7px 16px rgba(255,255,255,.86), 7px 7px 16px rgba(163,155,143,.44);
+  --shadow-large: -11px -11px 24px rgba(255,255,255,.92), 11px 11px 24px rgba(163,155,143,.5);
+  --shadow-inset: inset 3px 3px 7px rgba(163,155,143,.5), inset -3px -3px 7px rgba(255,255,255,.92);
+
+  --radius-small: 12px;
+  --radius-medium: 16px;
+  --radius-large: 22px;
+  --radius-card: 24px;
+  --blur-strength: 0px;
+
+  /* the header is the page itself; it only lifts once content slides under */
+  --header-bg: #E8E6E2;
+  --header-border: transparent;
+  --header-shadow: none;
+  --header-shadow-scrolled: 0 12px 22px -18px rgba(120,112,100,.6), 0 1px 0 rgba(255,255,255,.7);
+
+  /* switcher: a softly extruded capsule; the chosen segment is pressed in */
+  --track-bg: linear-gradient(145deg, #ECEAE6 0%, #E4E2DE 100%);
+  --track-shadow: inset 0 0 0 1px rgba(255,255,255,.55), -4px -4px 10px rgba(255,255,255,.9), 4px 4px 10px rgba(163,155,143,.44);
+  --radius-track: 999px;
+  --radius-seg: 999px;
+  --seg-bg: transparent;
+  --seg-border: transparent;
+  --seg-shadow: none;
+  --seg-ink: #46443F;
+  --seg-bg-hover: rgba(255,255,255,.35);
+  --seg-shadow-hover: none;
+
+  --control-bg: linear-gradient(145deg, #EEECE8 0%, #E3E1DD 100%);
+  --control-border: var(--chamfer);
+  --control-shadow: var(--shadow-small);
+  --control-ink: #3E3C38;
+  --control-bg-hover: linear-gradient(145deg, #F0EEEA 0%, #E5E3DF 100%);
+  --control-shadow-hover: -4px -4px 9px rgba(255,255,255,.95), 4px 4px 9px rgba(163,155,143,.5);
+  --control-bg-active: #E2E0DB;
+  --control-border-active: var(--chamfer-in);
+  --control-shadow-active: var(--shadow-inset);
+  --control-ink-active: #141413;
+  --control-shadow-press: inset 2px 2px 5px rgba(163,155,143,.5), inset -2px -2px 5px rgba(255,255,255,.9);
+  --radius-filter: 999px;
+  --indicator: var(--ui-accent);
+  --indicator-glow: none;
+
+  --icon-bg: linear-gradient(145deg, #EEECE8 0%, #E2E0DC 100%);
+  --icon-border: var(--chamfer);
+  --icon-shadow: var(--shadow-small);
+  --icon-shadow-hover: -5px -5px 11px rgba(255,255,255,.95), 5px 5px 11px rgba(163,155,143,.52);
+  --icon-shadow-press: var(--shadow-inset);
+  --icon-ink: #1E1D1B;
+
+  /* cards are the page surface, raised; the card stays put on hover */
+  --card-bg: #E8E6E2;
+  --card-border: rgba(255,255,255,.7) rgba(140,132,120,.2) rgba(140,132,120,.2) rgba(255,255,255,.7);
+  /* tighter than --shadow-medium: stacked cards must not share a shadow */
+  --card-shadow: -5px -5px 12px rgba(255,255,255,.88), 5px 5px 12px rgba(163,155,143,.42);
+  --card-border-hover: rgba(255,255,255,.85) rgba(140,132,120,.24) rgba(140,132,120,.24) rgba(255,255,255,.85);
+  --card-shadow-hover: -9px -9px 20px rgba(255,255,255,.92), 9px 9px 20px rgba(163,155,143,.5);
+  --card-shadow-lift: -12px -12px 26px rgba(255,255,255,.9), 18px 22px 38px rgba(140,132,120,.5);
+  --card-lift: 0px;
+  --media-radius: 14px;
+  --media-shadow: 0 0 0 1px rgba(110,102,90,.16);
+
+  --hero-bg: #111213;
+  --hero-radius: 0px;
+  --hero-edge: none;
+  --hero-overlay: none;
+
+  /* footer: the same stone, set off by a debossed groove */
+  --footer-bg: #E8E6E2;
+  --footer-layer: none;
+  --footer-ink: #1E1D1B;
+  --footer-muted: #5C5953;
+  --footer-edge: inset 0 1px 0 rgba(163,155,143,.5), inset 0 2px 0 rgba(255,255,255,.92);
+  --footer-radius: 0px;
+  --footer-focus: #2C6B61;
+  --footer-btn-bg: var(--icon-bg);
+  --footer-btn-border: var(--chamfer);
+  --footer-btn-shadow: var(--shadow-small);
+  --footer-btn-bg-hover: var(--icon-bg);
+  --footer-btn-shadow-hover: var(--icon-shadow-hover);
+  --footer-btn-ink: #1E1D1B;
+}
+
+[data-morphism="neumorphic"][data-theme="dark"] {
+  --page-bg: #2A2927;
+
+  --text-primary: #F0EEEA;
+  --text-secondary: #C6C2BB;
+  --text-muted: #A9A49C;
+  --ui-accent: #86CBBE;
+  --ui-accent-hover: #A0D8CD;
+  --ui-accent-ink: #10201C;
+  --focus-ring: #86CBBE;
+
+  --surface-primary: #2A2927;
+  --surface-secondary: #252422;
+  --surface-raised: linear-gradient(145deg, #302F2C 0%, #262523 100%);
+  --surface-inset: #252422;
+  --border-primary: rgba(255,255,255,.12);
+  --border-subtle: rgba(255,255,255,.07);
+  --chamfer: rgba(255,255,255,.08) rgba(0,0,0,.34) rgba(0,0,0,.34) rgba(255,255,255,.08);
+  --chamfer-in: rgba(0,0,0,.36) rgba(255,255,255,.07) rgba(255,255,255,.07) rgba(0,0,0,.36);
+
+  --shadow-small: -3px -3px 7px rgba(255,255,255,.05), 3px 3px 8px rgba(0,0,0,.46);
+  --shadow-medium: -7px -7px 16px rgba(255,255,255,.045), 8px 8px 18px rgba(0,0,0,.5);
+  --shadow-large: -11px -11px 24px rgba(255,255,255,.05), 12px 12px 26px rgba(0,0,0,.56);
+  --shadow-inset: inset 3px 3px 7px rgba(0,0,0,.5), inset -3px -3px 7px rgba(255,255,255,.05);
+
+  --header-bg: #2A2927;
+  --header-shadow-scrolled: 0 12px 22px -16px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.04);
+
+  --track-bg: linear-gradient(145deg, #2E2D2B 0%, #272624 100%);
+  --track-shadow: inset 0 0 0 1px rgba(255,255,255,.04), -4px -4px 10px rgba(255,255,255,.04), 4px 4px 10px rgba(0,0,0,.46);
+  --seg-ink: #C6C2BB;
+  --seg-bg-hover: rgba(255,255,255,.04);
+
+  --control-bg: linear-gradient(145deg, #302F2C 0%, #272624 100%);
+  --control-ink: #D6D2CB;
+  --control-bg-hover: linear-gradient(145deg, #33322F 0%, #292826 100%);
+  --control-shadow-hover: -4px -4px 9px rgba(255,255,255,.055), 4px 4px 9px rgba(0,0,0,.5);
+  --control-bg-active: #252422;
+  --control-ink-active: #FFFFFF;
+  --control-shadow-press: inset 2px 2px 5px rgba(0,0,0,.5), inset -2px -2px 5px rgba(255,255,255,.05);
+
+  --icon-bg: linear-gradient(145deg, #302F2C 0%, #262523 100%);
+  --icon-shadow-hover: -5px -5px 11px rgba(255,255,255,.055), 5px 5px 11px rgba(0,0,0,.55);
+  --icon-ink: #F0EEEA;
+
+  --card-bg: #2A2927;
+  --card-shadow: -5px -5px 12px rgba(255,255,255,.04), 6px 6px 14px rgba(0,0,0,.5);
+  --card-shadow-hover: -9px -9px 20px rgba(255,255,255,.05), 10px 10px 22px rgba(0,0,0,.56);
+  --card-border: rgba(255,255,255,.07) rgba(0,0,0,.3) rgba(0,0,0,.3) rgba(255,255,255,.07);
+  --card-border-hover: rgba(255,255,255,.09) rgba(0,0,0,.34) rgba(0,0,0,.34) rgba(255,255,255,.09);
+  --card-shadow-lift: -12px -12px 26px rgba(255,255,255,.04), 18px 22px 40px rgba(0,0,0,.6);
+  --media-shadow: 0 0 0 1px rgba(0,0,0,.35);
+
+  --hero-bg: #0C0C0D;
+
+  --footer-bg: #2A2927;
+  --footer-ink: #F0EEEA;
+  --footer-muted: #A9A49C;
+  --footer-edge: inset 0 1px 0 rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.05);
+  --footer-focus: #86CBBE;
+  --footer-btn-ink: #F0EEEA;
+}
+
+
+/* ── 3. GLASS ────────────────────────────────────────────────────────
+   Frosted panes over a slow wash of low-saturation light (sage, apricot,
+   mist — drawn from the hero's tube colours, not a purple-blue gradient).
+   Glass only reads against things that are not glass, so the images stay
+   solid and crisp, and backdrop blur is spent in one place: the header,
+   where content actually slides underneath it. */
+[data-morphism="glass"] {
+  --page-bg: #E8ECEE;
+  /* The layer is fixed to the viewport, and its top third is always behind
+     the header or the dark hero, so the light sits where the cards travel. */
+  --page-layer:
+    radial-gradient(48vw 42vw at 6% 64%, rgba(146,204,174,.78), transparent 70%),
+    radial-gradient(44vw 40vw at 94% 46%, rgba(248,194,150,.72), transparent 70%),
+    radial-gradient(62vw 46vw at 50% 110%, rgba(156,184,228,.66), transparent 70%);
+  --page-layer-size: auto;
+
+  --text-primary: #0F1418;
+  --text-secondary: #333E47;
+  --text-muted: #4A5661;
+  --ui-accent: #1D6B58;
+  --ui-accent-hover: #155445;
+  --ui-accent-ink: #FFFFFF;
+  --focus-ring: #0F1418;
+
+  --surface-primary: rgba(255,255,255,.55);
+  --surface-secondary: rgba(255,255,255,.35);
+  --surface-raised: rgba(255,255,255,.68);
+  --surface-inset: rgba(255,255,255,.28);
+  --border-primary: rgba(255,255,255,.8);
+  --border-subtle: rgba(255,255,255,.55);
+
+  --shadow-small: inset 0 1px 0 rgba(255,255,255,.85), 0 0 0 1px rgba(22,34,44,.05), 0 2px 6px -2px rgba(22,34,44,.14);
+  --shadow-medium: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 1px rgba(22,34,44,.05), 0 10px 30px -14px rgba(22,34,44,.24);
+  --shadow-large: inset 0 1px 0 rgba(255,255,255,.95), 0 0 0 1px rgba(22,34,44,.06), 0 18px 44px -18px rgba(22,34,44,.32);
+  --shadow-inset: inset 0 1px 2px rgba(22,34,44,.1), inset 0 0 0 1px rgba(255,255,255,.35);
+
+  --radius-small: 10px;
+  --radius-medium: 14px;
+  --radius-large: 20px;
+  --radius-card: 22px;
+  --blur-strength: 22px;
+
+  --header-bg: rgba(246,248,248,.58);
+  --header-bg-scrolled: rgba(246,248,248,.78);
+  --header-border: transparent transparent rgba(255,255,255,.75) transparent;
+  --header-shadow: inset 0 -1px 0 rgba(22,34,44,.06), 0 8px 24px -16px rgba(22,34,44,.22);
+  --header-blur: blur(var(--blur-strength)) saturate(160%);
+
+  --track-bg: rgba(255,255,255,.34);
+  --track-shadow: inset 0 0 0 1px rgba(255,255,255,.75), inset 0 1px 2px rgba(22,34,44,.08), 0 0 0 1px rgba(22,34,44,.05);
+  --radius-track: 999px;
+  --radius-seg: 999px;
+  --seg-bg: transparent;
+  --seg-border: transparent;
+  --seg-shadow: none;
+  --seg-ink: #333E47;
+  --seg-bg-hover: rgba(255,255,255,.42);
+  --seg-shadow-hover: none;
+
+  --control-bg: rgba(255,255,255,.42);
+  --control-border: rgba(255,255,255,.78);
+  --control-shadow: var(--shadow-small);
+  --control-ink: #26313A;
+  --control-bg-hover: rgba(255,255,255,.64);
+  --control-shadow-hover: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 1px rgba(22,34,44,.06), 0 6px 14px -6px rgba(22,34,44,.2);
+  --control-bg-active: rgba(255,255,255,.92);
+  --control-border-active: #FFFFFF;
+  --control-shadow-active: inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(22,34,44,.1), 0 4px 12px -4px rgba(22,34,44,.24);
+  --control-ink-active: #0B1014;
+  --control-shadow-press: inset 0 1px 2px rgba(22,34,44,.12), 0 0 0 1px rgba(22,34,44,.08);
+  --radius-filter: 999px;
+  --indicator: #1D6B58;
+  --indicator-glow: none;
+
+  --icon-bg: rgba(255,255,255,.55);
+  --icon-border: rgba(255,255,255,.85);
+  --icon-shadow: var(--shadow-small);
+  --icon-bg-hover: rgba(255,255,255,.8);
+  --icon-shadow-hover: inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(22,34,44,.07), 0 8px 18px -8px rgba(22,34,44,.28);
+  --icon-shadow-press: inset 0 1px 3px rgba(22,34,44,.16), 0 0 0 1px rgba(22,34,44,.08);
+  --icon-ink: #0F1418;
+
+  --card-bg: linear-gradient(135deg, rgba(255,255,255,.64) 0%, rgba(255,255,255,.42) 100%);
+  --card-bg-hover: linear-gradient(135deg, rgba(255,255,255,.74) 0%, rgba(255,255,255,.52) 100%);
+  --card-border: rgba(255,255,255,.72);
+  --card-shadow: var(--shadow-medium);
+  --card-border-hover: rgba(255,255,255,.98);
+  --card-shadow-hover: var(--shadow-large);
+  --card-shadow-lift: inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(22,34,44,.06), 0 30px 60px -22px rgba(22,34,44,.4);
+  --card-lift: -2px;
+  --media-radius: 14px;
+  --media-shadow: 0 0 0 1px rgba(255,255,255,.75), 0 10px 24px -14px rgba(22,34,44,.35);
+
+  --hero-bg: #0A0C10;
+  --hero-radius: 0px;
+  --hero-edge: none;
+  /* a faint sheen across the top, and a hairline of refracted light below */
+  --hero-overlay:
+    linear-gradient(90deg, transparent 4%, rgba(158,207,180,.7) 30%, rgba(246,199,160,.7) 58%, rgba(170,192,226,.65) 82%, transparent 96%) bottom / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.05) 0%, transparent 34%);
+
+  /* footer: smoked glass, bookending the dark hero */
+  --footer-bg: rgba(12,15,19,.93);
+  --footer-layer: linear-gradient(180deg, rgba(255,255,255,.05) 0%, transparent 40%);
+  --footer-ink: #F2F5F6;
+  --footer-muted: #A9B4BD;
+  --footer-edge: inset 0 1px 0 rgba(255,255,255,.14);
+  --footer-radius: 0px;
+  --footer-focus: #F2F5F6;
+  --footer-btn-bg: rgba(255,255,255,.08);
+  --footer-btn-border: rgba(255,255,255,.22);
+  --footer-btn-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 12px -6px rgba(0,0,0,.5);
+  --footer-btn-bg-hover: rgba(255,255,255,.16);
+  --footer-btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.24), 0 10px 20px -8px rgba(0,0,0,.6);
+  --footer-btn-ink: #FFFFFF;
+}
+
+[data-morphism="glass"][data-theme="dark"] {
+  --page-bg: #0B0E11;
+  --page-layer:
+    radial-gradient(48vw 42vw at 6% 64%, rgba(64,140,108,.42), transparent 70%),
+    radial-gradient(44vw 40vw at 94% 46%, rgba(196,120,70,.30), transparent 70%),
+    radial-gradient(62vw 46vw at 50% 110%, rgba(70,98,170,.40), transparent 70%);
+
+  --text-primary: #F2F5F7;
+  --text-secondary: #C3CCD3;
+  --text-muted: #9DA8B2;
+  --ui-accent: #7FD1B5;
+  --ui-accent-hover: #9ADDC6;
+  --ui-accent-ink: #0B1512;
+  --focus-ring: #F2F5F7;
+
+  --surface-primary: rgba(255,255,255,.06);
+  --surface-secondary: rgba(255,255,255,.035);
+  --surface-raised: rgba(255,255,255,.09);
+  --surface-inset: rgba(0,0,0,.25);
+  --border-primary: rgba(255,255,255,.16);
+  --border-subtle: rgba(255,255,255,.10);
+
+  --shadow-small: inset 0 1px 0 rgba(255,255,255,.10), 0 2px 8px -2px rgba(0,0,0,.5);
+  --shadow-medium: inset 0 1px 0 rgba(255,255,255,.10), 0 14px 34px -16px rgba(0,0,0,.66);
+  --shadow-large: inset 0 1px 0 rgba(255,255,255,.14), 0 22px 48px -18px rgba(0,0,0,.76);
+  --shadow-inset: inset 0 1px 3px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.06);
+
+  --header-bg: rgba(12,15,18,.55);
+  --header-bg-scrolled: rgba(12,15,18,.74);
+  --header-border: transparent transparent rgba(255,255,255,.10) transparent;
+  --header-shadow: 0 8px 24px -16px rgba(0,0,0,.6);
+
+  --track-bg: rgba(255,255,255,.05);
+  --track-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 1px 3px rgba(0,0,0,.3);
+  --seg-ink: #C3CCD3;
+  --seg-bg-hover: rgba(255,255,255,.06);
+
+  --control-bg: rgba(255,255,255,.06);
+  --control-border: rgba(255,255,255,.15);
+  --control-ink: #DDE3E8;
+  --control-bg-hover: rgba(255,255,255,.1);
+  --control-shadow-hover: inset 0 1px 0 rgba(255,255,255,.12), 0 6px 14px -6px rgba(0,0,0,.6);
+  --control-bg-active: rgba(255,255,255,.18);
+  --control-border-active: rgba(255,255,255,.34);
+  --control-shadow-active: inset 0 1px 0 rgba(255,255,255,.2), 0 4px 14px -4px rgba(0,0,0,.6);
+  --control-ink-active: #FFFFFF;
+  --control-shadow-press: inset 0 1px 3px rgba(0,0,0,.45);
+  --indicator: #7FD1B5;
+
+  --icon-bg: rgba(255,255,255,.07);
+  --icon-border: rgba(255,255,255,.18);
+  --icon-bg-hover: rgba(255,255,255,.13);
+  --icon-shadow-hover: inset 0 1px 0 rgba(255,255,255,.16), 0 8px 18px -8px rgba(0,0,0,.65);
+  --icon-shadow-press: inset 0 1px 3px rgba(0,0,0,.5);
+  --icon-ink: #F2F5F7;
+
+  --card-bg: linear-gradient(135deg, rgba(255,255,255,.085) 0%, rgba(255,255,255,.035) 100%);
+  --card-bg-hover: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 100%);
+  --card-border: rgba(255,255,255,.12);
+  --card-border-hover: rgba(255,255,255,.24);
+  --card-shadow-lift: inset 0 1px 0 rgba(255,255,255,.14), 0 34px 64px -22px rgba(0,0,0,.85);
+  --media-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 10px 24px -12px rgba(0,0,0,.7);
+
+  --hero-bg: #07090C;
+
+  --footer-bg: rgba(255,255,255,.035);
+  --footer-layer: none;
+  --footer-muted: #9DA8B2;
+  --footer-edge: inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+
+/* ── 4. CLAY ─────────────────────────────────────────────────────────
+   Soft industrial clay, not a toy: warm oat ground, surfaces inflated by
+   an inner highlight (top left) and an inner shade (bottom right), broad
+   soft outer shadows, one muted terracotta accent. The largest radii of
+   the four systems, but images stay rectangular enough to read as UI. */
+[data-morphism="clay"] {
+  --page-bg: #EFE7DE;
+  --page-layer:
+    radial-gradient(70vw 60vw at 0% 0%, rgba(250,222,196,.6), transparent 70%),
+    radial-gradient(60vw 50vw at 100% 62%, rgba(221,228,210,.5), transparent 70%);
+  --page-layer-size: auto;
+
+  --text-primary: #2A211C;
+  --text-secondary: #54463C;
+  --text-muted: #6B5B4F;
+  --ui-accent: #A5502D;
+  --ui-accent-hover: #8E4425;
+  --ui-accent-ink: #FFFFFF;
+  --focus-ring: #A5502D;
+
+  --surface-primary: #F8F2EB;
+  --surface-secondary: #F2EAE2;
+  --surface-raised: #FAF5EF;
+  --surface-inset: #E8DED4;
+  --border-primary: rgba(122,80,50,.16);
+  --border-subtle: rgba(122,80,50,.09);
+
+  --shadow-small: inset 1.5px 2px 3px rgba(255,255,255,.9), inset -2px -2.5px 5px rgba(150,100,62,.16), 0 4px 10px -4px rgba(122,78,46,.3);
+  --shadow-medium: inset 3px 4px 6px rgba(255,255,255,.85), inset -4px -5px 10px rgba(150,100,62,.14), 0 8px 16px -8px rgba(122,78,46,.2), 0 22px 40px -22px rgba(122,78,46,.36);
+  --shadow-large: inset 3px 4px 6px rgba(255,255,255,.9), inset -4px -5px 10px rgba(150,100,62,.14), 0 12px 22px -10px rgba(122,78,46,.24), 0 32px 52px -26px rgba(122,78,46,.44);
+  --shadow-inset: inset 3px 4px 8px rgba(150,100,62,.22), inset -2px -2px 5px rgba(255,255,255,.8);
+
+  --radius-small: 14px;
+  --radius-medium: 20px;
+  --radius-large: 28px;
+  --radius-card: 30px;
+  --blur-strength: 0px;
+
+  /* the header's surface is a soft capsule set inside the bar */
+  --header-inset: 7px 12px;
+  --header-radius: 26px;
+  --header-bg: #F8F2EB;
+  --header-border: rgba(255,255,255,.6);
+  --header-shadow: inset 2px 3px 5px rgba(255,255,255,.85), inset -3px -4px 8px rgba(150,100,62,.12), 0 8px 18px -10px rgba(122,78,46,.3);
+
+  /* switcher: a pressed-in channel; the chosen segment is a raised
+     terracotta pebble riding in it */
+  --track-bg: #EAE0D6;
+  --track-shadow: inset 2px 3px 6px rgba(150,100,62,.2), inset -2px -2px 4px rgba(255,255,255,.75);
+  --radius-track: 999px;
+  --radius-seg: 999px;
+  --seg-bg: transparent;
+  --seg-border: transparent;
+  --seg-shadow: none;
+  --seg-ink: #54463C;
+  --seg-bg-hover: rgba(255,255,255,.45);
+  --seg-shadow-hover: none;
+  --seg-bg-active: linear-gradient(160deg, #B25A36 0%, #A14E2B 100%);   /* white label ≥ 4.7:1 on both stops */
+  --seg-border-active: rgba(120,55,25,.35);
+  --seg-shadow-active: inset 1.5px 2px 3px rgba(255,214,190,.45), inset -2px -3px 5px rgba(90,35,12,.35), 0 4px 10px -4px rgba(122,60,30,.5);
+  --seg-ink-active: #FFFFFF;
+  --seg-indicator: rgba(255,255,255,.95);
+
+  --control-bg: #F8F2EB;
+  --control-border: rgba(255,255,255,.6);
+  --control-shadow: var(--shadow-small);
+  --control-ink: #3F332B;
+  --control-bg-hover: #FBF6F1;
+  --control-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.95), inset -2px -2.5px 5px rgba(150,100,62,.16), 0 7px 14px -6px rgba(122,78,46,.34);
+  /* a chosen filter sinks in and takes the terracotta */
+  --control-bg-active: #A5502D;
+  --control-border-active: rgba(120,55,25,.5);
+  --control-shadow-active: inset 2px 3px 6px rgba(80,30,10,.36), inset -2px -2px 4px rgba(255,190,160,.22);
+  --control-ink-active: #FFFFFF;
+  --control-shadow-press: inset 2px 3px 6px rgba(150,100,62,.24), inset -2px -2px 4px rgba(255,255,255,.7);
+  --radius-filter: 999px;
+  --indicator: rgba(255,255,255,.95);
+  --indicator-glow: none;
+
+  --icon-bg: #F8F2EB;
+  --icon-border: rgba(255,255,255,.6);
+  --icon-shadow: var(--shadow-small);
+  --icon-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.95), inset -2px -2.5px 5px rgba(150,100,62,.16), 0 9px 16px -7px rgba(122,78,46,.38);
+  --icon-shadow-press: var(--shadow-inset);
+  --icon-ink: #2A211C;
+
+  --card-bg: #F8F2EB;
+  --card-border: rgba(255,255,255,.55);
+  --card-shadow: var(--shadow-medium);
+  --card-border-hover: rgba(255,255,255,.7);
+  --card-shadow-hover: var(--shadow-large);
+  --card-shadow-lift: inset 3px 4px 6px rgba(255,255,255,.9), inset -4px -5px 10px rgba(150,100,62,.14), 0 34px 60px -24px rgba(122,78,46,.5);
+  --card-lift: -3px;
+  --media-radius: 18px;
+  --media-shadow: 0 0 0 1px rgba(122,80,50,.10), 0 10px 22px -14px rgba(122,78,46,.45);
+
+  /* the one clay accent in the hero: the band is a moulded slab, rounded
+     all round and lit like the cards (rim light top left, shade bottom right),
+     set in from the screen edges by the same 12px as the header capsule */
+  --hero-bg: #120E0C;
+  --hero-radius: 36px;
+  --hero-inset: 12px;
+  --hero-edge: 0 22px 40px -28px rgba(90,55,30,.6);
+  --hero-overlay: none;
+  --hero-inner: inset 3px 4px 10px rgba(255,255,255,.08), inset -4px -6px 16px rgba(0,0,0,.45);
+
+  --footer-bg: #2F2723;
+  --footer-layer: none;
+  --footer-ink: #F6EFE9;
+  --footer-muted: #CBBCAF;
+  --footer-edge: inset 3px 4px 8px rgba(255,255,255,.05), 0 -14px 34px -24px rgba(90,55,30,.45);
+  --footer-radius: 36px;
+  --footer-focus: #F6EFE9;
+  --footer-btn-bg: #3B312C;
+  --footer-btn-border: rgba(255,255,255,.08);
+  --footer-btn-shadow: inset 1.5px 2px 3px rgba(255,255,255,.1), inset -2px -3px 5px rgba(0,0,0,.3), 0 6px 12px -6px rgba(0,0,0,.5);
+  --footer-btn-bg-hover: #443933;
+  --footer-btn-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.12), inset -2px -3px 5px rgba(0,0,0,.3), 0 10px 18px -8px rgba(0,0,0,.6);
+  --footer-btn-ink: #F6EFE9;
+}
+
+[data-morphism="clay"][data-theme="dark"] {
+  --page-bg: #221D1A;
+  --page-layer:
+    radial-gradient(70vw 60vw at 0% 0%, rgba(120,70,45,.26), transparent 70%),
+    radial-gradient(60vw 50vw at 100% 62%, rgba(80,90,70,.18), transparent 70%);
+
+  --text-primary: #F4EDE6;
+  --text-secondary: #CFC1B4;
+  --text-muted: #B0A193;
+  --ui-accent: #DE8F6B;
+  --ui-accent-hover: #E8A283;
+  --ui-accent-ink: #1E1410;
+  --focus-ring: #DE8F6B;
+
+  --surface-primary: #2D2622;
+  --surface-secondary: #28221E;
+  --surface-raised: #312A25;
+  --surface-inset: #1C1815;
+  --border-primary: rgba(255,255,255,.1);
+  --border-subtle: rgba(255,255,255,.06);
+
+  --shadow-small: inset 1.5px 2px 3px rgba(255,255,255,.07), inset -2px -2.5px 5px rgba(0,0,0,.36), 0 4px 10px -4px rgba(0,0,0,.56);
+  --shadow-medium: inset 3px 4px 6px rgba(255,255,255,.06), inset -4px -5px 10px rgba(0,0,0,.36), 0 8px 16px -8px rgba(0,0,0,.46), 0 22px 40px -22px rgba(0,0,0,.66);
+  --shadow-large: inset 3px 4px 6px rgba(255,255,255,.07), inset -4px -5px 10px rgba(0,0,0,.36), 0 12px 22px -10px rgba(0,0,0,.5), 0 32px 52px -26px rgba(0,0,0,.76);
+  --shadow-inset: inset 3px 4px 8px rgba(0,0,0,.46), inset -2px -2px 5px rgba(255,255,255,.05);
+
+  --header-bg: #2D2622;
+  --header-border: rgba(255,255,255,.06);
+  --header-shadow: inset 2px 3px 5px rgba(255,255,255,.06), inset -3px -4px 8px rgba(0,0,0,.3), 0 8px 18px -10px rgba(0,0,0,.6);
+
+  --track-bg: #1F1A17;
+  --track-shadow: inset 2px 3px 6px rgba(0,0,0,.46), inset -2px -2px 4px rgba(255,255,255,.04);
+  --seg-ink: #CFC1B4;
+  --seg-bg-hover: rgba(255,255,255,.05);
+  --seg-bg-active: linear-gradient(160deg, #E6A07F 0%, #D4835F 100%);
+  --seg-border-active: rgba(0,0,0,.25);
+  --seg-shadow-active: inset 1.5px 2px 3px rgba(255,225,205,.4), inset -2px -3px 5px rgba(110,45,20,.35), 0 4px 10px -4px rgba(0,0,0,.6);
+  --seg-ink-active: #1E1410;
+  --seg-indicator: rgba(30,20,16,.85);
+
+  --control-bg: #332B26;
+  --control-border: rgba(255,255,255,.07);
+  --control-ink: #E3D8CE;
+  --control-bg-hover: #382F2A;
+  --control-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.08), inset -2px -2.5px 5px rgba(0,0,0,.36), 0 7px 14px -6px rgba(0,0,0,.6);
+  --control-bg-active: #DE8F6B;
+  --control-border-active: rgba(0,0,0,.3);
+  --control-shadow-active: inset 2px 3px 6px rgba(110,45,20,.45), inset -2px -2px 4px rgba(255,225,205,.25);
+  --control-ink-active: #1E1410;
+  --control-shadow-press: inset 2px 3px 6px rgba(0,0,0,.46), inset -2px -2px 4px rgba(255,255,255,.04);
+  --indicator: rgba(30,20,16,.85);
+
+  --icon-bg: #332B26;
+  --icon-border: rgba(255,255,255,.07);
+  --icon-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.08), inset -2px -2.5px 5px rgba(0,0,0,.36), 0 9px 16px -7px rgba(0,0,0,.62);
+  --icon-ink: #F4EDE6;
+
+  --card-bg: #2D2622;
+  --card-border: rgba(255,255,255,.06);
+  --card-border-hover: rgba(255,255,255,.09);
+  --card-shadow-lift: inset 3px 4px 6px rgba(255,255,255,.06), inset -4px -5px 10px rgba(0,0,0,.36), 0 34px 60px -24px rgba(0,0,0,.8);
+  --media-shadow: 0 0 0 1px rgba(0,0,0,.3), 0 10px 22px -14px rgba(0,0,0,.7);
+
+  --hero-bg: #0E0B0A;
+  --hero-edge: 0 22px 40px -28px rgba(0,0,0,.8);
+  --hero-inner: inset 3px 4px 10px rgba(255,255,255,.06), inset -4px -6px 16px rgba(0,0,0,.5);
+
+  --footer-bg: #171311;
+  --footer-muted: #B9A99B;
+  --footer-edge: inset 3px 4px 8px rgba(255,255,255,.04), 0 -14px 34px -24px rgba(0,0,0,.6);
+  --footer-btn-bg: #29221E;
+  --footer-btn-bg-hover: #312924;
+}

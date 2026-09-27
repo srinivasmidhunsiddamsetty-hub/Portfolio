@@ -18,7 +18,24 @@
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
+
+    // Morphism (visual system) — independent of light/dark above, which is
+    // why it has its own attribute and its own storage key. To change what
+    // a first-time visitor sees, change `fallback`. Phones have no switcher,
+    // so this is also what every phone shows.
+    (function () {
+      var M = window.MORPHISM = {
+        key: 'morphism',
+        systems: ['flat', 'skeuomorphic', 'neumorphic', 'glass', 'clay'],
+        fallback: 'flat'
+      };
+      var saved = null;
+      try { saved = localStorage.getItem(M.key); } catch (e) {}
+      document.documentElement.setAttribute('data-morphism',
+        M.systems.indexOf(saved) !== -1 ? saved : M.fallback);
+    })();
   </script>
+  <script src="morphism/morphism.js" defer></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
@@ -116,7 +133,7 @@
     .fade-in:nth-child(4) { animation-delay: 0.35s; }
 
     /* ── Navigation (top left) ────────────────────────── */
-    nav {
+    .site-header {
       position: sticky;
       top: 0;
       background: var(--bg);
@@ -389,7 +406,7 @@
 
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 720px) {
-      nav { padding: 14px var(--side) 14px; gap: 32px; }
+      .site-header { padding: 14px var(--side) 14px; gap: 32px; }
       .nav-links { gap: 28px; }
       .nav-links a { font-size: 15px; }
 
@@ -639,16 +656,61 @@
        until the row has gone. */
     html.is-launching .project-card::before { animation: none; }
   </style>
+
+  <!-- Four visual systems over the one structure above: tokens, then the
+       shared shell (header, switcher, footer), then this page's skins. -->
+  <link rel="stylesheet" href="morphism/tokens.css" />
+  <link rel="stylesheet" href="morphism/shell.css" />
+  <link rel="stylesheet" href="morphism/home.css" />
 </head>
 <body>
 
-  <!-- ── Nav (top left) ─────────────────────────────── -->
-  <nav>
-    <ul class="nav-links">
-      <li><a href="#" class="active">Home</a></li>
-      <li><a href="about.html">About Me</a></li>
-      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
-    </ul>
+  <!-- ── Header: navigation | morphism switcher | light-dark ─ -->
+  <header class="site-header">
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#" class="active" aria-current="page">Home</a></li>
+        <li><a href="about.html">About Me</a></li>
+        <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+      </ul>
+    </nav>
+
+    <!-- One radio group. Each radio's aria-label is the full name; the
+         visible label is the full name (when chosen) or its start. -->
+    <fieldset class="morph-switch" id="morph-switch" aria-describedby="morph-hint-text">
+      <legend class="sr-only">Interface style</legend>
+      <label class="morph-opt">
+        <input class="morph-input" type="radio" name="morphism" value="flat" aria-label="Flat design" autocomplete="off">
+        <span class="morph-text">Flat<span class="morph-suffix">&nbsp;design</span></span>
+      </label>
+      <label class="morph-opt">
+        <input class="morph-input" type="radio" name="morphism" value="skeuomorphic" aria-label="Skeuomorphism" autocomplete="off">
+        <span class="morph-text">Skeuo<span class="morph-suffix">morphism</span></span>
+      </label>
+      <label class="morph-opt">
+        <input class="morph-input" type="radio" name="morphism" value="neumorphic" aria-label="Neumorphism" autocomplete="off">
+        <span class="morph-text">Neu<span class="morph-suffix">morphism</span></span>
+      </label>
+      <label class="morph-opt">
+        <input class="morph-input" type="radio" name="morphism" value="glass" aria-label="Glassmorphism" autocomplete="off">
+        <span class="morph-text">Glass<span class="morph-suffix">morphism</span></span>
+      </label>
+      <label class="morph-opt">
+        <input class="morph-input" type="radio" name="morphism" value="clay" aria-label="Claymorphism" autocomplete="off">
+        <span class="morph-text">Clay<span class="morph-suffix">morphism</span></span>
+      </label>
+      <p class="morph-hint" id="morph-hint" role="note" hidden><span id="morph-hint-text">See this portfolio in four other UI styles</span>
+        <button class="morph-hint-close" type="button" aria-label="Dismiss tip">×</button></p>
+    </fieldset>
+    <!-- mark the active system before the header is first painted -->
+    <script>
+      (function () {
+        var m = document.documentElement.getAttribute('data-morphism');
+        var el = m && document.querySelector('#morph-switch .morph-input[value="' + m + '"]');
+        if (el) el.checked = true;
+      })();
+    </script>
+
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="4"/>
@@ -658,7 +720,7 @@
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
       </svg>
     </button>
-  </nav>
+  </header>
 
   <!-- ── Hero ─────────────────────────────────────────── -->
   <section class="hero" aria-label="Introduction">
@@ -674,9 +736,9 @@
     <p class="work-label fade-in">What are you looking for?</p>
 
     <div class="filters fade-in" role="group" aria-label="Filter projects">
-      <button class="filter-btn active" data-filter="all">All (5)</button>
-      <button class="filter-btn" data-filter="web">Web Design (2)</button>
-      <button class="filter-btn" data-filter="product">Product & AI (4)</button>
+      <button class="filter-btn active" data-filter="all" aria-pressed="true" type="button"><span class="btn-text" data-text="All (5)">All (5)</span></button>
+      <button class="filter-btn" data-filter="web" aria-pressed="false" type="button"><span class="btn-text" data-text="Web Design (2)">Web Design (2)</span></button>
+      <button class="filter-btn" data-filter="product" aria-pressed="false" type="button"><span class="btn-text" data-text="Product &amp; AI (4)">Product &amp; AI (4)</span></button>
     </div>
 
     <!-- Case studies placeholder grid -->
@@ -770,7 +832,10 @@
       themeBtn.addEventListener('click', () => {
         const cur = document.documentElement.getAttribute('data-theme') || 'light';
         const next = cur === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', next);
+        const apply = () => document.documentElement.setAttribute('data-theme', next);
+        // same cross-fade as switching morphism, when morphism.js is running
+        if (window.MORPHISM && window.MORPHISM.transition) window.MORPHISM.transition(apply);
+        else apply();
         try { localStorage.setItem('theme', next); } catch (e) {}
       });
     }
@@ -782,8 +847,9 @@
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const filter = btn.dataset.filter;
-        filterBtns.forEach(b => b.classList.remove('active'));
+        filterBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         cards.forEach(card => {
           const cats = (card.dataset.category || '').split(/\s+/);
           const show = filter === 'all' || cats.includes(filter);

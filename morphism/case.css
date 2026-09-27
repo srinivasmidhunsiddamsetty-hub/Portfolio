@@ -1,0 +1,209 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Morphism — case studies.
+
+   A case study carries the style chosen on the home page and offers no
+   switcher of its own: the home page is where you choose. Flat, or no
+   choice at all, sets no attribute, so that version is each page exactly
+   as it was, untouched by anything in this file.
+
+   What takes the material — the frame around the work:
+     the page ground, the header and footer (shell.css), the section bar,
+     and the portfolio's own containers. Cards are raised from the page;
+     statements, quotes and the "back" of flip cards are pressed into it;
+     static chips stay flat, so nothing that cannot be clicked looks like
+     a button.
+   What stays exactly as it is — the work itself:
+     typography; every product's own accent colour (each page's --accent);
+     device-shaped media (phone frames and phone recordings keep their
+     radius); and every CSS mock-up of a product's own UI, pinned to its
+     original colours below.
+
+   The five pages were built from one template, so a class means the same
+   thing wherever it appears (.card, .trade-card, .flow-img…) and one rule
+   can serve them all.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── The page's own tokens, pointed at the active system ──────────────
+   shell.css already maps --bg, --ink and --rule. Here the pages' two
+   secondary greys take the system's text tiers. The old --soft (#8A8A8A,
+   3.4:1 on white) was these pages' main contrast failure; every system's
+   --text-muted clears 4.5:1. */
+html[data-morphism] {
+  --muted: var(--text-secondary);
+  --soft: var(--text-muted);
+  --tint: var(--surface-inset);
+  --subnav-bg: var(--case-bar-bg, var(--surface-secondary));
+}
+html[data-morphism="glass"]                    { --case-bar-bg: rgba(246,248,248,.74); }
+html[data-morphism="glass"][data-theme="dark"] { --case-bar-bg: rgba(12,15,18,.74); }
+
+
+/* ── Section bar ─────────────────────────────────────────────────────
+   A half-step off the page, as before, now in the system's material:
+   a recessed tray under the skeuomorphic toolbar, frosted in glass. */
+html[data-morphism] .section-nav {
+  border-color: var(--border-subtle);
+  box-shadow: var(--case-bar-shadow, none);
+}
+html[data-morphism="skeuomorphic"] { --case-bar-shadow: inset 0 2px 3px -2px rgba(40,28,12,.2); }
+html[data-morphism="skeuomorphic"][data-theme="dark"] { --case-bar-shadow: inset 0 2px 3px -2px rgba(0,0,0,.7); }
+html[data-morphism="glass"] .section-nav {
+  -webkit-backdrop-filter: blur(var(--blur-strength)) saturate(160%);
+          backdrop-filter: blur(var(--blur-strength)) saturate(160%);
+}
+
+
+/* ── Raised: the portfolio's cards ─────────────────────────────────── */
+html[data-morphism] :is(
+  .research-callout, .interview-card, .card, .alt-item, .craft-cell, .next-item,   /* Campus Copilot */
+  .gate-card, .nudge-block, .trade-card,                                          /* Smart Charge */
+  .impact-card,                                                                   /* PayPal */
+  .iq-card, .obs-card, .persona-card, .flow-card, .tn-cell,                       /* DesigniQ */
+  .mapping-item, .build-item, .gap-item, .metrics-box, .reach-item:not(.flip),    /* Executive Dashboard */
+  .fact-front, .reach-front,
+  .big-stats
+) {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--card-shadow);
+}
+/* tables and cards that clip their own contents to their corners */
+html[data-morphism] :is(.big-stats, .metrics-box, .persona-card) { overflow: hidden; }
+
+
+/* ── Pressed in: statements, voices, and what is behind a flip card ── */
+html[data-morphism] :is(
+  .problem-statement, ul.user-quotes li, .visual-slot,
+  .quote-card, .compare-col, .qcard,
+  .fact-back, .reach-back
+) {
+  background: var(--surface-inset);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-inset);
+}
+/* The chosen trade-off is pressed in among raised alternatives, and keeps
+   its ink outline — the choice is content, so it keeps both cues. */
+html[data-morphism] .trade-card.chosen {
+  background: var(--surface-inset);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-inset);
+}
+html[data-morphism] .trade-card.chosen::before { border-radius: var(--radius-large); }
+/* Rejected alternatives used to fade to 78%, which took their labels and
+   badges below 4.5:1. In a material system they recede by elevation
+   instead: flat on the page, at full contrast. */
+html[data-morphism] .trade-card.rejected {
+  opacity: 1;
+  background: var(--surface-secondary);
+  box-shadow: none;
+}
+html[data-morphism] .trade-badge.bad  { color: #983F3F; }
+html[data-morphism] .trade-badge.good { color: #236B50; }
+html[data-morphism][data-theme="dark"] .trade-badge.bad  { color: #E88A8A; }
+html[data-morphism][data-theme="dark"] .trade-badge.good { color: #7FCBA9; }
+/* inner strips that were a flat tint, or hard-coded dark, follow the system */
+html[data-morphism] :is(.persona-header, .ba-frame) { background: var(--surface-inset); }
+
+
+/* ── Flat: static labels, which must never look like buttons ───────── */
+html[data-morphism] :is(.convo-tool, .category-chip, .process-step,
+                        .obj-chip, .persona-tag, .flow-step) {
+  background: var(--surface-secondary);
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+html[data-morphism] .process-step.is-key { border-color: var(--accent); }
+/* diagram nodes stay outlined, on the page itself */
+html[data-morphism] .anatomy-item { background: transparent; }
+
+
+/* ── The inverted blocks: ink on the page, the page's colour as text ── */
+html[data-morphism] :is(.principle-block, .restraint, .stmt-dark) {
+  border-radius: var(--radius-large);
+  box-shadow: var(--card-shadow);
+}
+/* Labels and emphasis inside were set at half opacity, which holds on pure
+   black but drops to 2.9:1 on a system's softer ink. */
+html[data-morphism] .principle-block .pb-label { opacity: .78; }
+html[data-morphism] .principle-block .pb-text em { opacity: .74; }
+
+
+/* ── Calls to action: each product's own colour, in the system's form ─ */
+html[data-morphism="skeuomorphic"] :is(.live-cta:not(.ghost), .proto-cta) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 1px 1px rgba(10,20,50,.3), 0 6px 14px -6px rgba(20,30,60,.5);
+}
+html[data-morphism="neumorphic"] :is(.live-cta:not(.ghost), .proto-cta) {
+  box-shadow: -4px -4px 10px rgba(255,255,255,.9), 5px 5px 12px rgba(163,155,143,.5);
+}
+html[data-morphism="neumorphic"][data-theme="dark"] :is(.live-cta:not(.ghost), .proto-cta) {
+  box-shadow: -4px -4px 10px rgba(255,255,255,.05), 5px 5px 12px rgba(0,0,0,.5);
+}
+html[data-morphism="glass"] :is(.live-cta:not(.ghost), .proto-cta) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 1px rgba(255,255,255,.18), 0 10px 24px -10px rgba(20,30,60,.5);
+}
+html[data-morphism="clay"] :is(.live-cta:not(.ghost), .proto-cta) {
+  box-shadow: inset 2px 3px 5px rgba(255,255,255,.28), inset -2px -3px 6px rgba(0,0,0,.28), 0 8px 18px -8px rgba(20,30,60,.45);
+}
+
+/* Small eyebrows, numbers and highlights are set in each product's accent.
+   On the material surfaces some fall short at that size (DesigniQ's
+   terracotta 3.2–3.8:1, Executive Dashboard's teal 4.1–4.5:1), so in light
+   mode the accent is deepened for small text only — mixed from the page's
+   own --accent, so it stays that product's colour. */
+html[data-morphism]:not([data-theme="dark"]) :is(
+  .obj-chip-num, .iq-card-num, .obs-num, .flow-num, .overall-flow-eyebrow,   /* DesigniQ */
+  .big-stat-cat, .tn-tag,
+  .fact-back-label, .qc-role, .focus-num, .mapping-arrow, .build-num,        /* Executive Dashboard */
+  .gap-add, .feature-tag, .star, .hl, .metric-cat
+) {
+  color: color-mix(in oklab, var(--accent) 78%, #000);
+}
+
+/* In dark mode each product's accent turns into a light tint (light blue,
+   light terracotta, light teal), and white on it falls to 1.9–2.96:1 —
+   the call to action, the initials, the chosen toggle. Near-black on it
+   is 5.9:1 or better. */
+html[data-morphism][data-theme="dark"] :is(.live-cta:not(.ghost), .iq-avatar,
+                                           .persona-avatar, .ba-toggle button.active) {
+  color: #101010;
+}
+
+
+/* ── Screenshots and recordings: mounted, never altered ───────────────
+   Their corners and mount follow the system; the pixels never do. Media
+   shaped like a device keep their own radius: the 26–28px phone frames
+   and phone recordings (.screen-frame, .pv video, .solution-video,
+   .ba-video, .proto-video) and the Smart Charge phone mock-ups. */
+html[data-morphism] :is(.hero-video, .inline-img, .cs-media, .research-img,
+                        .flow-img, .inline-img-wrap, .hero-frame) {
+  border-radius: var(--media-radius);
+  box-shadow: var(--media-shadow);
+}
+html[data-morphism] :is(.inline-img, .inline-img-wrap):hover { box-shadow: var(--media-shadow); }
+/* letterbox space inside the frames was a flat tint, hard-coded in dark */
+html[data-morphism] :is(.inline-img-wrap, .flow-img, .hero-frame) { background: var(--surface-inset); }
+
+
+/* ── Each product's own UI, exactly as designed ───────────────────────
+   Mock-ups of the products themselves, not parts of the portfolio: Campus
+   Copilot's answer card, before bubble, chat threads and craft demos, and
+   Executive Dashboard's digest strip. They read the page's tokens, so the
+   tokens are put back to the originals inside them, and they sit on the
+   material the way a screenshot would. */
+html[data-morphism] :is(.mock-card, .ba-before, .convo, .craft-visual, .digest-demo) {
+  --bg: #FFFFFF;
+  --ink: #0A0A0A;
+  --muted: #6B6B68;
+  --soft: #8A8A8A;
+  --rule: #E5E5E5;
+  --tint: #F4F4F1;
+}
+html[data-morphism][data-theme="dark"] :is(.mock-card, .ba-before, .convo, .craft-visual, .digest-demo) {
+  --bg: #0F0F0F;
+  --ink: #F2F2EE;
+  --muted: #A0A09C;
+  --soft: #6B6B68;
+  --rule: #232320;
+  --tint: #18181590;
+}

@@ -1,0 +1,264 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Morphism — homepage: hero, filters, project cards.
+   Hover expansion, hand-off and the launch are untouched; this file only
+   dresses the rows. Every size and gap below is the same in all four
+   systems, so switching never moves a project.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ────────────────────────────────────────────────────────────
+   Stays typographic. Each system gets one quiet gesture: a tint of the
+   black, and its own edge — skeuomorphic a bevelled lip and a display
+   vignette, glass a hairline of refracted light, clay a whole moulded
+   slab, rounded at all four corners with a soft inner rim like its cards
+   and set in from the screen edges like its header capsule. Neumorphic
+   keeps it plain.
+   An inset band gives back exactly as much inner padding as it takes in
+   margin, so the statement sits on the same pixels in every system. */
+html[data-morphism] .hero {
+  margin-inline: var(--hero-inset, 0px);
+  padding-inline: calc(var(--side) - var(--hero-inset, 0px));
+  background: var(--hero-bg);
+  border-radius: var(--hero-radius);
+  box-shadow: var(--hero-edge, none);
+}
+html[data-morphism] #tubes-canvas { background: var(--hero-bg); }
+/* Sits above the canvas and below the statement, so an overlay or an
+   inner rim reads on top of the tubes rather than hidden under them. */
+html[data-morphism] .hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--hero-overlay, none);
+  box-shadow: var(--hero-inner, none);
+  pointer-events: none;
+}
+
+
+/* ── Filters ─────────────────────────────────────────────────────────
+   Toggle buttons with a real pressed state (aria-pressed). Chosen = the
+   system's pressed or filled form + heavier label + the indicator pip,
+   never one cue alone. */
+html[data-morphism] .work-label { color: var(--text-primary); }
+html[data-morphism] .filters { gap: 12px; }
+
+html[data-morphism] .filter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  padding: 0 20px;
+  border: 1px solid;
+  border-color: var(--control-border);
+  border-radius: var(--radius-filter);
+  background: var(--control-bg);
+  color: var(--control-ink);
+  box-shadow: var(--control-shadow);
+  font-weight: 500;
+  transition: box-shadow var(--transition-fast), background-color var(--transition-fast),
+              color var(--transition-fast), scale var(--transition-fast);
+}
+html[data-morphism] .filter-btn:hover {
+  border-color: var(--control-border-hover, var(--control-border));
+  background: var(--control-bg-hover);
+  box-shadow: var(--control-shadow-hover);
+}
+html[data-morphism] .filter-btn.active {
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
+  color: var(--control-ink-active);
+  box-shadow: var(--control-shadow-active);
+  font-weight: var(--control-weight-active, 650);
+}
+html[data-morphism] .filter-btn:active { box-shadow: var(--control-shadow-press); scale: .98; }
+
+/* same bold-width reserve as the switcher */
+html[data-morphism] .btn-text { display: inline-flex; flex-direction: column; }
+html[data-morphism] .btn-text::after {
+  content: attr(data-text);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: var(--control-weight-active, 650);
+}
+
+/* the indicator lamp, where the system has one (skeuomorphic) */
+html[data-morphism] .filter-btn::after {
+  content: "";
+  display: var(--indicator-display, none);
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--indicator);
+  box-shadow: var(--indicator-glow, none);
+  opacity: 0;
+  scale: .3;
+  transition: opacity var(--transition-fast), scale var(--transition-fast);
+}
+html[data-morphism] .filter-btn.active::after { opacity: 1; scale: 1; }
+
+
+/* ── Project cards ───────────────────────────────────────────────────
+   Contiguous rows become separate surfaces (law of common region): each
+   project owns one continuous material, and the gap between them is what
+   lets a system's depth read at all. */
+html[data-morphism] .projects-list {
+  gap: var(--card-gap);
+  border-top: 0;
+}
+
+html[data-morphism] .project-card {
+  padding: 0 24px;
+  border: 1px solid;
+  border-color: var(--card-border);
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: height var(--row-out) var(--row-ease),
+              padding var(--row-out) var(--row-ease),
+              box-shadow 380ms ease, border-color 380ms ease,
+              translate 380ms var(--row-ease), scale 160ms ease;
+}
+/* Open is this page's hover. The lift uses the individual `translate`
+   property, which composes with the launch's `transform` animation, so a
+   row launched from its lifted position does not first drop back. */
+html[data-morphism] .project-card.is-open {
+  padding: 0 34px;
+  border-radius: var(--radius-card);
+  border-color: var(--card-border-hover);
+  background: var(--card-bg-hover, var(--card-bg));
+  box-shadow: var(--card-shadow-hover);
+  translate: 0 var(--card-lift, 0px);
+  transition: height var(--row-in) var(--row-ease),
+              padding var(--row-in) var(--row-ease),
+              box-shadow 460ms ease, border-color 460ms ease,
+              translate 460ms var(--row-ease), scale 160ms ease;
+}
+/* brief tactile compression on press */
+html[data-morphism] .project-card:active { scale: .996; }
+
+/* the flat list hid its neighbours' dividers around an open row; cards
+   keep their own edges */
+html[data-morphism] .projects-list > .project-card:has(+ .project-card.is-open) { border-color: var(--card-border); }
+
+html[data-morphism] .project-card.is-lifting {
+  box-shadow: var(--card-shadow-lift);
+  transition: box-shadow 200ms cubic-bezier(.22, .7, .3, 1);
+}
+
+/* The traced rainbow ring belongs to the flat design. The material
+   systems say "open" with depth instead, and dropping it also stops a
+   conic-gradient repainting every frame while a row is open. */
+html[data-morphism] .project-card::before { display: none; }
+html[data-morphism="flat"] .project-card::before { display: block; }
+
+/* Flat keeps the hosted design's hairline list: no surface under a row,
+   just a rule — drawn in the middle of the shared gap, so the rows sit
+   exactly where they sit in every other system. Each visible row draws
+   the rule above itself and the list draws the last one, so filtering
+   never doubles or drops a line. */
+html[data-morphism="flat"] .projects-list { position: relative; }
+html[data-morphism="flat"] .project-card::after,
+html[data-morphism="flat"] .projects-list::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border-subtle);
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+html[data-morphism="flat"] .project-card::after  { top: calc(var(--card-gap) / -2 - 1px); }
+html[data-morphism="flat"] .projects-list::after { bottom: calc(var(--card-gap) / -2 - 1px); }
+/* An open row's ring stands on its own, as it always has: the rules
+   either side of it step back. */
+html[data-morphism="flat"] .project-card.is-open::after,
+html[data-morphism="flat"] .project-card.is-open ~ .project-card::after { opacity: 0; }
+html[data-morphism="flat"] .project-card.is-open ~ .project-card:not([data-hidden="true"]) ~ .project-card::after { opacity: 1; }
+html[data-morphism="flat"] .projects-list:has(> .project-card.is-open:last-child)::after { opacity: 0; }
+
+/* The image keeps its own colours and proportions; only its corners and
+   its mount follow the system. The media box is exactly the image's
+   size (max-width/height keep it from overflowing mid-animation), so it
+   no longer needs to clip, and the mount shadow can show. */
+html[data-morphism] .p-media { overflow: visible; }
+html[data-morphism] .p-media img,
+html[data-morphism] .p-media video {
+  border-radius: var(--media-radius);
+  box-shadow: var(--media-shadow);
+}
+
+html[data-morphism] .p-title { color: var(--text-primary); }
+html[data-morphism] .p-line  { color: var(--text-primary); }
+html[data-morphism] .p-full  { color: var(--text-secondary); }
+
+
+/* ── The arrow: the one affordance that says "this goes somewhere" ──
+   Always visible, never hover-only. Takes the system's icon-button form
+   and slides a few pixels toward its destination when the card opens. */
+html[data-morphism] .p-arrow {
+  border: 1px solid;
+  border-color: var(--icon-border);
+  background: var(--icon-bg);
+  color: var(--icon-ink);
+  box-shadow: var(--icon-shadow);
+  transition: transform 250ms ease, box-shadow 250ms ease, background-color 250ms ease;
+}
+html[data-morphism] .project-card.is-open .p-arrow {
+  transform: translateX(var(--arrow-shift, 4px));
+  background: var(--arrow-bg-open, var(--icon-bg-hover, var(--icon-bg)));
+  color: var(--arrow-ink-open, var(--icon-ink));
+  box-shadow: var(--icon-shadow-hover);
+  transition: transform 620ms var(--row-ease) 80ms, box-shadow 460ms ease, background-color 460ms ease;
+}
+html[data-morphism] .project-card:active .p-arrow { box-shadow: var(--icon-shadow-press); }
+
+
+/* ── Touch and narrow screens: always expanded ──────────────────────
+   Image on top, then the title with the arrow beside it — on a phone the
+   arrow is the only sign the card leads anywhere, so it stays. */
+@media (max-width: 1150px) {
+  html[data-morphism] .projects-list { gap: 16px; }
+  html[data-morphism] .project-card,
+  html[data-morphism] .project-card.is-open {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "media media" "body arrow";
+    column-gap: 16px;
+    row-gap: 18px;
+    padding: 12px 12px 20px;
+    border-radius: var(--radius-card);
+    border-color: var(--card-border);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    translate: none;
+  }
+  html[data-morphism] .p-media,
+  html[data-morphism] .project-card.is-open .p-media {
+    grid-area: media;
+    height: clamp(190px, 30vw, 300px);
+  }
+  html[data-morphism] .p-body { grid-area: body; padding-left: 8px; }
+  html[data-morphism] .p-arrow {
+    grid-area: arrow;
+    display: flex;
+    align-self: start;
+    margin-right: 4px;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-morphism] .project-card,
+  html[data-morphism] .project-card.is-open { translate: none; }
+  html[data-morphism] .project-card:active { scale: none; }
+  html[data-morphism] .project-card.is-open .p-arrow { transform: none; }
+  html[data-morphism] .filter-btn,
+  html[data-morphism] .filter-btn::after { transition: none; }
+  html[data-morphism] .filter-btn:active { scale: none; }
+}
