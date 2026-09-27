@@ -7,11 +7,12 @@
 
 /* ── Hero ────────────────────────────────────────────────────────────
    Stays typographic. Each system gets one quiet gesture: a tint of the
-   black, and its own edge — skeuomorphic a bevelled lip and a display
-   vignette, glass a hairline of refracted light, clay a whole moulded
-   slab, rounded at all four corners with a soft inner rim like its cards
-   and set in from the screen edges like its header capsule. Neumorphic
-   keeps it plain.
+   black, and its own treatment — skeuomorphic a bevelled lip and a
+   display vignette, glass a faint sheen across the top like light on a
+   pane (plus, in light mode, a hairline of refracted light along the
+   bottom), clay a whole moulded slab, rounded at all four corners with a soft
+   inner rim like its cards and set in from the screen edges like its
+   header capsule. Neumorphic keeps it plain.
    An inset band gives back exactly as much inner padding as it takes in
    margin, so the statement sits on the same pixels in every system. */
 html[data-morphism] .hero {

@@ -717,6 +717,9 @@
   --media-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 10px 24px -12px rgba(0,0,0,.7);
 
   --hero-bg: #07090C;
+  /* the sheen only: on a dark page the hairline's colours wash out and it
+     reads as a stray grey seam where the band meets the page */
+  --hero-overlay: linear-gradient(180deg, rgba(255,255,255,.05) 0%, transparent 34%);
 
   --footer-bg: rgba(255,255,255,.035);
   --footer-layer: none;
