@@ -106,6 +106,48 @@ html[data-morphism] .site-header .nav-links { gap: 48px; }
 html[data-morphism] .nav-links a { color: var(--text-primary); white-space: nowrap; }
 html[data-morphism] .nav-links a::after { background: var(--text-primary); }
 
+/* ── Navigation links in the material systems ────────────────────────
+   Flat keeps the hosted underline. In the four material systems the page
+   you are on sits in the system's own surface — the same pressed or
+   filled form as a chosen key — and the other links take the raised form
+   on hover. The surface is drawn around the text by ::before, 44px tall
+   like every other control in the bar, so no link moves and every target
+   grows. .nav-links is the home page's and About's list; .main-nav ul
+   the case studies'. */
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 1.5px);             /* the link box carries 3px of underline room below the text */
+  left: -0.75em;
+  right: -0.75em;
+  height: var(--control-h);
+  translate: 0 -50%;
+  z-index: -1;
+  border: 1px solid;
+  border-color: var(--nav-hover-border, var(--control-border));
+  border-radius: var(--radius-filter);
+  background: var(--nav-hover-bg, var(--control-bg));
+  box-shadow: var(--nav-hover-shadow, var(--control-shadow));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:is(:hover, :focus-visible)::before {
+  opacity: 1;
+}
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:is(.active, [aria-current="page"])::before {
+  opacity: 1;
+  border-color: var(--nav-current-border, var(--control-border-active));
+  background: var(--nav-current-bg, var(--control-bg-active));
+  box-shadow: var(--nav-current-shadow, var(--control-shadow-active));
+}
+/* the surface replaces the underline, and carries the focus ring */
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a::after { display: none; }
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:focus-visible { outline: none; }
+html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:focus-visible::before {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 
 /* ── Morphism switcher ───────────────────────────────────────────────
    One native radio group — Tab reaches it once, arrow keys move the
@@ -447,6 +489,7 @@ html[data-morphism] .morph-switch { view-transition-name: morph-track; }
   .morph-opt, .morph-opt::before, .morph-opt::after,
   .morph-hint, html[data-morphism] .theme-toggle,
   html[data-morphism] :is(.site-header, .main-nav)::before,
+  html[data-morphism] :is(.nav-links, .main-nav ul) a::before,
   html[data-morphism] :is(.footer-links, .footer-right ul) a { transition: none; }
   .morph-opt:active::before,
   html[data-morphism] .theme-toggle:active,

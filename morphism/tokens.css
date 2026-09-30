@@ -806,6 +806,17 @@
   --radius-filter: 999px;
   --indicator: rgba(255,255,255,.95);
   --indicator-glow: none;
+  /* Header links. Clay has no crisp edges: a thin translucent rim on a pale
+     pill is glass's signature, so these carry no border at all and get
+     their depth from shading alone. The page you are on is a soft dimple
+     pressed into the clay (not terracotta — that already means "your
+     chosen style"); a hovered link is a small inflated bump. */
+  --nav-current-bg: #EDE3D9;
+  --nav-current-border: transparent;
+  --nav-current-shadow: inset 3px 4px 7px rgba(150,100,62,.3), inset -3px -3px 6px rgba(255,255,255,.9);
+  --nav-hover-bg: #FBF7F2;
+  --nav-hover-border: transparent;
+  --nav-hover-shadow: inset 1.5px 2px 3px rgba(255,255,255,.95), inset -2px -2.5px 5px rgba(150,100,62,.18), 0 5px 10px -5px rgba(122,78,46,.38);
 
   --icon-bg: #F8F2EB;
   --icon-border: rgba(255,255,255,.6);
@@ -905,6 +916,11 @@
   --icon-border: rgba(255,255,255,.07);
   --icon-shadow-hover: inset 1.5px 2px 3px rgba(255,255,255,.08), inset -2px -2.5px 5px rgba(0,0,0,.36), 0 9px 16px -7px rgba(0,0,0,.62);
   --icon-ink: #F4EDE6;
+
+  --nav-current-bg: #221C19;
+  --nav-current-shadow: inset 3px 4px 7px rgba(0,0,0,.5), inset -2px -2px 5px rgba(255,255,255,.06);
+  --nav-hover-bg: #372E29;
+  --nav-hover-shadow: inset 1.5px 2px 3px rgba(255,255,255,.09), inset -2px -2.5px 5px rgba(0,0,0,.36), 0 5px 10px -5px rgba(0,0,0,.55);
 
   --card-bg: #2D2622;
   --card-border: rgba(255,255,255,.06);
