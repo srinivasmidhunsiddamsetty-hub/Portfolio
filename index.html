@@ -665,7 +665,7 @@
 </head>
 <body>
 
-  <!-- ── Header: navigation | morphism switcher | light-dark ─ -->
+  <!-- ── Header: navigation | style picker, light-dark ───── -->
   <header class="site-header">
     <nav class="site-nav" aria-label="Primary">
       <ul class="nav-links">
@@ -675,39 +675,55 @@
       </ul>
     </nav>
 
-    <!-- One radio group. Each radio's aria-label is the full name; the
-         visible label is the full name (when chosen) or its start. -->
-    <fieldset class="morph-switch" id="morph-switch" aria-describedby="morph-hint-text">
-      <legend class="sr-only">Interface style</legend>
-      <label class="morph-opt">
-        <input class="morph-input" type="radio" name="morphism" value="flat" aria-label="Flat design" autocomplete="off">
-        <span class="morph-text">Flat<span class="morph-suffix">&nbsp;design</span></span>
-      </label>
-      <label class="morph-opt">
-        <input class="morph-input" type="radio" name="morphism" value="skeuomorphic" aria-label="Skeuomorphism" autocomplete="off">
-        <span class="morph-text">Skeuo<span class="morph-suffix">morphism</span></span>
-      </label>
-      <label class="morph-opt">
-        <input class="morph-input" type="radio" name="morphism" value="neumorphic" aria-label="Neumorphism" autocomplete="off">
-        <span class="morph-text">Neu<span class="morph-suffix">morphism</span></span>
-      </label>
-      <label class="morph-opt">
-        <input class="morph-input" type="radio" name="morphism" value="glass" aria-label="Glassmorphism" autocomplete="off">
-        <span class="morph-text">Glass<span class="morph-suffix">morphism</span></span>
-      </label>
-      <label class="morph-opt">
-        <input class="morph-input" type="radio" name="morphism" value="clay" aria-label="Claymorphism" autocomplete="off">
-        <span class="morph-text">Clay<span class="morph-suffix">morphism</span></span>
-      </label>
+    <!-- One button names the current style and opens the five. Inside is a
+         single native radio group, so arrow keys move the choice and the
+         checked one is announced. -->
+    <div class="style-picker" id="style-picker">
+      <button class="style-btn" id="style-btn" type="button" aria-expanded="false" aria-controls="style-menu" aria-describedby="morph-hint-text">
+        <svg class="style-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3.5l8.5 4.75L12 13 3.5 8.25z"/>
+          <path d="M3.5 12.5 12 17.25l8.5-4.75"/>
+          <path d="M3.5 16.25 12 21l8.5-4.75"/>
+        </svg>
+        <span class="sr-only">Interface style: </span><span id="style-btn-name">Flat design</span>
+        <svg class="style-btn-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="style-menu" id="style-menu" hidden>
+        <fieldset class="morph-switch" id="morph-switch">
+          <legend class="style-menu-title">Interface style</legend>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="flat" autocomplete="off">
+            <span class="morph-text">Flat design</span>
+          </label>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="skeuomorphic" autocomplete="off">
+            <span class="morph-text">Skeuomorphism</span>
+          </label>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="neumorphic" autocomplete="off">
+            <span class="morph-text">Neumorphism</span>
+          </label>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="glass" autocomplete="off">
+            <span class="morph-text">Glassmorphism</span>
+          </label>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="clay" autocomplete="off">
+            <span class="morph-text">Claymorphism</span>
+          </label>
+        </fieldset>
+      </div>
       <p class="morph-hint" id="morph-hint" role="note" hidden><span id="morph-hint-text">See this portfolio in four other UI styles</span>
         <button class="morph-hint-close" type="button" aria-label="Dismiss tip">×</button></p>
-    </fieldset>
-    <!-- mark the active system before the header is first painted -->
+    </div>
+    <!-- mark the active style, and name it on the button, before the header is first painted -->
     <script>
       (function () {
         var m = document.documentElement.getAttribute('data-morphism');
         var el = m && document.querySelector('#morph-switch .morph-input[value="' + m + '"]');
-        if (el) el.checked = true;
+        if (!el) return;
+        el.checked = true;
+        document.getElementById('style-btn-name').textContent = el.parentNode.textContent.trim();
       })();
     </script>
 

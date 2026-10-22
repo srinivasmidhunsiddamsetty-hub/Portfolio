@@ -68,33 +68,85 @@
   document.addEventListener('touchstart', function () {}, { passive: true });
 
 
-  // ── the switcher (home page only) ────────────────────────────────
+  // ── the style picker (home page only) ────────────────────────────
+  var picker = document.getElementById('style-picker');
+  var button = document.getElementById('style-btn');
+  var menu = document.getElementById('style-menu');
+  var nameEl = document.getElementById('style-btn-name');
   var group = document.getElementById('morph-switch');
   var inputs = group ? Array.prototype.slice.call(group.querySelectorAll('.morph-input')) : [];
 
+  // The radios, and the name on the button, always follow the attribute.
   function syncSwitch() {
     var current = root.getAttribute('data-morphism');
-    inputs.forEach(function (input) { input.checked = input.value === current; });
+    inputs.forEach(function (input) {
+      input.checked = input.value === current;
+      if (input.checked && nameEl) nameEl.textContent = input.parentNode.textContent.trim();
+    });
   }
 
-  if (!group || !root.hasAttribute('data-morphism')) return;
+  if (!picker || !button || !menu || !group || !root.hasAttribute('data-morphism')) return;
 
   var hint = document.getElementById('morph-hint');
   var HINT_KEY = 'morphism-hint-seen';
 
-  function choose(next) {
+  function isOpen() { return !menu.hidden; }
+  function open() {
+    menu.hidden = false;
+    button.setAttribute('aria-expanded', 'true');
+    dismissHint();
+    (group.querySelector('.morph-input:checked') || inputs[0]).focus();
+  }
+  function close(refocus) {
+    if (!isOpen()) return;
+    menu.hidden = true;
+    button.setAttribute('aria-expanded', 'false');
+    if (refocus) button.focus();
+  }
+
+  function choose(next, thenClose) {
     if (cfg.systems.indexOf(next) === -1 || next === root.getAttribute('data-morphism')) return;
-    morph(function () { root.setAttribute('data-morphism', next); });
+    morph(function () {
+      root.setAttribute('data-morphism', next);
+      syncSwitch();
+      if (thenClose) close(true);     // inside the fade, so the menu leaves with the old style
+    });
     store(cfg.key, next);
     dismissHint();
   }
 
+  button.addEventListener('click', function () { if (isOpen()) close(false); else open(); });
+
+  // A pick with the pointer closes the menu. Arrow keys keep it open, so
+  // the styles can be stepped through with the page following live; Enter
+  // closes it when the right one is showing.
+  var byPointer = false;
+  menu.addEventListener('pointerdown', function () { byPointer = true; });
+  menu.addEventListener('keydown', function (e) {
+    byPointer = false;
+    if (e.key === 'Enter') { e.preventDefault(); close(true); }
+  });
   group.addEventListener('change', function (e) {
-    if (e.target && e.target.classList.contains('morph-input')) choose(e.target.value);
+    if (e.target && e.target.classList.contains('morph-input')) choose(e.target.value, byPointer);
+  });
+  // clicking the style that is already showing changes nothing, but still closes
+  group.addEventListener('click', function (e) {
+    if (byPointer && e.target.classList.contains('morph-input') &&
+        e.target.value === root.getAttribute('data-morphism')) close(true);
+  });
+
+  addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen()) close(picker.contains(document.activeElement));
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (isOpen() && !picker.contains(e.target)) close(false);
+  });
+  picker.addEventListener('focusout', function (e) {
+    if (isOpen() && e.relatedTarget && !picker.contains(e.relatedTarget)) close(false);
   });
 
   // bfcache and form restoration can hand the radios back in a stale state
-  addEventListener('pageshow', syncSwitch);
+  addEventListener('pageshow', function () { syncSwitch(); close(false); });
   syncSwitch();
 
 
@@ -111,9 +163,9 @@
   }
   if (hint && !read(HINT_KEY) && !read(cfg.key)) {
     hintTimer = setTimeout(function () {
-      // phones have no switcher, so nothing to point at — and it must not
-      // be marked as seen when nobody could have seen it
-      if (!group.getClientRects().length) return;
+      // phones have no style picker, so nothing to point at — and it must
+      // not be marked as seen when nobody could have seen it
+      if (!button.getClientRects().length) return;
       hint.hidden = false;
       store(HINT_KEY, '1');
       requestAnimationFrame(function () {

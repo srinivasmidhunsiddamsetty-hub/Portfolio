@@ -49,14 +49,13 @@ html[data-morphism] body::before {
 
 
 /* ── Header ──────────────────────────────────────────────────────────
-   Three columns: navigation | switcher | light-dark toggle. The two outer
-   columns share the leftover space equally, so the switcher sits on the
-   true centre of the bar, and neither side can ever run underneath it. */
+   Navigation on the left; the style picker and the light/dark toggle
+   together on the right, the two appearance controls side by side. */
 html[data-morphism] .site-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  column-gap: 24px;
+  column-gap: 12px;
   padding: 14px var(--side);          /* 14 + 44 + 14 = the same 72px bar */
   background: var(--header-base, var(--page-bg));
   isolation: isolate;
@@ -149,35 +148,111 @@ html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:
 }
 
 
-/* ── Morphism switcher ───────────────────────────────────────────────
-   One native radio group — Tab reaches it once, arrow keys move the
-   selection, and the checked state is announced — whose looks come
-   entirely from tokens. Each label is the full 44px hit area; the visible
-   key face is drawn inset inside it, so faces can have gaps and depth
-   while the targets stay abutting and full height. */
-.morph-switch { display: none; }
+/* ── Style picker ────────────────────────────────────────────────────
+   One button beside light/dark names the current style and opens the
+   five. Inside is one native radio group: Tab lands on the chosen style,
+   arrow keys move the choice (and the page follows, live), the checked
+   option is announced, and Enter or Escape closes it. Every surface comes
+   from tokens, so the button and the menu are made of whichever material
+   is showing. */
+.style-picker { display: none; }
 
-html[data-morphism] .morph-switch {
-  display: flex;
-  justify-self: center;
+html[data-morphism] .style-picker {
+  display: block;
   position: relative;
+  justify-self: end;
+}
+
+.style-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--control-h);
+  padding: 0 14px 0 13px;
+  border: 1px solid;
+  border-color: var(--control-border);
+  border-radius: var(--radius-filter);
+  background: var(--control-bg);
+  box-shadow: var(--control-shadow);
+  color: var(--control-ink);
+  font: 500 14px/1 var(--font-sans);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow var(--transition-fast), background-color var(--transition-fast),
+              border-color var(--transition-fast), color var(--transition-fast), scale var(--transition-fast);
+}
+.style-btn svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.style-btn-icon { width: 16px; height: 16px; }
+.style-btn-chev { width: 12px; height: 12px; opacity: .7; transition: rotate var(--transition-fast); }
+.style-btn:hover {
+  border-color: var(--control-border-hover, var(--control-border));
+  background: var(--control-bg-hover);
+  box-shadow: var(--control-shadow-hover);
+}
+/* open: the button takes the system's pressed form, like a chosen filter */
+.style-btn[aria-expanded="true"] {
+  border-color: var(--control-border-active);
+  background: var(--control-bg-active);
+  box-shadow: var(--control-shadow-active);
+  color: var(--control-ink-active);
+}
+.style-btn[aria-expanded="true"] .style-btn-chev { rotate: 180deg; }
+.style-btn:active { scale: .97; }
+
+/* The menu: a raised panel of the system's own surface, frosted in glass. */
+.style-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 20;
+  width: 248px;
+  padding: 6px;
+  border: 1px solid;
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-large);
+  background: var(--surface-raised);
+  box-shadow: var(--menu-shadow, var(--shadow-large));
+  -webkit-backdrop-filter: var(--header-blur, none);
+          backdrop-filter: var(--header-blur, none);
+  animation: style-menu-in 160ms cubic-bezier(.2, .7, .3, 1);
+}
+.style-menu[hidden] { display: none; }
+@keyframes style-menu-in { from { opacity: 0; translate: 0 -4px; } }
+
+.morph-switch {
   margin: 0;
   padding: 0;
   border: 0;
   min-inline-size: 0;
-  height: var(--control-h);
-  border-radius: var(--radius-track);
-  background: var(--track-bg);
-  box-shadow: var(--track-shadow);
+}
+.style-menu-title {
+  float: left;                        /* lets a legend lay out like any block */
+  width: 100%;
+  padding: 10px 14px 8px;
+  font: 600 10.5px/1 var(--font-sans);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
+/* Each option is a full-width 44px row. Its face is drawn behind the text:
+   the system's raised key on hover, its pressed or filled key once chosen. */
 .morph-opt {
+  clear: both;
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 0 18px;
+  height: var(--control-h);
+  padding: 0 14px;
   cursor: pointer;
   font: 500 14px/1 var(--font-sans);
   letter-spacing: -0.01em;
@@ -187,32 +262,29 @@ html[data-morphism] .morph-switch {
   user-select: none;
   transition: color var(--transition-fast);
 }
-
-/* the key face */
 .morph-opt::before {
   content: "";
   position: absolute;
-  inset: 4px 2px;
+  inset: 2px 0;
   border: 1px solid;
   border-color: var(--seg-border, var(--control-border));
   border-radius: var(--radius-seg);
-  background: var(--seg-bg, var(--control-bg));
-  box-shadow: var(--seg-shadow, var(--control-shadow));
-  transition: box-shadow var(--transition-fast), background-color var(--transition-fast), scale var(--transition-fast);
+  background: var(--seg-bg-hover, var(--control-bg-hover));
+  box-shadow: var(--seg-shadow-hover, var(--control-shadow-hover));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
-.morph-opt:first-of-type::before { left: 4px; }
-.morph-opt:last-of-type::before  { right: 4px; }
 
 /* the indicator lamp — only where the system has one (skeuomorphic) */
 .morph-opt::after {
   content: "";
   display: var(--indicator-display, none);
   position: absolute;
-  left: 50%;
-  bottom: 8px;
+  right: 16px;
+  top: 50%;
   width: 4px;
   height: 4px;
-  margin-left: -2px;
+  margin-top: -2px;
   border-radius: 50%;
   background: var(--seg-indicator, var(--indicator));
   box-shadow: var(--indicator-glow, none);
@@ -236,48 +308,35 @@ html[data-morphism] .morph-switch {
   pointer-events: none;
 }
 
-/* Only the chosen option is spelled out in full: "Glass" becomes
-   "Glassmorphism" when it is picked, and the word moves on when the
-   choice does. The name itself is the clearest selected state there is. */
-.morph-suffix { display: none; }
-.morph-opt:has(.morph-input:checked) .morph-suffix { display: inline; }
-
-.morph-opt:hover::before {
-  background: var(--seg-bg-hover, var(--control-bg-hover));
-  box-shadow: var(--seg-shadow-hover, var(--control-shadow-hover));
-}
+.morph-opt:hover::before { opacity: 1; }
 
 .morph-opt:has(.morph-input:checked) {
   color: var(--seg-ink-active, var(--control-ink-active));
   font-weight: var(--control-weight-active, 650);
 }
 .morph-opt:has(.morph-input:checked)::before {
+  opacity: 1;
   border-color: var(--seg-border-active, var(--control-border-active));
   background: var(--seg-bg-active, var(--control-bg-active));
   box-shadow: var(--seg-shadow-active, var(--control-shadow-active));
 }
 .morph-opt:has(.morph-input:checked)::after { opacity: 1; scale: 1; }
 
-.morph-opt:active::before { scale: .97; }
-
 .morph-opt:has(.morph-input:focus-visible)::before {
+  opacity: 1;
   outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
-
-/* The accessible name is always the full name (aria-label on each radio),
-   and every short form is the start of it, so what you see is always
-   contained in what a screen reader or voice control hears. */
 
 
 /* ── First-visit hint ────────────────────────────────────────────────
-   Shown once, below the switcher, and gone after interaction or a few
-   seconds. The same sentence is the switcher's accessible description
+   Shown once, below the style button, and gone after interaction or a
+   few seconds. The same sentence is the button's accessible description
    permanently (aria-describedby), so nobody depends on seeing it. */
 .morph-hint {
   position: absolute;
   top: calc(100% + 12px);
-  left: 50%;
+  right: 0;
   z-index: 2;
   display: flex;
   align-items: center;
@@ -293,7 +352,7 @@ html[data-morphism] .morph-switch {
   letter-spacing: -0.005em;
   white-space: nowrap;
   opacity: 0;
-  translate: -50% -4px;
+  translate: 0 -4px;
   transition: opacity 220ms ease, translate 220ms ease;
 }
 html[data-morphism="glass"] .morph-hint {
@@ -302,7 +361,7 @@ html[data-morphism="glass"] .morph-hint {
           backdrop-filter: blur(16px);
 }
 html[data-morphism="glass"][data-theme="dark"] .morph-hint { background: rgba(22,26,31,.9); }
-.morph-hint.is-visible { opacity: 1; translate: -50% 0; }
+.morph-hint.is-visible { opacity: 1; translate: 0 0; }
 .morph-hint[hidden] { display: none; }
 
 .morph-hint-close {
@@ -406,75 +465,22 @@ html[data-morphism] footer :is(a, button):focus-visible {
   animation-timing-function: cubic-bezier(.4, 0, .2, 1);
 }
 
-/* The switcher is lifted out of that fade so its keys can move. The keys
-   re-flow when the long name changes hands, so each one slides from its
-   old place to its new one, and the word itself — "morphism", or "design"
-   for Flat — travels across to the option just chosen. */
-html[data-morphism] .morph-switch { view-transition-name: morph-track; }
-.morph-opt:nth-of-type(1) { view-transition-name: morph-opt-1; }
-.morph-opt:nth-of-type(2) { view-transition-name: morph-opt-2; }
-.morph-opt:nth-of-type(3) { view-transition-name: morph-opt-3; }
-.morph-opt:nth-of-type(4) { view-transition-name: morph-opt-4; }
-.morph-opt:nth-of-type(5) { view-transition-name: morph-opt-5; }
-.morph-opt:has(.morph-input:checked) .morph-suffix { view-transition-name: morph-suffix; }
-
-/* A key's snapshot keeps its natural size while its box moves and
-   resizes, so the label never stretches or zooms on the way. */
-::view-transition-old(morph-opt-1), ::view-transition-new(morph-opt-1),
-::view-transition-old(morph-opt-2), ::view-transition-new(morph-opt-2),
-::view-transition-old(morph-opt-3), ::view-transition-new(morph-opt-3),
-::view-transition-old(morph-opt-4), ::view-transition-new(morph-opt-4),
-::view-transition-old(morph-opt-5), ::view-transition-new(morph-opt-5) {
-  inline-size: auto;
-  block-size: auto;
-}
-/* the track only changes width: stretch it sideways, never taller */
-::view-transition-old(morph-track), ::view-transition-new(morph-track) {
-  block-size: 100%;
-}
-
 
 /* ── Responsive header ───────────────────────────────────────────────
-   Laptops: one line down to 1100px, with the navigation and the keys
-   tightening a step at a time rather than the bar breaking early. */
+   One row at every size; the navigation tightens a step at a time. */
 @media (max-width: 1439px) {
   html[data-morphism] .site-header .nav-links { gap: 40px; }
-  .morph-opt { padding: 0 16px; }
 }
 @media (max-width: 1279px) {
   html[data-morphism] .site-header .nav-links { gap: 32px; }
-  .morph-opt { padding: 0 12px; }
 }
 
-/* Tablets: the bar cannot hold all three on one line, so the switcher
-   takes its own full-width row — still in the header, never behind a
-   menu. */
-@media (max-width: 1099px) {
-  html[data-morphism] .site-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "nav toggle" "switch switch";
-    row-gap: 10px;
-    padding-top: 10px;
-    padding-bottom: 12px;
-  }
-  html[data-morphism] .site-nav     { grid-area: nav; }
-  html[data-morphism] .theme-toggle { grid-area: toggle; }
-  html[data-morphism] .morph-switch { grid-area: switch; justify-self: stretch; }
-  .morph-opt { flex: 1 1 auto; padding: 0 10px; }
-}
-
-/* Phones: no switcher. Five options with one spelled out in full cannot
-   fit a phone without cramming, and a second header row would cost every
-   screen 54px for something most phone visitors never touch. Phones get
-   the default system (or whatever was chosen on a larger screen of the
-   same device), and the header is the single row it always was. */
+/* Phones: no style picker. Phones get the default system (or whatever was
+   chosen on a larger screen of the same device), and the header keeps
+   just the navigation and the light/dark toggle. */
 @media (max-width: 639px) {
-  html[data-morphism] .site-header {
-    grid-template-areas: "nav toggle";
-    padding-top: 14px;
-    padding-bottom: 14px;
-  }
-  html[data-morphism] .morph-switch { display: none; }
+  html[data-morphism] .site-header { grid-template-columns: minmax(0, 1fr) auto; }
+  html[data-morphism] .style-picker { display: none; }
 }
 @media (max-width: 720px) {
   html[data-morphism] .site-header .nav-links { gap: 28px; }
@@ -487,11 +493,13 @@ html[data-morphism] .morph-switch { view-transition-name: morph-track; }
 
 @media (prefers-reduced-motion: reduce) {
   .morph-opt, .morph-opt::before, .morph-opt::after,
+  .style-btn, .style-btn-chev,
   .morph-hint, html[data-morphism] .theme-toggle,
   html[data-morphism] :is(.site-header, .main-nav)::before,
   html[data-morphism] :is(.nav-links, .main-nav ul) a::before,
   html[data-morphism] :is(.footer-links, .footer-right ul) a { transition: none; }
-  .morph-opt:active::before,
+  .style-menu { animation: none; }
+  .style-btn:active,
   html[data-morphism] .theme-toggle:active,
   html[data-morphism] :is(.footer-links, .footer-right ul) a:active { scale: none; }
   html[data-morphism] :is(.footer-links, .footer-right ul) a:hover,

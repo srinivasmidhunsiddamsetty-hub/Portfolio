@@ -71,6 +71,7 @@
   --header-bg: #FFFFFF;
   --header-border: transparent;
   --header-shadow: none;
+  --menu-shadow: 0 18px 44px -16px rgba(0,0,0,.2);   /* flat has no shadows, but a menu must lift off the page */
 
   --track-bg: transparent;
   --track-shadow: inset 0 0 0 1px #E5E5E5;
@@ -162,6 +163,7 @@
   --border-subtle: #232320;
 
   --header-bg: #0A0A0B;
+  --menu-shadow: 0 18px 44px -16px rgba(0,0,0,.8);
 
   --track-shadow: inset 0 0 0 1px #232320;
   --seg-ink: #F2F2EE;
