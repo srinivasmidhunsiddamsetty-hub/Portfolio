@@ -13,8 +13,7 @@
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = saved || (prefersDark ? 'dark' : 'light');
+        var theme = saved || 'light';   // light by default; dark only once a visitor chooses it
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
@@ -529,7 +528,7 @@
     }
     /* Fixed sizes on purpose. Animating the description's font-size re-wrapped
        it on every frame, which read as the paragraph crawling around. */
-    .p-line { font-size: 15px; }
+    .p-line { font-size: 16px; font-weight: 450; }   /* at 15px regular the one-liner read thin; still a step below the 17px 500 titles */
     .p-full { font-size: 17px; }
 
     /* Opening: the one-liner leaves at once and the paragraph comes in with the
@@ -752,9 +751,9 @@
     <p class="work-label fade-in">What are you looking for?</p>
 
     <div class="filters fade-in" role="group" aria-label="Filter projects">
-      <button class="filter-btn active" data-filter="all" aria-pressed="true" type="button"><span class="btn-text" data-text="All (5)">All (5)</span></button>
-      <button class="filter-btn" data-filter="web" aria-pressed="false" type="button"><span class="btn-text" data-text="Web Design (2)">Web Design (2)</span></button>
-      <button class="filter-btn" data-filter="product" aria-pressed="false" type="button"><span class="btn-text" data-text="Product &amp; AI (4)">Product &amp; AI (4)</span></button>
+      <button class="filter-btn active" data-filter="all" aria-pressed="true" type="button"><span class="btn-text" data-text="All">All</span></button>
+      <button class="filter-btn" data-filter="web" aria-pressed="false" type="button"><span class="btn-text" data-text="Web Design">Web Design</span></button>
+      <button class="filter-btn" data-filter="product" aria-pressed="false" type="button"><span class="btn-text" data-text="Product &amp; AI">Product &amp; AI</span></button>
     </div>
 
     <!-- Case studies placeholder grid -->

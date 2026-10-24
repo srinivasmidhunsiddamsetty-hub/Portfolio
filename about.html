@@ -13,8 +13,7 @@
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = saved || (prefersDark ? 'dark' : 'light');
+        var theme = saved || 'light';   // light by default; dark only once a visitor chooses it
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
