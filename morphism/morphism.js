@@ -90,14 +90,16 @@
   var hint = document.getElementById('morph-hint');
   var HINT_KEY = 'morphism-hint-seen';
 
+  // Named openMenu/closeMenu, not open/close: a `var close` anywhere else
+  // in this function would replace them (it did, on first visits).
   function isOpen() { return !menu.hidden; }
-  function open() {
+  function openMenu() {
     menu.hidden = false;
     button.setAttribute('aria-expanded', 'true');
     dismissHint();
     (group.querySelector('.morph-input:checked') || inputs[0]).focus();
   }
-  function close(refocus) {
+  function closeMenu(refocus) {
     if (!isOpen()) return;
     menu.hidden = true;
     button.setAttribute('aria-expanded', 'false');
@@ -109,13 +111,13 @@
     morph(function () {
       root.setAttribute('data-morphism', next);
       syncSwitch();
-      if (thenClose) close(true);     // inside the fade, so the menu leaves with the old style
+      if (thenClose) closeMenu(true);   // inside the fade, so the menu leaves with the old style
     });
     store(cfg.key, next);
     dismissHint();
   }
 
-  button.addEventListener('click', function () { if (isOpen()) close(false); else open(); });
+  button.addEventListener('click', function () { if (isOpen()) closeMenu(false); else openMenu(); });
 
   // A pick with the pointer closes the menu. Arrow keys keep it open, so
   // the styles can be stepped through with the page following live; Enter
@@ -124,7 +126,7 @@
   menu.addEventListener('pointerdown', function () { byPointer = true; });
   menu.addEventListener('keydown', function (e) {
     byPointer = false;
-    if (e.key === 'Enter') { e.preventDefault(); close(true); }
+    if (e.key === 'Enter') { e.preventDefault(); closeMenu(true); }
   });
   group.addEventListener('change', function (e) {
     if (e.target && e.target.classList.contains('morph-input')) choose(e.target.value, byPointer);
@@ -132,21 +134,21 @@
   // clicking the style that is already showing changes nothing, but still closes
   group.addEventListener('click', function (e) {
     if (byPointer && e.target.classList.contains('morph-input') &&
-        e.target.value === root.getAttribute('data-morphism')) close(true);
+        e.target.value === root.getAttribute('data-morphism')) closeMenu(true);
   });
 
   addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && isOpen()) close(picker.contains(document.activeElement));
+    if (e.key === 'Escape' && isOpen()) closeMenu(picker.contains(document.activeElement));
   });
   document.addEventListener('pointerdown', function (e) {
-    if (isOpen() && !picker.contains(e.target)) close(false);
+    if (isOpen() && !picker.contains(e.target)) closeMenu(false);
   });
   picker.addEventListener('focusout', function (e) {
-    if (isOpen() && e.relatedTarget && !picker.contains(e.relatedTarget)) close(false);
+    if (isOpen() && e.relatedTarget && !picker.contains(e.relatedTarget)) closeMenu(false);
   });
 
   // bfcache and form restoration can hand the radios back in a stale state
-  addEventListener('pageshow', function () { syncSwitch(); close(false); });
+  addEventListener('pageshow', function () { syncSwitch(); closeMenu(false); });
   syncSwitch();
 
 
@@ -173,8 +175,8 @@
       });
       hintTimer = setTimeout(dismissHint, 8000);
     }, 1400);
-    var close = hint.querySelector('.morph-hint-close');
-    if (close) close.addEventListener('click', dismissHint);
+    var hintClose = hint.querySelector('.morph-hint-close');
+    if (hintClose) hintClose.addEventListener('click', dismissHint);
     addEventListener('keydown', function (e) { if (e.key === 'Escape') dismissHint(); });
   }
 })();
