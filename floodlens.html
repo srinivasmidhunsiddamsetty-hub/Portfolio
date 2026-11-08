@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FloodLens - Midhun</title>
+  <meta name="description" content="FloodLens brings NOAA sea-level-rise scenarios, interactive 3D city views and location-specific information into one experience for coastal resilience planning." />
+  <link rel="icon" type="image/png" href="images/portfolio-favicon.png" />
+  <link rel="apple-touch-icon" href="images/portfolio-favicon.png" />
+
+  <!-- Set theme BEFORE first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || 'light';   // light by default; dark only once a visitor chooses it
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+
+    // Carry the style chosen on the home page. This page renders the four
+    // material systems; Flat is its own stylesheet, so Flat, or no choice
+    // yet, sets nothing and the page is exactly as it was designed.
+    (function () {
+      var M = window.MORPHISM = {
+        key: 'morphism',
+        systems: ['skeuomorphic', 'neumorphic', 'glass', 'clay']
+      };
+      var saved = null;
+      try { saved = localStorage.getItem(M.key); } catch (e) {}
+      if (M.systems.indexOf(saved) !== -1) document.documentElement.setAttribute('data-morphism', saved);
+    })();
+  </script>
+  <script src="morphism/morphism.js" defer></script>
+
+  <!-- One-shot arrival flag, read before first paint. The home page sets it
+       only when a row launch actually completes, so a direct visit, a refresh,
+       a Back, or a link from search all arrive with no animation at all. -->
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem('arrive-from-row') === '1') {
+          sessionStorage.removeItem('arrive-from-row');
+          document.documentElement.classList.add('arriving');
+          // Failsafe. Every arrival rule lives under .arriving and ends on the
+          // element's resting style, so dropping the class once the longest
+          // one has finished is seamless — and if anything stalls, it is what
+          // guarantees the page cannot be left holding content off-screen.
+          addEventListener('load', function () {
+            setTimeout(function () {
+              document.documentElement.classList.remove('arriving');
+            }, 1200);
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #FFFFFF;
+      --ink:       #0A0A0A;
+      --muted:     #6B6B68;
+      --soft:      #6B6B68;   /* the template's #8A8A8A is 3.4:1; here labels carry the section titles */
+      --rule:      #E5E5E5;
+      --hover-bg:  #F7F7F7;
+      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
+      --tint:      #F4F4F1;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+      --accent:    #1E3A5F;          /* FloodLens's own navy */
+      --accent-ink:#FFFFFF;
+
+      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+
+      --side:      clamp(28px, 6vw, 144px);
+      --max-content: 1920px;
+      --main-nav-h: 72px;
+      --section-nav-h: 56px;
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0F0F0F;
+      --ink:       #F2F2EE;
+      --muted:     #A0A09C;
+      --soft:      #A0A09C;
+      --rule:      #232320;
+      --hover-bg:  #1A1A18;
+      --subnav-bg: #161616;
+      --tint:      #1A1A17;
+      --footer-bg: #000000;
+      --footer-ink:#FFFFFF;
+      --footer-muted:#8A8A8A;
+      --accent:    #8FB4E3;          /* the navy, lifted for dark mode */
+      --accent-ink:#0F0F0F;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      text-wrap: pretty;                  /* avoid single-word orphan lines everywhere */
+    }
+    /* balance short display text so no line is left with just 1–2 words */
+    .intro-tagline, .section-heading, .problem-statement-text, .pull-quote p, .shift-text { text-wrap: balance; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Theme toggle ─────────────────────────────────── */
+    .theme-toggle {
+      margin-left: auto;
+      width: 40px; height: 40px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+      padding: 0; flex-shrink: 0;
+    }
+    .theme-toggle:hover { background: var(--ink); color: var(--bg); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* ── Main nav ─────────────────────────────────────── */
+    .main-nav {
+      position: sticky; top: 0; z-index: 110;
+      background: var(--bg);
+      padding: 16px var(--side) 16px;   /* 16 + 40px toggle + 16 = 72px */
+      display: flex; align-items: center; gap: 64px;
+    }
+    .main-nav ul { list-style: none; display: flex; gap: 56px; }
+    .main-nav a {
+      font-size: 17px; font-weight: 500;
+      letter-spacing: -0.01em;
+      position: relative; padding-bottom: 3px;
+    }
+    .main-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .main-nav a:hover::after { width: 100%; }
+
+    /* ── Section nav (sticky) ─────────────────────────── */
+    .section-nav {
+      position: sticky; top: var(--main-nav-h); z-index: 100;
+      background: var(--subnav-bg);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 var(--side);
+    }
+    .section-nav-inner {
+      display: flex; --sn-gap: 28px; gap: var(--sn-gap);
+      overflow-x: auto; scrollbar-width: none;
+      height: var(--section-nav-h); align-items: center;
+    }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+    .section-nav a {
+      font-size: 13.5px; font-weight: 400;
+      color: var(--soft); letter-spacing: -0.005em;
+      white-space: nowrap; transition: color 0.2s;
+      position: relative; padding: 6px 0;
+    }
+    .section-nav a:hover { color: var(--ink); }
+    .section-nav a.active { color: var(--ink); font-weight: 500; }
+    .section-nav a.active::before {
+      content: ''; position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 1.5px; background: var(--ink);
+    }
+    /* Separators live in the flex gap as ::after on every link but the last,
+       so they cost no layout. Both separators flanking the current section
+       light up with it. */
+    .section-nav a:not(:last-child)::after {
+      content: '|';
+      position: absolute;
+      right: calc(var(--sn-gap) / -2);
+      top: 50%;
+      transform: translate(50%, -50%);
+      color: var(--rule);
+      font-weight: 400;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .section-nav a.active::after,
+    .section-nav a:has(+ a.active)::after { color: var(--ink); }
+
+    /* ── Intro ────────────────────────────────────────── */
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: clamp(48px, 8vw, 120px);
+      padding: clamp(60px, 8vw, 100px) var(--side) clamp(48px, 6vw, 80px);
+      max-width: var(--max-content);
+    }
+    .intro-title {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 500; line-height: 1;
+      letter-spacing: -0.04em; color: var(--ink);
+      margin-bottom: 40px;
+    }
+    .intro-disciplines {
+      font-size: 15px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.005em;
+      max-width: 30ch;
+    }
+    .intro-tagline {
+      font-size: 24px;   /* phones scale this down in the 900px rule below */
+      font-weight: 500; line-height: 1.3;
+      letter-spacing: -0.02em; color: var(--ink);
+    }
+    .intro-meta { margin-top: 26px; }
+    .meta-row {
+      padding: 14px 0; border-top: 1px solid var(--rule);
+      font-size: 15px; color: var(--ink); letter-spacing: -0.005em;
+    }
+    .meta-row:last-child { border-bottom: 1px solid var(--rule); }
+    .meta-row strong { font-weight: 600; margin-right: 10px; }
+
+    /* ── Live CTA (accent) ────────────────────────────── */
+    .live-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 22px;
+      background: var(--accent); color: var(--accent-ink);
+      border-radius: 100px;
+      font-size: 14.5px; font-weight: 500; letter-spacing: -0.005em;
+      transition: transform 0.25s, opacity 0.2s;
+    }
+    .live-cta:hover { transform: translateX(4px); }
+    .live-cta .arrow { display: inline-block; transition: transform 0.25s; }
+    .live-cta:hover .arrow { transform: translateX(2px); }
+
+    /* ── Screenshots ──────────────────────────────────── */
+    .hero-visual {
+      padding: 0 var(--side) clamp(12px, 2vw, 28px);
+      max-width: var(--max-content);
+    }
+    .cs-media {
+      width: 100%; height: auto; display: block;
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(0,0,0,0.12);
+    }
+    [data-theme="dark"] .cs-media {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.6);
+    }
+    /* Screenshots fill the column, so their edges line up with the cards above
+       them. 1440px is the size of the screenshots themselves; the card grids
+       stop at the same width on very wide screens. */
+    .cs-media, .build-list, .plan-fig, .plan-pair, .grid-two { max-width: 1440px; }
+    /* The hero video sits at the same width as on the other case studies. */
+    .cs-media.hero { max-width: 1140px; margin: 0 auto; }
+    .story .cs-media { margin-top: clamp(32px, 4vw, 48px); }
+
+    /* ── Section base ─────────────────────────────────── */
+    section.story {
+      padding: clamp(32px, 4vw, 56px) var(--side) clamp(48px, 5.5vw, 80px);
+      max-width: var(--max-content);
+      scroll-margin-top: calc(var(--main-nav-h) + var(--section-nav-h) + 8px);
+    }
+    section.story + section.story { border-top: 1px solid var(--rule); }
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 20px;
+    }
+    .section-heading {
+      font-size: clamp(28px, 3.4vw, 42px); font-weight: 500;
+      line-height: 1.2; letter-spacing: -0.022em;
+      margin-bottom: 24px; max-width: 24ch;
+    }
+    .section-heading.long { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.3; max-width: 40ch; }
+
+    .body-text {
+      font-size: 17px; font-weight: 400; line-height: 1.65;
+      color: var(--ink); letter-spacing: -0.005em;
+      max-width: 64ch;
+    }
+
+    /* ── Problem statement block ──────────────────────── */
+    .problem-statement {
+      padding: clamp(28px, 3vw, 40px); background: var(--tint);
+      border-radius: 14px; max-width: 860px; position: relative;
+    }
+    .problem-statement::before {
+      content: ''; position: absolute; left: 0;
+      top: clamp(28px, 3vw, 40px); bottom: clamp(28px, 3vw, 40px);
+      width: 3px; background: var(--ink); border-radius: 0 3px 3px 0;
+    }
+    .problem-statement-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 18px;
+    }
+    .problem-statement-text {
+      font-size: clamp(19px, 1.7vw, 23px); font-weight: 500;
+      line-height: 1.35; letter-spacing: -0.018em;
+      color: var(--ink);
+    }
+    /* Headline beside the statement, as on the other case studies */
+    .grid-two.problem { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(40px, 5vw, 80px); }
+    .grid-two.problem .problem-statement { max-width: none; }
+
+    /* ── The numbered problems and changes (04, 05) ───── */
+    .body-text + .build-list { margin-top: 28px; }
+    .build-list {
+      list-style: none;
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
+    }
+    .build-item {
+      display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: baseline;
+      padding: 22px 22px; border: 1px solid var(--rule); border-radius: 14px; background: var(--bg);
+    }
+    .build-num { font-size: 19px; font-weight: 500; color: var(--accent); letter-spacing: -0.03em; line-height: 1; }
+    .build-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 6px; line-height: 1.35; }
+    .build-desc { font-size: 15px; color: var(--ink); line-height: 1.55; letter-spacing: -0.005em; }
+
+    /* ── Two columns: who it's for (02) and the reflection (09) ── */
+    .grid-two {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(40px, 6vw, 96px); align-items: start;
+    }
+    .grid-two > .section-heading { margin-bottom: 0; }
+    .users-value, .side-text { padding-top: 10px; }
+    .users-value .sub-label { margin-top: 0; }
+
+    /* ── Pull quote + reflection shift (09), as on the other case studies ── */
+    .grid-two.reflect { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(48px, 6vw, 96px); }
+    .pull-quote { padding: 32px 0 32px 28px; border-left: 2px solid var(--ink); }
+    .pull-quote p {
+      font-size: clamp(20px, 2vw, 26px); font-weight: 400;
+      line-height: 1.35; letter-spacing: -0.015em; color: var(--ink);
+    }
+    .pull-quote cite {
+      display: block; margin-top: 14px; font-size: 13px;
+      color: var(--soft); font-style: normal; letter-spacing: -0.005em;
+    }
+    .shift { display: flex; flex-direction: column; }
+    .shift-label {
+      display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--soft); margin-bottom: 10px;
+    }
+    .shift-block.going .shift-text { font-size: 16px; line-height: 1.6; color: var(--muted); letter-spacing: -0.005em; }
+    .shift-arrow { font-size: 22px; color: var(--soft); margin: 20px 0; line-height: 1; }
+    .shift-block.coming { padding-left: 24px; border-left: 2px solid var(--accent); }
+    .shift-block.coming .shift-text {
+      font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6;
+      color: var(--ink); letter-spacing: -0.01em;
+    }
+
+    /* ── Small headings and notes ─────────────────────── */
+    .sub-label {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--soft);
+      margin: clamp(32px, 4vw, 48px) 0 18px;
+    }
+    .section-heading + .sub-label { margin-top: 0; }
+    .body-text strong { font-weight: 600; }
+
+    /* ── The layout plan (04) and the before / after pair (07) ── */
+    .plan-fig { margin-top: clamp(28px, 3.4vw, 40px); }
+    .plan-fig figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); letter-spacing: -0.005em; text-align: center; }
+    /* The plans are wireframes: white with grey lines in every theme and
+       style, so they read as plans rather than as part of the page. */
+    .plan-window {
+      --pw-line: #D9D9D4; --pw-ink: #0A0A0A; --pw-muted: #5E5E5A;
+      display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px;
+      width: 100%;   /* without it, min-height plus aspect-ratio widens the box past a narrow screen */
+      padding: 10px; aspect-ratio: 16 / 6.2; min-height: 240px;
+      border: 1px solid var(--pw-line); border-radius: 14px; background: #FFFFFF; color: var(--pw-ink);
+    }
+    .plan-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 7px 12px; border: 1px solid var(--pw-line); border-radius: 8px; background: #FFFFFF;
+      font-size: 12px; color: var(--pw-muted); letter-spacing: -0.005em;
+    }
+    .plan-bar span:first-child { font-weight: 600; color: var(--pw-ink); }
+    .plan-body { display: grid; grid-template-columns: 21fr 55fr 24fr; gap: 8px; min-height: 0; }
+    .plan-body.is-open { grid-template-columns: 21fr 79fr; }
+    .plan-zone {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; min-width: 0; text-align: center;
+      padding: clamp(10px, 1.3vw, 18px);
+      border: 1px solid var(--pw-line); border-radius: 10px; background: #FFFFFF;
+    }
+    .plan-zone b { font-size: clamp(12px, 1.2vw, 16px); font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; color: var(--pw-ink); }
+    .plan-zone.is-map { position: relative; }
+    .plan-zone.is-stack { padding: 8px; gap: 8px; align-items: stretch; }
+    .plan-job {
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      flex: 1 1 0; padding: 8px 10px;
+      border: 1px solid var(--pw-line); border-radius: 8px; background: #FFFFFF;
+      font-size: clamp(11px, 0.95vw, 13.5px); font-weight: 500; line-height: 1.3; color: var(--pw-ink);
+    }
+    .plan-job.is-float {
+      position: absolute; top: 8px; right: 8px; width: 36%; min-height: 34%;
+      box-shadow: 0 8px 20px -8px rgba(0,0,0,.28);
+    }
+    .plan-window.is-mini { grid-template-rows: minmax(0, 1fr); aspect-ratio: 16 / 9; min-height: 0; }
+    .plan-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: clamp(24px, 3vw, 32px); }
+    .plan-pair .plan-fig { margin-top: 0; }
+
+    /* ── The two main changes (07) ────────────────────── */
+    .change + .change { margin-top: clamp(44px, 5.5vw, 72px); }
+    .change-title {
+      display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
+      font-size: clamp(20px, 2vw, 26px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.25;
+    }
+    .change-title .build-num { font-size: inherit; }
+    .fixes { margin-top: clamp(44px, 5.5vw, 72px); }
+    .fixes .sub-label { margin-top: 0; }
+
+    /* ── The comparison toggle (08), as on Executive Dashboard ── */
+    .ba-toggle {
+      display: inline-flex; padding: 4px; gap: 4px;
+      border: 1px solid var(--rule); border-radius: 100px;
+      background: var(--tint); margin: 0 0 20px;
+    }
+    .ba-toggle button {
+      font-family: inherit; font-size: 13.5px; font-weight: 500;
+      letter-spacing: -0.005em; color: var(--muted);
+      padding: 9px 20px; border: none; background: transparent;
+      border-radius: 100px; cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+    .ba-toggle button.active { background: var(--accent); color: var(--accent-ink); }
+    .ba-frame { display: none; }
+    .ba-frame.active { display: block; }
+    .story .ba-frame .cs-media { margin-top: 0; }
+    .ba-stage { max-width: 1440px; }
+
+    /* The page's own additions, in the style chosen on the home page.
+       The plans stay white on purpose, so they have no rules here. */
+    html[data-morphism] .ba-stage .ba-frame { background: transparent; }
+
+    /* ══ Reading response on the static boxes ══════════════
+       As on the other case studies. None of these holds a link or a button,
+       so nothing here touches a border, a background, an elevation or a
+       position: the group recedes so the one you are reading comes forward.
+       0.8 is a floor, not a preference. */
+    .build-list .build-item { transition: opacity 260ms ease; }
+    .build-list:has(.build-item:hover) .build-item { opacity: 0.8; }
+    .build-list:has(.build-item:hover) .build-item:hover { opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .build-list .build-item { transition: none; }
+    }
+
+    /* ── Closing CTA ──────────────────────────────────── */
+    .closing-cta {
+      max-width: var(--max-content); margin: 0 auto;
+      padding: clamp(48px, 6vw, 88px) var(--side);
+      border-top: 1px solid var(--rule); text-align: center;
+    }
+    .closing-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    /* Phones only: FloodLens itself is built for 1024px and up. */
+    .closing-phone-note { display: none; margin-top: 14px; font-size: 14px; color: var(--muted); letter-spacing: -0.005em; }
+    @media (max-width: 767px) { .closing-phone-note { display: block; } }
+
+    /* ── Case nav + footer ────────────────────────────── */
+    .case-nav {
+      padding: clamp(40px, 5vw, 72px) var(--side);
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--rule); max-width: var(--max-content);
+    }
+    .case-nav a {
+      font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
+      position: relative; padding-bottom: 3px;
+    }
+    .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }
+    .case-nav a:hover .arrow { transform: translateX(4px); }
+    .case-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1.5px; background: var(--ink);
+      transition: width 0.25s cubic-bezier(0.22,1,0.36,1);
+    }
+    .case-nav a:hover::after { width: 100%; }
+    .case-nav .top-link { color: var(--ink); }
+
+    footer.site {
+      background: var(--footer-bg); color: var(--footer-ink);
+      padding: 40px var(--side) 80px;
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start;
+    }
+    .footer-left h2 {
+      font-size: clamp(22px, 2.4vw, 30px); font-weight: 500;
+      line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 10px;
+    }
+    .footer-tagline { font-size: 13px; color: var(--footer-ink); }
+    .footer-tagline .heart { margin: 0 2px; }
+    .footer-right h3 {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      color: var(--footer-muted); margin-bottom: 12px;
+    }
+
+    /* Icon links. Circular buttons that invert on hover, matching the
+       .theme-toggle in the nav. */
+    .footer-right ul { list-style: none; display: flex; flex-direction: row; gap: 14px; }
+    .footer-right a {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: var(--footer-ink);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .footer-right a:hover,
+    .footer-right a:focus-visible {
+      transform: translateY(-2px);
+      background: var(--footer-ink); color: var(--footer-bg);
+      border-color: var(--footer-ink);
+    }
+    .footer-right a svg { width: 19px; height: 19px; display: block; }
+
+    /* Visible label on hover and on keyboard focus, pulled from aria-label
+       with attr(), so there is one source for the name. */
+    .footer-right a::after {
+      content: attr(aria-label);
+      position: absolute; top: calc(100% + 9px); left: 50%;
+      transform: translateX(-50%) translateY(-3px);
+      color: var(--footer-muted);
+      font-size: 11.5px; font-weight: 400; letter-spacing: 0.01em;
+      line-height: 1.3; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .footer-right a:hover::after,
+    .footer-right a:focus-visible::after {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) { .footer-right a, .footer-right a::after { transition: none; } }
+
+
+    /* ═══════ RESPONSIVE ═══════ */
+    @media (max-width: 1100px) {
+      .build-list { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .plan-pair { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 1024px) {
+      .intro-title  { font-size: clamp(48px, 8vw, 88px); }
+      section.story { padding: clamp(32px, 4vw, 56px) var(--side) clamp(40px, 5vw, 64px); }
+    }
+    @media (max-width: 900px) {
+      .intro { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 32px var(--side) 32px; }
+      .intro-title { font-size: clamp(40px, 12vw, 64px); margin-bottom: 16px; }
+      .intro-tagline { font-size: clamp(19px, 4.6vw, 24px); }
+      .intro-disciplines { max-width: none; }
+      .section-heading { font-size: clamp(24px, 6vw, 36px); max-width: none; }
+      .section-heading.long { font-size: clamp(20px, 5vw, 26px); max-width: none; }
+      .problem-statement { max-width: none; }
+      .grid-two, .grid-two.reflect, .grid-two.problem { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+      .grid-two:not(.reflect) { gap: 24px; }
+      .users-value, .side-text { padding-top: 0; }
+      .plan-job.is-float { width: 50%; min-height: 0; }   /* wider and shorter, clear of the map label */
+      .plan-window.is-mini { min-height: 200px; }
+      .main-nav { padding: 14px var(--side) 14px; gap: 24px; }
+      .main-nav ul { gap: 24px; }
+      .main-nav a { font-size: 15px; }
+      .section-nav-inner { --sn-gap: 22px; gap: var(--sn-gap); height: 50px; }
+      footer.site { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 40px var(--side) 56px; }
+      .case-nav { padding: 32px var(--side); }
+    }
+    @media (max-width: 600px) {
+      :root { --side: 20px; }
+      .main-nav { padding: 16px var(--side) 12px; }
+      .main-nav ul { gap: 18px; }
+      .main-nav a { font-size: 14px; }
+      .section-nav-inner { --sn-gap: 18px; gap: var(--sn-gap); height: 46px; }
+      .section-nav a { font-size: 12.5px; }
+      .theme-toggle { width: 34px; height: 34px; }
+      .theme-toggle svg { width: 14px; height: 14px; }
+      .intro-title { font-size: clamp(34px, 11vw, 52px); }
+      .body-text { font-size: 16px; }
+      .case-nav a { font-size: 14px; }
+      .footer-left h2 { font-size: clamp(20px, 5.5vw, 26px); }
+      .live-cta { padding: 12px 18px; font-size: 14px; }
+      .cs-media { border-radius: 10px; }
+      /* The diagrams keep their shape on a phone, in the same columns. */
+      .plan-window { aspect-ratio: auto; min-height: 210px; padding: 8px; gap: 6px; }
+      .plan-window.is-mini { aspect-ratio: auto; min-height: 170px; }
+      .plan-bar span:last-child { display: none; }
+      .plan-body { grid-template-columns: 25fr 50fr 25fr; gap: 6px; }
+      .plan-body.is-open { grid-template-columns: 27fr 73fr; }
+      .plan-zone { padding: 8px 6px; }
+      .plan-zone.is-stack { padding: 6px; gap: 6px; }
+      .plan-job { padding: 6px; }
+      .plan-job.is-float { width: 52%; min-height: 0; top: 6px; right: 6px; }
+      .ba-toggle { display: flex; }
+      .ba-toggle button { flex: 1 1 auto; padding: 9px 8px; font-size: 12.5px; white-space: nowrap; }
+    }
+    @media (max-width: 380px) {
+      :root { --side: 16px; }
+      .main-nav ul { gap: 14px; }
+      .section-nav-inner { --sn-gap: 14px; gap: var(--sn-gap); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto; }
+    }
+
+    /* ── Arrival ──────────────────────────────────────────────────────
+       Runs only when you got here by launching a row off the home page.
+       The row exited to the right, so the page it carried you to enters
+       from the right and settles: the same vector, continued rather than
+       restarted.
+
+       Everything is scoped under .arriving and every keyframe ends on the
+       element's natural resting style, so the page's default rendering is
+       untouched and no failure mode here can leave content invisible. */
+    @keyframes arrive-in {
+      from { opacity: 0; transform: translate3d(46px, 0, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes arrive-fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .arriving .intro-title,
+    .arriving .intro-disciplines,
+    .arriving .intro-tagline,
+    .arriving .intro-meta,
+    .arriving .section-nav {
+      animation: arrive-in 640ms cubic-bezier(.22, .7, .26, 1) both;
+    }
+    .arriving .intro-title       { animation-delay:   0ms; }
+    .arriving .intro-disciplines { animation-delay:  70ms; }
+    .arriving .intro-tagline     { animation-delay: 115ms; }
+    .arriving .intro-meta        { animation-delay: 170ms; }
+    .arriving .section-nav       { animation-delay: 220ms; }
+    /* the bar is a fixed frame around the page; it resolves rather than slides */
+    .arriving .main-nav { animation: arrive-fade 520ms ease both; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .arriving .intro-title, .arriving .intro-disciplines,
+      .arriving .intro-tagline, .arriving .intro-meta,
+      .arriving .section-nav, .arriving .main-nav { animation: none; }
+    }
+  </style>
+
+  <!-- The style chosen on the home page: shared tokens and shell, then this
+       page's containers. Inert unless html[data-morphism] is set. -->
+  <link rel="stylesheet" href="morphism/tokens.css" />
+  <link rel="stylesheet" href="morphism/shell.css" />
+  <link rel="stylesheet" href="morphism/case.css" />
+</head>
+<body>
+
+  <!-- ── Main nav ──────────────────────────────────── -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Me</a></li>
+      <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
+    </ul>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Section nav (sticky) ──────────────────────── -->
+  <nav class="section-nav" aria-label="Case study sections">
+    <div class="section-nav-inner">
+      <a href="#problem">Problem</a>
+      <a href="#users">Who it's for</a>
+      <a href="#approach">Approach</a>
+      <a href="#layout">Layout</a>
+      <a href="#first">First iteration</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#final">Final version</a>
+      <a href="#outcome">Outcome</a>
+      <a href="#reflection">Reflection</a>
+    </div>
+  </nav>
+
+  <!-- ── Intro ─────────────────────────────────────── -->
+  <header class="intro">
+    <div class="intro-left">
+      <h1 class="intro-title">Flood<br>Lens</h1>
+      <p class="intro-disciplines">Geospatial UX<br>3D Interaction Design<br>Data Visualization</p>
+    </div>
+    <div class="intro-right">
+      <p class="intro-tagline">
+        FloodLens explores a more spatially contextual approach to coastal resilience planning, bringing NOAA sea-level-rise scenarios, interactive 3D city visualizations, and location-specific geographic information into a unified experience.
+      </p>
+      <div class="intro-meta">
+        <div class="meta-row"><strong>Role</strong> Product designer, product owner</div>
+        <div class="meta-row"><strong>Type</strong> Web App · GIS · Data Visualization</div>
+        <div class="meta-row"><strong>Timeline</strong> Sept 2026 - Nov 2026</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero visual ───────────────────────────────── -->
+  <section class="hero-visual">
+    <video class="cs-media hero" src="images/floodlens/floodlens-hero.mp4" poster="images/floodlens/floodlens-hero-poster.webp" width="1920" height="1080"
+      loop muted playsinline preload="auto"
+      aria-label="FloodLens hero: the map seen flat from above, where building heights don't show, tilts into 3D; then the final version shows buildings changing colour per foot from +2 ft to +5 ft, and a clicked building's details floating over the map"></video>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 01 THE PROBLEM ───────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="problem">
+    <h2 class="section-label">01 — The problem</h2>
+
+    <div class="grid-two problem">
+      <p class="section-heading">The water was mapped.<br>The city stayed flat.</p>
+
+      <div class="problem-statement">
+        <p class="problem-statement-label">Problem Statement</p>
+        <p class="problem-statement-text">Existing sea-level-rise mapping tools provide valuable geographic information, but largely rely on 2D map-based exploration, making it harder to understand mapped exposure in the context of surrounding buildings and streets.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 02 WHO IT'S FOR ──────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="users">
+    <h2 class="section-label">02 — Who it's for</h2>
+
+    <div class="grid-two">
+      <p class="section-heading">Municipal resilience planners, urban designers and policy analysts.</p>
+      <div class="users-value">
+        <h3 class="sub-label">The intended value</h3>
+        <p class="body-text">Help coastal resilience planners compare inundation scenarios, interpret geographic exposure, and identify areas that may require further investigation.</p>
+      </div>
+    </div>  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 03 APPROACH ──────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="approach">
+    <h2 class="section-label">03 — Approach: why 3D</h2>
+
+    <div class="grid-two">
+      <p class="section-heading">Let the city stand up around the water.</p>
+      <div class="side-text">
+        <p class="body-text">A 2D map shows where the water reaches. FloodLens opens on a 3D city, so you see that alongside building heights and the streets around them. A switch still drops to 2D, where buildings become footprints and the water under them stays visible.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 04 PLANNING THE LAYOUT ───────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="layout">
+    <h2 class="section-label">04 — Planning the layout</h2>
+
+    <p class="section-heading">Controls, map, insights.</p>
+    <p class="body-text">I planned the screen around what people do: set the sea level on the left, explore the map in the centre, and read the insights on the right. The map takes most of the screen, so the city stays in view.</p>
+
+    <figure class="plan-fig">
+      <div class="plan-window" role="img" aria-label="The layout plan: a top bar over three zones. Controls on the left, a large map in the centre, and insights on the right.">
+        <div class="plan-bar"><span>FloodLens</span><span>About the data · Sources</span></div>
+        <div class="plan-body">
+          <div class="plan-zone"><b>Controls</b></div>
+          <div class="plan-zone is-map"><b>Map / playground</b></div>
+          <div class="plan-zone"><b>Insights</b></div>
+        </div>
+      </div>
+      <figcaption>The layout plan.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 05 FIRST ITERATION ───────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="first">
+    <h2 class="section-label">05 — First iteration</h2>
+
+    <p class="section-heading">The app worked end to end.</p>
+    <p class="body-text">The plan was on screen with real NOAA data for all of Miami Beach, from 0&nbsp;ft to +5&nbsp;ft. It was time for people to use it.</p>
+
+    <img class="cs-media" src="images/floodlens/first-iteration.webp" width="1440" height="900" loading="lazy" decoding="async"
+      alt="The first iteration of FloodLens: a horizontal slider with a &quot;Watch the water rise&quot; button, close shades of blue with a legend box over the map, and a right-hand panel holding a building card above a city-wide &quot;Land underwater&quot; chart">
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 06 THE FEEDBACK ──────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="feedback">
+    <h2 class="section-label">06 — The feedback</h2>
+
+    <p class="section-heading">Some of the main feedback we received from users.</p>
+
+    <ol class="build-list">
+      <li class="build-item">
+        <span class="build-num" aria-hidden="true">1</span>
+        <div>
+          <p class="build-title">The colours didn't separate.</p>
+          <p class="build-desc">Neighbouring levels were close shades of blue: "Right now they aren't easy to differentiate."</p>
+        </div>
+      </li>
+      <li class="build-item">
+        <span class="build-num" aria-hidden="true">2</span>
+        <div>
+          <p class="build-title">The controls hid or misled.</p>
+          <p class="build-desc">Turning and tilting the map needed trackpad gestures not every laptop has, and "Watch the water rise" read as tides: "Users think the tides would rise and then go back."</p>
+        </div>
+      </li>
+      <li class="build-item">
+        <span class="build-num" aria-hidden="true">3</span>
+        <div>
+          <p class="build-title">The right side mixed two jobs.</p>
+          <p class="build-desc">The details of the building you clicked shared a panel with a city-wide chart that didn't change when you clicked. The panel also boxed the map in.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 07 FINAL VERSION ─────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="final">
+    <h2 class="section-label">07 — Final version</h2>
+
+    <p class="section-heading">The two changes that mattered most.</p>
+
+    <div class="change">
+      <h3 class="change-title"><span class="build-num" aria-hidden="true">1</span> One job per side.</h3>
+      <p class="body-text">The left holds the sea level and what it covers. The right holds only a floating card with details about the place clicked on, which frees up the map: the more immersive view the reviewers asked for.</p>
+
+      <div class="plan-pair">
+        <figure class="plan-fig">
+          <div class="plan-window is-mini" role="img" aria-label="The first iteration: sea level on the left, the map in the centre, and a docked right panel holding both the details about the place clicked on and a city-wide chart.">
+            <div class="plan-body">
+              <div class="plan-zone"><b>Sea level</b></div>
+              <div class="plan-zone is-map"><b>Map / playground</b></div>
+              <div class="plan-zone is-stack">
+                <div class="plan-job">Details about the place clicked on</div>
+                <div class="plan-job">City-wide chart</div>
+              </div>
+            </div>
+          </div>
+          <figcaption>First iteration design: the right panel holds two jobs.</figcaption>
+        </figure>
+        <figure class="plan-fig">
+          <div class="plan-window is-mini" role="img" aria-label="The final version: the sea level and what it covers on the left, and the map running to the right edge, with a floating card for the details about the place clicked on.">
+            <div class="plan-body is-open">
+              <div class="plan-zone"><b>Sea level and what it covers</b></div>
+              <div class="plan-zone is-map">
+                <b>Map / playground</b>
+                <div class="plan-job is-float">Details about the place clicked on</div>
+              </div>
+            </div>
+          </div>
+          <figcaption>Final version design: the details float over the map, giving it more room.</figcaption>
+        </figure>
+      </div>
+
+      <img class="cs-media" src="images/floodlens/final-version@2x.webp" width="2880" height="1800" loading="lazy" decoding="async"
+        alt="The final version, the same building: an upright slider with the area covered and share of city land beside it, one blue for the water and a deeper blue for the buildings it reaches at +2 ft, and a card floating over the map that answers &quot;Water reaches at +3 ft&quot;">
+    </div>
+
+    <div class="change">
+      <h3 class="change-title"><span class="build-num" aria-hidden="true">2</span> Buildings that answer without a click.</h3>
+      <p class="body-text">As the sea rises, each building changes colour once mapped water touches its footprint, so the 3D map reads without a click.</p>
+
+      <video class="cs-media" src="images/floodlens/buildings-per-foot.mp4" poster="images/floodlens/buildings-per-foot-poster.webp" width="1440" height="900"
+        loop muted playsinline preload="metadata"
+        aria-label="The slider rises from 0 ft to +5 ft over South Beach, and buildings change from plain to gold, pink and periwinkle as mapped water reaches them"></video>
+    </div>
+
+    <div class="fixes">
+      <h3 class="sub-label">Major fixes from the review</h3>
+      <p class="section-heading">Easier to tell apart, and easier to control.</p>
+      <ol class="build-list">
+        <li class="build-item">
+          <span class="build-num" aria-hidden="true">1</span>
+          <div>
+            <p class="build-title">Colours that separate.</p>
+            <p class="build-desc">Overall shows the water in one blue. Per foot gives each foot its own colour, from orange to violet.</p>
+          </div>
+        </li>
+        <li class="build-item">
+          <span class="build-num" aria-hidden="true">2</span>
+          <div>
+            <p class="build-title">A slider that reads as rising.</p>
+            <p class="build-desc">It stands upright, and the button that suggested tides is gone.</p>
+          </div>
+        </li>
+        <li class="build-item">
+          <span class="build-num" aria-hidden="true">3</span>
+          <div>
+            <p class="build-title">One toolbar, no gestures.</p>
+            <p class="build-desc">Zoom, turn, tilt and "Entire Miami Beach" sit together, with tooltips.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 08 OUTCOME ───────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="outcome">
+    <h2 class="section-label">08 — Outcome</h2>
+
+    <p class="section-heading">From a top-down map to the city in 3D.</p>
+
+    <div class="ba-toggle" role="tablist" aria-label="Compare the 2D map, the first iteration and the final version">
+      <button type="button" data-it="1" role="tab" aria-selected="false">2D map</button>
+      <button type="button" data-it="2" role="tab" aria-selected="false">First iteration</button>
+      <button type="button" data-it="3" role="tab" aria-selected="true" class="active">Final version</button>
+    </div>
+
+    <div class="ba-stage">
+      <div class="ba-frame" data-it="1">
+        <video class="cs-media" src="images/floodlens/walkthrough-noaa-2d.mp4" poster="images/floodlens/walkthrough-noaa-2d-poster.webp" width="1440" height="900"
+          loop muted playsinline preload="metadata"
+          aria-label="NOAA's Sea Level Rise Viewer over Miami Beach: a satellite map seen from above; the water level slider moves from +2 ft to +5 ft, the map zooms in and pans across South Beach, the slider comes back to +3 ft, and the map zooms out"></video>
+      </div>
+      <div class="ba-frame" data-it="2">
+        <video class="cs-media" src="images/floodlens/walkthrough-first-iteration.mp4" poster="images/floodlens/walkthrough-first-iteration-poster.webp" width="1440" height="900"
+          loop muted playsinline preload="metadata"
+          aria-label="The first iteration, feature by feature: the note on what the levels mean, the South Beach button, Watch the water rise from +2 ft to +5 ft, the horizontal slider back to +3 ft, acres, a clicked building's card in the docked right panel above the chart, the layer switches, the legend, 2D and 3D, zoom, point north, show all, the left panel collapsing, and the About the data and Sources windows"></video>
+      </div>
+      <div class="ba-frame active" data-it="3">
+        <video class="cs-media" src="images/floodlens/walkthrough-final.mp4" poster="images/floodlens/walkthrough-final-poster.webp" width="1440" height="900"
+          loop muted playsinline preload="metadata"
+          aria-label="The final version, feature by feature: the South Beach button, the upright slider to +5 ft as buildings change colour, Per foot colours, back to +3 ft, acres, a clicked building's card floating over the map, the layer switches, the legend, 2D and 3D, turning, tilting, point north, zoom, Entire Miami Beach, the left panel collapsing, and the About the data and Sources windows"></video>
+      </div>
+    </div>
+
+    <img class="cs-media" src="images/floodlens/result-doesnt-reach@2x.webp" width="2880" height="1800" loading="lazy" decoding="async"
+      alt="A North Beach building whose card reads &quot;Up to +5 ft · Doesn't reach it&quot;, with the sea at +5 ft covering 77% of the city's land and the buildings it reaches in blue">
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ── 09 REFLECTION ────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="story" id="reflection">
+    <h2 class="section-label">09 — Reflection</h2>
+
+    <div class="grid-two reflect">
+      <div class="pull-quote">
+        <p>A feature people can't find might as well not exist.</p>
+        <cite>— Closing reflection</cite>
+      </div>
+      <div class="shift">
+        <div class="shift-block going">
+          <span class="shift-label">Going in</span>
+          <p class="shift-text">I built turning and tilting into the map itself, so the 3D view could be explored by hand.</p>
+        </div>
+        <div class="shift-arrow" aria-hidden="true">↓</div>
+        <div class="shift-block coming">
+          <span class="shift-label">Coming out</span>
+          <p class="shift-text">It relied on trackpad gestures not every laptop has. Putting zoom, turn, tilt and the whole-city view in one toolbar, with tooltips, made the 3D view usable by anyone. Now I check that every key action has a visible control.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Closing CTA ───────────────────────────────── -->
+  <section class="closing-cta" aria-label="Try FloodLens">
+    <div class="closing-cta-row">
+      <a class="live-cta" href="https://floodlens-five.vercel.app" target="_blank" rel="noopener">
+        Try FloodLens <span class="arrow">→</span>
+      </a>
+    </div>
+    <p class="closing-phone-note">FloodLens is made for laptop and desktop screens.</p>
+  </section>
+
+  <!-- ── Case study nav ────────────────────────────── -->
+  <nav class="case-nav">
+    <a href="campus-copilot.html" aria-label="Next case study">NEXT PROJECT <span class="arrow">→</span></a>
+    <a href="#top" class="top-link">TOP ↑</a>
+  </nav>
+
+  <!-- ── Site footer ───────────────────────────────── -->
+  <footer class="site">
+    <div class="footer-left">
+      <h2>You made it through!</h2>
+      <p class="footer-tagline">This website was vibe coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
+    </div>
+    <div class="footer-right">
+      <h3>SAY Hi!</h3>
+      <ul>
+        <li><a href="https://www.linkedin.com/in/srinivas-midhun" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm7 0h3.83v1.64h.06c.53-1 1.84-2.06 3.79-2.06C21.4 8.58 22 11 22 14.16V21h-4v-6.06c0-1.45-.03-3.31-2.02-3.31-2.02 0-2.33 1.58-2.33 3.21V21h-4V9z"/></svg></a></li>
+        <li><a href="mailto:srinivasmidhunw@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 5h18a1 1 0 0 1 1 1v.24l-9.47 5.93a1 1 0 0 1-1.06 0L2 6.24V6a1 1 0 0 1 1-1zm19 3.6V18a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.6l8.94 5.6a2 2 0 0 0 2.12 0L22 8.6z"/></svg></a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme toggle ───────────────────────────────────
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        const apply = () => document.documentElement.setAttribute('data-theme', next);
+        // same cross-fade as the home page, when morphism.js is running
+        if (window.MORPHISM && window.MORPHISM.transition) window.MORPHISM.transition(apply);
+        else apply();
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    }
+
+    // ── Scroll-spy: highlight active section in nav ────
+    const sections = document.querySelectorAll('section.story');
+    const navLinks = document.querySelectorAll('.section-nav a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+
+    // ── Videos play only while on screen ───────────────
+    // A hidden tab has no box, so it counts as off screen: this also pauses
+    // the version you left and starts the one you chose. With reduced motion
+    // nothing starts by itself, and each video gets its controls instead.
+    const videos = document.querySelectorAll('video.cs-media');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      videos.forEach(v => { v.controls = true; });
+    } else {
+      const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { const p = entry.target.play(); if (p && p.catch) p.catch(() => {}); }
+          else entry.target.pause();
+        });
+      }, { threshold: 0.25 });
+      videos.forEach(v => videoObserver.observe(v));
+    }
+
+    // ── Comparison toggle ──────────────────────────────
+    const baBtns = document.querySelectorAll('.ba-toggle button');
+    const baFrames = document.querySelectorAll('.ba-frame');
+    baBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        baBtns.forEach(b => {
+          const on = b === btn;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        baFrames.forEach(f => {
+          const on = f.dataset.it === btn.dataset.it;
+          f.classList.toggle('active', on);
+          const v = f.querySelector('video');
+          if (on) v.currentTime = 0;   // each version starts from the top of the path
+          else v.pause();
+        });
+      });
+    });
+
+    // ── Smooth scroll for in-page anchors ──────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#' || href === '#top') {
+          if (href === '#top') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          return;
+        }
+        const target = document.querySelector(href);
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+
+</body>
+</html>
