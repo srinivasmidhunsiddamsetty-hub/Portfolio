@@ -468,9 +468,9 @@
       border-top: 1px solid var(--rule); text-align: center;
     }
     .closing-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    /* Phones only: FloodLens itself is built for 1024px and up. */
+    /* Phones and tablets only: FloodLens itself is built for 1024px and up. */
     .closing-phone-note { display: none; margin-top: 14px; font-size: 14px; color: var(--muted); letter-spacing: -0.005em; }
-    @media (max-width: 767px) { .closing-phone-note { display: block; } }
+    @media (max-width: 1023px) { .closing-phone-note { display: block; } }
 
     /* ── Case nav + footer ────────────────────────────── */
     .case-nav {
@@ -976,11 +976,11 @@
   <!-- ── Closing CTA ───────────────────────────────── -->
   <section class="closing-cta" aria-label="Try FloodLens">
     <div class="closing-cta-row">
-      <a class="live-cta" href="https://floodlens-five.vercel.app" target="_blank" rel="noopener">
+      <a class="live-cta" href="https://floodlens-five.vercel.app" target="_blank" rel="noopener" aria-describedby="live-note">
         Try FloodLens <span class="arrow">→</span>
       </a>
     </div>
-    <p class="closing-phone-note">FloodLens is made for laptop and desktop screens.</p>
+    <p class="closing-phone-note" id="live-note">(Try it on a laptop or desktop.)</p>
   </section>
 
   <!-- ── Case study nav ────────────────────────────── -->
@@ -1049,6 +1049,12 @@
       }, { threshold: 0.25 });
       videos.forEach(v => videoObserver.observe(v));
     }
+
+    // ── Try FloodLens ──────────────────────────────────
+    // Below 1024px the app opens in this tab, so the phone's Back returns
+    // here; a new tab there has no history and leaves people stranded.
+    const liveLink = document.querySelector('.live-cta');
+    if (liveLink && window.matchMedia('(max-width: 1023px)').matches) liveLink.removeAttribute('target');
 
     // ── Comparison toggle ──────────────────────────────
     const baBtns = document.querySelectorAll('.ba-toggle button');
