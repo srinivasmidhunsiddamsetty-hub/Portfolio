@@ -13,9 +13,11 @@
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var theme = saved || 'light';   // light by default; dark only once a visitor chooses it
+        var theme = saved || 'dark';    // dark by default; light only once a visitor chooses it
         document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) {}
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
     })();
 
     // Morphism (visual system) — independent of light/dark above, which is
@@ -25,7 +27,7 @@
     (function () {
       var M = window.MORPHISM = {
         key: 'morphism',
-        systems: ['flat', 'skeuomorphic', 'neumorphic', 'glass', 'clay'],
+        systems: ['flat', 'skeuomorphic', 'neumorphic', 'clay', 'glass'],
         fallback: 'flat'
       };
       var saved = null;
@@ -695,12 +697,12 @@
             <span class="morph-text">Neumorphism</span>
           </label>
           <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="glass" autocomplete="off">
-            <span class="morph-text">Glassmorphism</span>
-          </label>
-          <label class="morph-opt">
             <input class="morph-input" type="radio" name="morphism" value="clay" autocomplete="off">
             <span class="morph-text">Claymorphism</span>
+          </label>
+          <label class="morph-opt">
+            <input class="morph-input" type="radio" name="morphism" value="glass" autocomplete="off">
+            <span class="morph-text">Glassmorphism</span>
           </label>
         </fieldset>
       </div>

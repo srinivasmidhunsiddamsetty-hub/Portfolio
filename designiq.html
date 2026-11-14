@@ -13,10 +13,10 @@
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var theme = saved || 'light';   // light by default; dark only once a visitor chooses it
+        var theme = saved || 'dark';    // dark by default; light only once a visitor chooses it
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     })();
 
