@@ -1,0 +1,525 @@
+/* ══════════════════════════════════════════════════════════════════════
+   UI — the small components every page shares, loaded after each page's
+   own styles and the morphism layer.
+
+   Where they come from (all rebuilt here in plain CSS and JS, since the
+   site has no React or Tailwind):
+     shadcn/ui  look: tooltip, toast, command menu, kbd, hover card, badge
+     Radix      behaviour: delays, keyboard, focus and dismissal rules
+     RareUI     motion: the springy tooltip pop, the gliding tab pill
+                (Animated Tab), the light sweep (Glass Shimmer Button)
+
+   Colours come only from what the page already has: a case study's own
+   --bg / --ink / --rule, or the active style's tokens when html carries
+   data-morphism. So each piece follows light/dark and all five styles,
+   with nothing new to maintain.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --ui-ink:     var(--text-primary, var(--ink, #0A0A0A));
+  --ui-ground:  var(--page-bg, var(--bg, #FFFFFF));
+  --ui-muted:   var(--text-secondary, var(--muted, #6B6B68));
+  --ui-soft:    var(--text-muted, var(--muted, #8A8A8A));
+  --ui-hover:   var(--surface-secondary, var(--hover-bg, #F5F5F4));
+
+  /* a popover is the style menu's panel: same surface, edge, radius, lift */
+  --ui-pop-bg:     var(--surface-raised, var(--bg, #FFFFFF));
+  --ui-pop-border: var(--border-subtle, var(--rule, #E5E5E5));
+  --ui-pop-radius: var(--radius-large, 12px);
+  --ui-pop-shadow: var(--menu-shadow, var(--ui-lift));
+  --ui-pop-blur:   var(--header-blur, none);
+  --ui-lift: 0 18px 44px -16px rgba(0, 0, 0, .2), 0 2px 6px -2px rgba(0, 0, 0, .06);
+
+  /* RareUI's springs, as curves: the pill (stiffness 320, damping 32)
+     settles without overshoot; the tooltip (260 / 20) overshoots a touch. */
+  --ui-glide: cubic-bezier(.32, .72, 0, 1);
+  --ui-pop:   cubic-bezier(.34, 1.4, .64, 1);
+  --ui-out:   cubic-bezier(.2, .7, .3, 1);
+}
+[data-theme="dark"] {
+  --ui-lift: 0 18px 44px -16px rgba(0, 0, 0, .8), 0 0 0 1px rgba(255, 255, 255, .02);
+}
+
+
+/* ── Kbd (shadcn) ────────────────────────────────────────────────── */
+.ui-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font: 500 11px/1 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: 0;
+  color: inherit;
+  white-space: nowrap;
+}
+.ui-kbd + .ui-kbd { margin-left: 3px; }
+
+
+/* ── Tooltip (shadcn look, Radix timing, RareUI pop) ─────────────── */
+.ui-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--ui-ink);
+  color: var(--ui-ground);
+  font: 500 12px/1.2 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .3);
+}
+.ui-tip .ui-kbd { background: color-mix(in srgb, var(--ui-ground) 18%, transparent); }
+.ui-tip-arrow {
+  position: absolute;
+  left: var(--arrow-x, 50%);
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: inherit;
+  rotate: 45deg;
+  border-radius: 1.5px;
+}
+.ui-tip[data-side="top"] .ui-tip-arrow    { bottom: -3px; }
+.ui-tip[data-side="bottom"] .ui-tip-arrow { top: -3px; }
+.ui-tip[data-state="open"] {
+  opacity: 1;
+  visibility: visible;
+  animation: ui-tip-in 220ms var(--ui-pop);
+}
+.ui-tip[data-side="top"]    { transform-origin: var(--arrow-x, 50%) 100%; --ui-from: 4px; }
+.ui-tip[data-side="bottom"] { transform-origin: var(--arrow-x, 50%) 0;    --ui-from: -4px; }
+@keyframes ui-tip-in {
+  from { opacity: 0; scale: .9; translate: 0 var(--ui-from, 4px); }
+}
+
+
+/* ── Hover card: the next project, before you go (shadcn / Radix) ── */
+.ui-hovercard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  width: 296px;
+  padding: 8px;
+  border: 1px solid;
+  border-color: var(--ui-pop-border);
+  border-radius: calc(var(--ui-pop-radius) + 4px);
+  background: var(--ui-pop-bg);
+  box-shadow: var(--ui-pop-shadow);
+  -webkit-backdrop-filter: var(--ui-pop-blur);
+          backdrop-filter: var(--ui-pop-blur);
+  color: var(--ui-ink);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.ui-hovercard[data-state="open"] {
+  opacity: 1;
+  visibility: visible;
+  animation: ui-card-in 240ms var(--ui-out);
+}
+.ui-hovercard[data-side="top"]    { transform-origin: 24px 100%; --ui-from: 6px; }
+.ui-hovercard[data-side="bottom"] { transform-origin: 24px 0;    --ui-from: -6px; }
+@keyframes ui-card-in {
+  from { opacity: 0; scale: .96; translate: 0 var(--ui-from, 6px); }
+}
+.ui-hovercard-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--ui-pop-radius);
+  overflow: hidden;
+  background: var(--ui-hover);
+}
+.ui-hovercard-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ui-hovercard-body { padding: 12px 8px 6px; }
+.ui-hovercard-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  font: 600 10.5px/1 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ui-soft);
+}
+.ui-hovercard-title { display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; }
+.ui-hovercard-line { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.45; color: var(--ui-muted); }
+
+
+/* ── Toast (shadcn's Sonner look, Radix's rules) ─────────────────── */
+.ui-toaster {
+  position: fixed;
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 1100;
+  width: min(440px, calc(100vw - 32px));
+  translate: -50% 0;
+  pointer-events: none;
+}
+.ui-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid;
+  border-color: var(--ui-pop-border);
+  border-radius: var(--ui-pop-radius);
+  background: var(--ui-pop-bg);
+  box-shadow: var(--ui-pop-shadow);
+  -webkit-backdrop-filter: var(--ui-pop-blur);
+          backdrop-filter: var(--ui-pop-blur);
+  color: var(--ui-ink);
+  font: 400 14px/1.4 var(--font-sans, system-ui, sans-serif);
+  pointer-events: auto;
+  animation: ui-toast-in 420ms cubic-bezier(.21, 1.02, .73, 1);
+}
+.ui-toast.is-leaving { animation: ui-toast-out 200ms ease-in forwards; }
+@keyframes ui-toast-in  { from { opacity: 0; translate: 0 16px; scale: .97; } }
+@keyframes ui-toast-out { to   { opacity: 0; translate: 0 8px;  scale: .98; } }
+.ui-toast-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ui-ink);
+  color: var(--ui-ground);
+}
+.ui-toast-icon svg { width: 12px; height: 12px; }
+.ui-toast-text { flex: 1 1 auto; min-width: 0; }
+.ui-toast-title { display: block; font-weight: 500; letter-spacing: -0.005em; }
+.ui-toast-desc {
+  display: block;
+  margin-top: 1px;
+  font-size: 13px;
+  color: var(--ui-muted);
+  overflow-wrap: anywhere;            /* an email address is shown whole, never cut */
+}
+.ui-toast-action {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid;
+  border-color: var(--ui-pop-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ui-ink);
+  font: 500 12.5px/1 var(--font-sans, system-ui, sans-serif);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.ui-toast-action:hover { background: var(--ui-hover); border-color: var(--ui-ink); }
+.ui-toast-action:focus-visible { outline: 2px solid var(--ui-ink); outline-offset: 2px; }
+
+
+/* ── Search button: an icon button like light/dark, beside it ────── */
+.ui-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+html[data-morphism] .site-header > .ui-actions { margin-left: 0; justify-self: end; }
+.ui-actions .theme-toggle { margin-left: 0 !important; }
+.ui-search-btn svg { width: 16px; height: 16px; }
+/* Phones have no keyboard shortcut and no room: like the style picker,
+   the button is for 640px and up. */
+@media (max-width: 639px) { .ui-search-btn { display: none !important; } }
+
+
+/* ── Command menu (shadcn Command in a Radix-style dialog) ───────── */
+.ui-cmd {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: min(16vh, 140px) 16px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--ui-ink);
+  overflow: hidden;
+}
+.ui-cmd:not([open]) { display: none; }
+.ui-cmd::backdrop {
+  background: rgba(10, 10, 10, .28);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  animation: ui-fade-in 200ms ease;
+}
+[data-theme="dark"] .ui-cmd::backdrop { background: rgba(0, 0, 0, .55); }
+.ui-cmd[open] .ui-cmd-panel { animation: ui-cmd-in 260ms var(--ui-out); }
+.ui-cmd.is-closing .ui-cmd-panel { animation: ui-cmd-out 150ms ease-in forwards; }
+.ui-cmd.is-closing::backdrop { animation: ui-fade-out 150ms ease-in forwards; }
+@keyframes ui-cmd-in  { from { opacity: 0; scale: .97; translate: 0 -8px; } }
+@keyframes ui-cmd-out { to   { opacity: 0; scale: .98; translate: 0 -4px; } }
+@keyframes ui-fade-in  { from { opacity: 0; } }
+@keyframes ui-fade-out { to   { opacity: 0; } }
+
+.ui-cmd-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: min(560px, calc(100dvh - 32px - min(16vh, 140px)));
+  margin: 0 auto;
+  border: 1px solid;
+  border-color: var(--ui-pop-border);
+  border-radius: calc(var(--ui-pop-radius) + 4px);
+  background: var(--ui-pop-bg);
+  box-shadow: var(--ui-pop-shadow), 0 32px 80px -24px rgba(0, 0, 0, .28);
+  -webkit-backdrop-filter: var(--ui-pop-blur);
+          backdrop-filter: var(--ui-pop-blur);
+  overflow: hidden;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.ui-cmd-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px 0 18px;
+  border-bottom: 1px solid var(--ui-pop-border);
+  flex: none;
+}
+.ui-cmd-search > svg { width: 18px; height: 18px; flex: none; color: var(--ui-soft); }
+.ui-cmd-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ui-ink);
+  font: 400 16px/1 var(--font-sans, system-ui, sans-serif);   /* 16px: iOS zooms into anything smaller */
+  letter-spacing: -0.005em;
+}
+.ui-cmd-input::placeholder { color: var(--ui-soft); opacity: 1; }
+.ui-cmd-search .ui-kbd { color: var(--ui-soft); }
+
+.ui-cmd-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding: 34px 0 6px;
+  scrollbar-width: thin;
+}
+.ui-cmd-group + .ui-cmd-group { margin-top: 4px; }
+.ui-cmd-heading {
+  padding: 12px 12px 6px;
+  font: 600 10.5px/1 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ui-soft);
+}
+.ui-cmd-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-medium, 10px);
+  font-size: 14px;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+  scroll-margin: 6px 0;
+}
+.ui-cmd-item[aria-selected="true"] { background: var(--ui-hover); }
+.ui-cmd-item[aria-selected="true"]::before {      /* RareUI-style: a small rail marks the row */
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ui-ink);
+}
+.ui-cmd-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;                  /* the same slot as a project's picture, so every label lines up */
+  height: 29px;
+  border: 1px solid var(--ui-pop-border);
+  border-radius: 6px;
+  color: var(--ui-muted);
+}
+.ui-cmd-icon svg { width: 15px; height: 15px; }
+.ui-cmd-thumb {
+  flex: none;
+  width: 46px;
+  height: 29px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ui-hover);
+  box-shadow: 0 0 0 1px var(--ui-pop-border);
+}
+.ui-cmd-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ui-cmd-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ui-cmd-label { font-weight: 500; letter-spacing: -0.005em; color: var(--ui-ink); }
+.ui-cmd-sub {
+  font-size: 12.5px;
+  color: var(--ui-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-cmd-label mark { background: none; color: inherit; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.ui-cmd-meta { flex: none; display: flex; align-items: center; gap: 6px; color: var(--ui-soft); font-size: 12px; }
+.ui-cmd-meta svg { width: 14px; height: 14px; }
+.ui-cmd-enter { opacity: 0; transition: opacity 120ms ease; }
+.ui-cmd-item[aria-selected="true"] .ui-cmd-enter { opacity: 1; }
+
+/* Badge (shadcn, outline variant) */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border: 1px solid var(--ui-pop-border);
+  border-radius: 999px;
+  font: 500 11px/1 var(--font-sans, system-ui, sans-serif);
+  color: var(--ui-muted);
+  white-space: nowrap;
+}
+
+.ui-cmd-empty {
+  padding: 40px 16px 44px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ui-muted);
+}
+.ui-cmd-foot {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 44px;
+  padding: 0 16px;
+  border-top: 1px solid var(--ui-pop-border);
+  font-size: 12px;
+  color: var(--ui-soft);
+  flex: none;
+}
+.ui-cmd-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.ui-cmd-foot .ui-cmd-brand { margin-left: auto; }
+@media (max-width: 639px) {
+  .ui-cmd { padding-top: 12px; }
+  .ui-cmd-foot { display: none; }
+}
+html.ui-locked { overflow: hidden; }
+
+
+/* ── Gliding pill (RareUI Animated Tab) ──────────────────────────────
+   A copy of the buttons, in their chosen look, sits over the real ones and
+   is clipped to the chosen button's shape. Moving the clip moves the pill,
+   and the label colour changes exactly where the pill is, mid-glide too.
+   The real buttons keep the unchosen look; the copy is inert. */
+.ui-glide {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  gap: inherit;
+  padding: inherit;
+  background: var(--ui-glide-bg, var(--ui-ink));
+  clip-path: inset(0 100% 100% 0 round 999px);
+  pointer-events: none;
+  transition: clip-path 440ms var(--ui-glide);
+}
+.ui-glide.is-instant { transition: none; }
+.ui-glide > * {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+/* Executive Dashboard's and FloodLens's comparison toggle, in every style */
+.ba-toggle.ui-has-glide { position: relative; --ui-glide-bg: var(--accent); }
+/* !important: the dark styles colour the chosen label at higher specificity */
+.ba-toggle.ui-has-glide > button.active { background: transparent !important; color: var(--muted) !important; }
+
+/* The home page's filters glide in Flat. In the four material styles the
+   chips are keys, and keys press and release rather than slide. */
+.filters.ui-has-glide { position: relative; --ui-glide-bg: var(--control-bg-active); }
+html:not([data-morphism="flat"]) .filters > .ui-glide { display: none; }
+html[data-morphism="flat"] .filters.ui-has-glide > .filter-btn.active {
+  border-color: var(--control-border);
+  background: var(--control-bg);
+  color: var(--control-ink);
+}
+
+
+/* ── Section bar: one underline that travels (shadcn Tabs, line) ─── */
+.section-nav-inner.ui-has-bar { position: relative; }
+.section-nav-inner.ui-has-bar a.active::before { opacity: 0; }
+.ui-sn-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.5px;
+  width: 0;
+  background: var(--ink);
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transition: translate 460ms var(--ui-glide), width 460ms var(--ui-glide), opacity 200ms ease;
+}
+.ui-sn-bar.is-visible { opacity: 1; }
+.ui-sn-bar.is-instant { transition: opacity 200ms ease; }
+
+
+/* ── Light sweep on the live-product buttons (RareUI Glass Shimmer) ─ */
+.live-cta:not(.ghost) { position: relative; overflow: hidden; isolation: isolate; }
+.live-cta:not(.ghost)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 32%, rgba(255, 255, 255, .38) 50%, transparent 68%);
+  translate: -110% 0;
+  pointer-events: none;
+}
+.live-cta:not(.ghost):is(:hover, :focus-visible)::after {
+  translate: 110% 0;
+  transition: translate 900ms cubic-bezier(.4, 0, .2, 1);
+}
+.live-cta:not(.ghost) > * { position: relative; }
+
+
+/* ── Reduced motion: everything still works, nothing travels ─────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-tip[data-state="open"], .ui-hovercard[data-state="open"],
+  .ui-toast, .ui-toast.is-leaving,
+  .ui-cmd[open] .ui-cmd-panel, .ui-cmd.is-closing .ui-cmd-panel,
+  .ui-cmd::backdrop, .ui-cmd.is-closing::backdrop { animation-duration: 1ms; }
+  .ui-glide, .ui-sn-bar { transition: none; }
+  .live-cta:not(.ghost)::after { display: none; }
+}

@@ -34,6 +34,7 @@
     })();
   </script>
   <script src="morphism/morphism.js" defer></script>
+  <script src="ui/ui.js" defer></script>
 
   <!-- One-shot arrival flag, read before first paint. The home page sets it
        only when a row launch actually completes, so a direct visit, a refresh,
@@ -501,8 +502,6 @@
       font-size: clamp(22px, 2.4vw, 30px); font-weight: 500;
       line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 10px;
     }
-    .footer-tagline { font-size: 13px; color: var(--footer-ink); }
-    .footer-tagline .heart { margin: 0 2px; }
     .footer-right h3 {
       font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
       color: var(--footer-muted); margin-bottom: 12px;
@@ -657,6 +656,7 @@
   <link rel="stylesheet" href="morphism/tokens.css" />
   <link rel="stylesheet" href="morphism/shell.css" />
   <link rel="stylesheet" href="morphism/case.css" />
+  <link rel="stylesheet" href="ui/ui.css" />
 </head>
 <body>
 
@@ -667,15 +667,20 @@
       <li><a href="about.html">About Me</a></li>
       <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
     </ul>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
-      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="4"/>
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
-    </button>
+    <div class="ui-actions">
+      <button class="theme-toggle ui-search-btn" type="button" aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.1-4.1"/></svg>
+      </button>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
   </nav>
 
   <!-- ── Section nav (sticky) ──────────────────────── -->
@@ -993,7 +998,6 @@
   <footer class="site">
     <div class="footer-left">
       <h2>You made it through!</h2>
-      <p class="footer-tagline">This website was vibe coded with <span class="heart">♥</span> in HTML, CSS and Js</p>
     </div>
     <div class="footer-right">
       <h3>SAY Hi!</h3>
