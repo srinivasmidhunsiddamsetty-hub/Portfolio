@@ -60,26 +60,26 @@
 
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #FFFFFF;
+      --bg:        #FFF9F7;
       --ink:       #0A0A0A;
       --muted:     #6B6B68;
       --soft:      #6B6B68;   /* the template's #8A8A8A is 3.4:1; here labels carry the section titles */
-      --rule:      #E5E5E5;
-      --hover-bg:  #F7F7F7;
-      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
-      --tint:      #F4F4F1;
+      --rule:      #DCD9D4;
+      --hover-bg:  #F1ECE8;
+      --subnav-bg: #F4F0EC;   /* a half-step off --bg, so the two bars read apart */
+      --tint:      #F1ECE8;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
       --accent:    #1E3A5F;          /* FloodLens's own navy */
       --accent-ink:#FFFFFF;
 
-      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
       --side:      clamp(28px, 6vw, 144px);
       --max-content: 1920px;
@@ -150,7 +150,7 @@
     .main-nav ul { list-style: none; display: flex; gap: 56px; }
     .main-nav a {
       font-size: 17px; font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative; padding-bottom: 3px;
     }
     .main-nav a::after {
@@ -176,7 +176,7 @@
     .section-nav-inner::-webkit-scrollbar { display: none; }
     .section-nav a {
       font-size: 13.5px; font-weight: 400;
-      color: var(--soft); letter-spacing: -0.005em;
+      color: var(--soft); letter-spacing: 0.005em;
       white-space: nowrap; transition: color 0.2s;
       position: relative; padding: 6px 0;
     }
@@ -220,7 +220,7 @@
     }
     .intro-disciplines {
       font-size: 15px; font-weight: 500; color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       max-width: 30ch;
     }
     .intro-tagline {
@@ -231,7 +231,7 @@
     .intro-meta { margin-top: 26px; }
     .meta-row {
       padding: 14px 0; border-top: 1px solid var(--rule);
-      font-size: 15px; color: var(--ink); letter-spacing: -0.005em;
+      font-size: 15px; color: var(--ink); letter-spacing: 0.005em;
     }
     .meta-row:last-child { border-bottom: 1px solid var(--rule); }
     .meta-row strong { font-weight: 600; margin-right: 10px; }
@@ -242,7 +242,7 @@
       padding: 13px 22px;
       background: var(--accent); color: var(--accent-ink);
       border-radius: 100px;
-      font-size: 14.5px; font-weight: 500; letter-spacing: -0.005em;
+      font-size: 14.5px; font-weight: 500; letter-spacing: 0.005em;
       transition: transform 0.25s, opacity 0.2s;
     }
     .live-cta:hover { transform: translateX(4px); }
@@ -290,7 +290,7 @@
 
     .body-text {
       font-size: 17px; font-weight: 400; line-height: 1.65;
-      color: var(--ink); letter-spacing: -0.005em;
+      color: var(--ink); letter-spacing: 0.005em;
       max-width: 64ch;
     }
 
@@ -328,8 +328,8 @@
       padding: 22px 22px; border: 1px solid var(--rule); border-radius: 14px; background: var(--bg);
     }
     .build-num { font-size: 19px; font-weight: 500; color: var(--accent); letter-spacing: -0.03em; line-height: 1; }
-    .build-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 6px; line-height: 1.35; }
-    .build-desc { font-size: 15px; color: var(--ink); line-height: 1.55; letter-spacing: -0.005em; }
+    .build-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: 0; margin-bottom: 6px; line-height: 1.35; }
+    .build-desc { font-size: 15px; color: var(--ink); line-height: 1.55; letter-spacing: 0.005em; }
 
     /* ── Two columns: who it's for (02) and the reflection (09) ── */
     .grid-two {
@@ -349,19 +349,19 @@
     }
     .pull-quote cite {
       display: block; margin-top: 14px; font-size: 13px;
-      color: var(--soft); font-style: normal; letter-spacing: -0.005em;
+      color: var(--soft); font-style: normal; letter-spacing: 0.005em;
     }
     .shift { display: flex; flex-direction: column; }
     .shift-label {
       display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
       text-transform: uppercase; color: var(--soft); margin-bottom: 10px;
     }
-    .shift-block.going .shift-text { font-size: 16px; line-height: 1.6; color: var(--muted); letter-spacing: -0.005em; }
+    .shift-block.going .shift-text { font-size: 16px; line-height: 1.6; color: var(--muted); letter-spacing: 0.005em; }
     .shift-arrow { font-size: 22px; color: var(--soft); margin: 20px 0; line-height: 1; }
     .shift-block.coming { padding-left: 24px; border-left: 2px solid var(--accent); }
     .shift-block.coming .shift-text {
       font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6;
-      color: var(--ink); letter-spacing: -0.01em;
+      color: var(--ink); letter-spacing: 0;
     }
 
     /* ── Small headings and notes ─────────────────────── */
@@ -375,7 +375,7 @@
 
     /* ── The layout plan (04) and the before / after pair (07) ── */
     .plan-fig { margin-top: clamp(28px, 3.4vw, 40px); }
-    .plan-fig figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); letter-spacing: -0.005em; text-align: center; }
+    .plan-fig figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); letter-spacing: 0.005em; text-align: center; }
     /* The plans are wireframes: white with grey lines in every theme and
        style, so they read as plans rather than as part of the page. */
     .plan-window {
@@ -388,7 +388,7 @@
     .plan-bar {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       padding: 7px 12px; border: 1px solid var(--pw-line); border-radius: 8px; background: #FFFFFF;
-      font-size: 12px; color: var(--pw-muted); letter-spacing: -0.005em;
+      font-size: 12px; color: var(--pw-muted); letter-spacing: 0.005em;
     }
     .plan-bar span:first-child { font-weight: 600; color: var(--pw-ink); }
     .plan-body { display: grid; grid-template-columns: 21fr 55fr 24fr; gap: 8px; min-height: 0; }
@@ -399,7 +399,7 @@
       padding: clamp(10px, 1.3vw, 18px);
       border: 1px solid var(--pw-line); border-radius: 10px; background: #FFFFFF;
     }
-    .plan-zone b { font-size: clamp(12px, 1.2vw, 16px); font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; color: var(--pw-ink); }
+    .plan-zone b { font-size: clamp(12px, 1.2vw, 16px); font-weight: 600; letter-spacing: 0; line-height: 1.25; color: var(--pw-ink); }
     .plan-zone.is-map { position: relative; }
     .plan-zone.is-stack { padding: 8px; gap: 8px; align-items: stretch; }
     .plan-job {
@@ -434,7 +434,7 @@
     }
     .ba-toggle button {
       font-family: inherit; font-size: 13.5px; font-weight: 500;
-      letter-spacing: -0.005em; color: var(--muted);
+      letter-spacing: 0.005em; color: var(--muted);
       padding: 9px 20px; border: none; background: transparent;
       border-radius: 100px; cursor: pointer;
       transition: background 0.25s, color 0.25s;
@@ -469,7 +469,7 @@
     }
     .closing-cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     /* Phones and tablets only: FloodLens itself is built for 1024px and up. */
-    .closing-phone-note { display: none; margin-top: 14px; font-size: 14px; color: var(--muted); letter-spacing: -0.005em; }
+    .closing-phone-note { display: none; margin-top: 14px; font-size: 14px; color: var(--muted); letter-spacing: 0.005em; }
     @media (max-width: 1023px) { .closing-phone-note { display: block; } }
 
     /* ── Case nav + footer ────────────────────────────── */
@@ -479,7 +479,7 @@
       border-top: 1px solid var(--rule); max-width: var(--max-content);
     }
     .case-nav a {
-      font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
+      font-size: 16px; font-weight: 500; letter-spacing: 0;
       position: relative; padding-bottom: 3px;
     }
     .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }

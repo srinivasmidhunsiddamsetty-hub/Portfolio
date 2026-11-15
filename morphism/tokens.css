@@ -39,7 +39,7 @@
    the four material systems (44px controls, a 16px gap between rows with
    the rule drawn in the middle of it), so switching still moves nothing. */
 [data-morphism="flat"] {
-  --page-bg: #FFFFFF;
+  --page-bg: #FFF9F7;           /* blush, not pure white */
   --page-layer: none;
 
   --text-primary: #0A0A0A;
@@ -50,12 +50,12 @@
   --ui-accent-ink: #FFFFFF;
   --focus-ring: #0A0A0A;
 
-  --surface-primary: #FFFFFF;
-  --surface-secondary: #F7F7F7;
-  --surface-raised: #FFFFFF;
-  --surface-inset: #F7F7F7;
+  --surface-primary: #FFF9F7;
+  --surface-secondary: #F1ECE8;
+  --surface-raised: #FFF9F7;
+  --surface-inset: #F1ECE8;
   --border-primary: #0A0A0A;
-  --border-subtle: #E5E5E5;
+  --border-subtle: #DCD9D4;      /* stone lines */
 
   --shadow-small: none;
   --shadow-medium: none;
@@ -68,24 +68,24 @@
   --radius-card: 12px;
   --blur-strength: 0px;
 
-  --header-bg: #FFFFFF;
+  --header-bg: #FFF9F7;
   --header-border: transparent;
   --header-shadow: none;
   --menu-shadow: 0 18px 44px -16px rgba(0,0,0,.2);   /* flat has no shadows, but a menu must lift off the page */
 
   --track-bg: transparent;
-  --track-shadow: inset 0 0 0 1px #E5E5E5;
+  --track-shadow: inset 0 0 0 1px #DCD9D4;
   --radius-track: 999px;
   --radius-seg: 999px;
   --seg-bg: transparent;
   --seg-border: transparent;
   --seg-shadow: none;
   --seg-ink: #0A0A0A;
-  --seg-bg-hover: #F7F7F7;
+  --seg-bg-hover: #F1ECE8;
   --seg-shadow-hover: none;
 
   --control-bg: transparent;
-  --control-border: #E5E5E5;
+  --control-border: #DCD9D4;
   --control-border-hover: #0A0A0A;
   --control-shadow: none;
   --control-ink: #0A0A0A;

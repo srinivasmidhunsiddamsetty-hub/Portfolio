@@ -39,7 +39,7 @@
   <script src="morphism/morphism.js" defer></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
     /* ── Reset & Base ─────────────────────────────────── */
     *, *::before, *::after {
@@ -49,7 +49,7 @@
     }
 
     :root {
-      --bg:        #FFFFFF;
+      --bg:        #FFF9F7;
       --ink:       #0A0A0A;
       --muted:     #8A8A8A;
       --desc:      #46554F;   /* row descriptions: readable, clearly secondary */
@@ -74,14 +74,14 @@
          together. At 0 a row opens the instant the pointer crosses into it,
          which also means a sweep down the list opens each row it passes. */
       --hover-intent: 0ms;
-      --rule:      #E5E5E5;
-      --hover-bg:  #F7F7F7;
+      --rule:      #DCD9D4;
+      --hover-bg:  #F1ECE8;
       --preview-bg:#EDEDEA;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
 
-      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
       --nav-h:     72px;
       --side:      clamp(28px, 6vw, 144px);
@@ -155,7 +155,7 @@
       font-size: 17px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative;
       padding-bottom: 3px;
       transition: opacity 0.2s;
@@ -250,12 +250,12 @@
        single line on an ultrawide. balance evens the two lines out. */
     .hero-statement {
       font-family: var(--font-sans);
-      /* Montserrat is loaded as a variable font (300-700), so 440 is a real
-         interpolation rather than a value rounded to the nearest cut. */
+      /* Plus Jakarta Sans is loaded as a variable font (200-800), so 440 is a
+         real interpolation rather than a value rounded to the nearest cut. */
       font-weight: 440;
       font-size: clamp(30px, 3.3vw, 46px);
       line-height: 1.25;
-      letter-spacing: -0.02em;   /* Montserrat is wide; a touch tighter at display size */
+      letter-spacing: -0.02em;   /* a touch tighter at display size */
       word-spacing: 0.08em;
       color: #ffffff;
       text-shadow: 0 2px 26px rgba(0, 0, 0, 0.55);
@@ -274,7 +274,7 @@
       font-weight: 400;
       color: var(--ink);
       margin-bottom: 18px;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
     }
 
     /* ── Filter tabs ──────────────────────────────────── */
@@ -297,7 +297,7 @@
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
     }
 
     .filter-btn:hover {
@@ -508,7 +508,7 @@
     }
     .project-card.is-open .p-title { flex: 0 0 auto; }
     .p-title {
-      font-size: 17px; font-weight: 500; letter-spacing: -0.01em; color: inherit;
+      font-size: 17px; font-weight: 500; letter-spacing: 0; color: inherit;
       line-height: 1.25;
       transition: font-size var(--row-out) var(--row-ease);
     }
@@ -518,7 +518,7 @@
        out of it, so .p-text is exactly as tall as its content - a fixed height
        clipped longer descriptions once the column narrowed. */
     .p-line, .p-full {
-      line-height: 1.55; letter-spacing: -0.005em; color: inherit;
+      line-height: 1.55; letter-spacing: 0.005em; color: inherit;
     }
     /* Fixed sizes on purpose. Animating the description's font-size re-wrapped
        it on every frame, which read as the paragraph crawling around. */

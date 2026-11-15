@@ -60,24 +60,24 @@
 
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #FFFFFF;
+      --bg:        #FFF9F7;
       --ink:       #0A0A0A;
       --muted:     #6B6B68;
       --soft:      #8A8A8A;
-      --rule:      #E5E5E5;
-      --hover-bg:  #F7F7F7;
-      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
-      --tint:      #F4F4F1;
+      --rule:      #DCD9D4;
+      --hover-bg:  #F1ECE8;
+      --subnav-bg: #F4F0EC;   /* a half-step off --bg, so the two bars read apart */
+      --tint:      #F1ECE8;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
 
-      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
       --side:      clamp(28px, 6vw, 144px);
       --max-content: 1920px;
@@ -155,7 +155,7 @@
     .main-nav a {
       font-size: 17px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative;
       padding-bottom: 3px;
     }
@@ -190,7 +190,7 @@
       font-size: 13.5px;
       font-weight: 400;
       color: var(--soft);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       white-space: nowrap;
       transition: color 0.2s;
       position: relative;
@@ -232,7 +232,7 @@
       font-size: 15px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 18px;
       padding-bottom: 18px;
       border-bottom: 1px solid var(--rule);
@@ -242,7 +242,7 @@
       font-size: 14px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 16px;
       max-width: 28ch;
       line-height: 1.5;
@@ -260,7 +260,7 @@
       font-size: 13.5px;
       font-style: italic;
       color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       line-height: 1.55;
       max-width: 30ch;
     }
@@ -279,7 +279,7 @@
       font-weight: 400;
       line-height: 1.65;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 16px;
       max-width: 64ch;
     }
@@ -291,7 +291,7 @@
       border-top: 1px solid var(--rule);
       font-size: 15px;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .meta-row:last-child { border-bottom: 1px solid var(--rule); }
     .meta-row strong { font-weight: 600; margin-right: 10px; }
@@ -311,7 +311,7 @@
       justify-content: center;
       color: var(--soft);
       font-size: 14px;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       padding: 16px;
       text-align: center;
     }
@@ -321,7 +321,7 @@
       margin-top: 14px;
       font-size: 13px;
       color: var(--soft);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Real image / video ───────────────────────── */
@@ -420,20 +420,20 @@
     .mockup-meta .mockup-name {
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
     }
     .mockup-meta .mockup-time {
       font-size: 12px;
       color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .mockup-meta .mockup-desc {
       display: block;
       font-size: 12.5px;
       color: var(--muted);
       line-height: 1.5;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-top: 10px;
       max-width: 24ch;
     }
@@ -498,7 +498,7 @@
       font-weight: 400;
       line-height: 1.65;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 18px;
       max-width: 64ch;
     }
@@ -526,7 +526,7 @@
       color: var(--muted);
       line-height: 1.5;
       max-width: 30ch;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Highlighted problem statement block ──── */
@@ -568,7 +568,7 @@
       font-size: clamp(14.5px, 1.1vw, 16px);
       font-weight: 400;
       line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       color: var(--muted);
     }
     [data-theme="dark"] .problem-statement { background: #1A1A17; }
@@ -578,7 +578,7 @@
       font-size: 16px;
       line-height: 1.65;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       font-style: italic;
       max-width: 56ch;
       padding-left: 20px;
@@ -605,7 +605,7 @@
       font-size: 13px;
       color: var(--soft);
       font-style: normal;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Insight (single bold statement) ──────── */
@@ -645,7 +645,7 @@
       font-size: 15.5px;
       line-height: 1.6;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       max-width: 56ch;
     }
     .insight-beat p strong {
@@ -675,14 +675,14 @@
     .card .card-title {
       font-size: 17px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       margin-bottom: 8px;
     }
     .card .card-body {
       font-size: 14px;
       color: var(--muted);
       line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── User-quote stacked boxes (Problem) ───── */
@@ -713,7 +713,7 @@
       font-size: clamp(16px, 1.4vw, 18px);
       font-weight: 400;
       line-height: 1.45;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
       font-style: italic;
       text-wrap: pretty;
@@ -754,14 +754,14 @@
       font-size: 16px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       line-height: 1.35;
     }
     .gate-card-detail {
       font-size: 13px;
       color: var(--muted);
       line-height: 1.5;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .gate-card-prevents {
       padding-left: 24px;
@@ -782,7 +782,7 @@
       font-size: 13.5px;
       color: var(--ink);
       line-height: 1.5;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 900px) {
       .gate-card {
@@ -833,14 +833,14 @@
     .nudge-title {
       font-size: 18px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       margin-bottom: 8px;
     }
     .nudge-body {
       font-size: 14px;
       color: var(--muted);
       line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Trade-offs: 3-card comparison ───────────── */
@@ -904,7 +904,7 @@
     .trade-card h4 {
       font-size: 18px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
       margin-bottom: 12px;
       line-height: 1.3;
@@ -916,7 +916,7 @@
       font-size: 14px;
       line-height: 1.6;
       color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 0;
     }
     .trade-takeaway {
@@ -940,7 +940,7 @@
       font-size: 13.5px;
       line-height: 1.5;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .trade-card ul {
       list-style: none;
@@ -953,7 +953,7 @@
       color: var(--ink);
       line-height: 1.5;
       margin-bottom: 7px;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .trade-card ul li::before {
       content: '';
@@ -992,7 +992,7 @@
       border-radius: 100px;
       font-size: 15px;
       font-weight: 500;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       transition: transform 0.25s, opacity 0.2s;
       margin-top: 24px;
     }
@@ -1017,7 +1017,7 @@
     .case-nav a {
       font-size: 16px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative;
       padding-bottom: 3px;
     }
@@ -1795,12 +1795,12 @@
       </div>
 
       <div>
-        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 10px;">Designed for the failure mode, not the happy path.</h3>
+        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: 0; margin-bottom: 10px;">Designed for the failure mode, not the happy path.</h3>
         <p class="body-text" style="margin-bottom: 28px;">
           Every one of the five trigger conditions exists because of a specific way the feature could go wrong. The guards mattered more than the trigger itself.
         </p>
 
-        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 10px;">Behavioural design over feature design.</h3>
+        <h3 style="font-size: 18px; font-weight: 500; letter-spacing: 0; margin-bottom: 10px;">Behavioural design over feature design.</h3>
         <p class="body-text" style="margin-bottom: 0;">
           Smart Charge isn't really about charging. It's about catching people at the exact moment they're most likely to act. The notification is just the delivery mechanism.
         </p>

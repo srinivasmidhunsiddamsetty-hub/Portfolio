@@ -60,25 +60,25 @@
 
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #FFFFFF;
+      --bg:        #FFF9F7;
       --ink:       #0A0A0A;
       --muted:     #6B6B68;
       --soft:      #8A8A8A;
-      --rule:      #E5E5E5;
-      --hover-bg:  #F7F7F7;
-      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
-      --tint:      #F4F4F1;
+      --rule:      #DCD9D4;
+      --hover-bg:  #F1ECE8;
+      --subnav-bg: #F4F0EC;   /* a half-step off --bg, so the two bars read apart */
+      --tint:      #F1ECE8;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
       --accent:    #B8654A;          /* warm terracotta, used sparingly */
 
-      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
       --side:      clamp(28px, 6vw, 144px);
       --max-content: 1920px;
@@ -154,7 +154,7 @@
     .main-nav ul { list-style: none; display: flex; gap: 56px; }
     .main-nav a {
       font-size: 17px; font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative; padding-bottom: 3px;
     }
     .main-nav a::after {
@@ -180,7 +180,7 @@
     .section-nav-inner::-webkit-scrollbar { display: none; }
     .section-nav a {
       font-size: 13.5px; font-weight: 400;
-      color: var(--soft); letter-spacing: -0.005em;
+      color: var(--soft); letter-spacing: 0.005em;
       white-space: nowrap; transition: color 0.2s;
       position: relative; padding: 6px 0;
     }
@@ -209,7 +209,7 @@
     }
     .intro-disciplines {
       font-size: 15px; font-weight: 500; color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 18px; padding-bottom: 18px;
       border-bottom: 1px solid var(--rule);
       max-width: 28ch;
@@ -222,13 +222,13 @@
     }
     .intro-body p {
       font-size: 16px; font-weight: 400; line-height: 1.65;
-      color: var(--ink); letter-spacing: -0.005em;
+      color: var(--ink); letter-spacing: 0.005em;
       margin-bottom: 16px; max-width: 64ch;
     }
     .intro-meta { margin-top: 36px; }
     .meta-row {
       padding: 18px 0; border-top: 1px solid var(--rule);
-      font-size: 15px; color: var(--ink); letter-spacing: -0.005em;
+      font-size: 15px; color: var(--ink); letter-spacing: 0.005em;
     }
     .meta-row:last-child { border-bottom: 1px solid var(--rule); }
     .meta-row strong { font-weight: 600; margin-right: 10px; }
@@ -239,7 +239,7 @@
       padding: 14px 24px;
       background: var(--accent); color: #FFFFFF;
       border-radius: 100px;
-      font-size: 15px; font-weight: 500; letter-spacing: -0.005em;
+      font-size: 15px; font-weight: 500; letter-spacing: 0.005em;
       transition: transform 0.25s, opacity 0.2s;
     }
     .live-cta:hover { transform: translateX(4px); }
@@ -259,7 +259,7 @@
       border-radius: 12px;
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      color: var(--soft); font-size: 14px; letter-spacing: -0.005em;
+      color: var(--soft); font-size: 14px; letter-spacing: 0.005em;
     }
     .hero-frame video,
     .hero-frame img {
@@ -268,7 +268,7 @@
     .hero-frame.compact { max-width: 1140px; max-height: 540px; }
     .visual-caption {
       margin-top: 14px; font-size: 13px; color: var(--soft);
-      letter-spacing: -0.005em; text-align: center;
+      letter-spacing: 0.005em; text-align: center;
     }
 
     .inline-img-wrap {
@@ -311,7 +311,7 @@
     }
     .thesis {
       font-size: clamp(17px, 1.5vw, 20px); font-weight: 500;
-      line-height: 1.5; letter-spacing: -0.01em;
+      line-height: 1.5; letter-spacing: 0;
       color: var(--ink); margin-bottom: 24px; max-width: 60ch;
     }
     .sub-label {
@@ -327,7 +327,7 @@
     }
     .body-text {
       font-size: 17px; font-weight: 400; line-height: 1.65;
-      color: var(--ink); letter-spacing: -0.005em;
+      color: var(--ink); letter-spacing: 0.005em;
       margin-bottom: 18px; max-width: 64ch;
     }
     .body-text strong { font-weight: 500; }
@@ -353,7 +353,7 @@
     }
     .problem-statement-sub {
       font-size: clamp(14px, 1vw, 15.5px); font-weight: 400;
-      line-height: 1.6; letter-spacing: -0.005em; color: var(--muted);
+      line-height: 1.6; letter-spacing: 0.005em; color: var(--muted);
     }
     [data-theme="dark"] .problem-statement { background: #1A1A17; }
 
@@ -365,7 +365,7 @@
     .obj-chip {
       font-size: 14px; font-weight: 500; color: var(--ink);
       padding: 12px 18px; border: 1px solid var(--rule);
-      border-radius: 100px; background: var(--bg); letter-spacing: -0.005em;
+      border-radius: 100px; background: var(--bg); letter-spacing: 0.005em;
     }
     .obj-chip-num {
       display: inline-block; margin-right: 8px;
@@ -395,7 +395,7 @@
     }
     .big-stat-label {
       font-size: 13.5px; color: var(--muted); line-height: 1.55;
-      max-width: 30ch; letter-spacing: -0.005em;
+      max-width: 30ch; letter-spacing: 0.005em;
     }
     @media (max-width: 1024px) {
       .big-stats { grid-template-columns: repeat(2, 1fr); }
@@ -433,7 +433,7 @@
     }
     .iq-card-text {
       font-size: 15.5px; line-height: 1.55; color: var(--ink);
-      letter-spacing: -0.005em; max-width: 38ch;
+      letter-spacing: 0.005em; max-width: 38ch;
     }
     @media (max-width: 760px) { .iq-grid { grid-template-columns: 1fr; } }
 
@@ -452,11 +452,11 @@
     }
     .obs-title {
       font-size: 15.5px; font-weight: 500; color: var(--ink);
-      letter-spacing: -0.01em; margin-bottom: 8px;
+      letter-spacing: 0; margin-bottom: 8px;
     }
     .obs-body {
       font-size: 14px; color: var(--muted); line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 900px) { .observations { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) { .observations { grid-template-columns: 1fr; } }
@@ -496,7 +496,7 @@
       background: var(--accent); color: #fff;
       display: flex; align-items: center; justify-content: center;
       font-size: 24px; font-weight: 600; flex-shrink: 0;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       box-shadow: 0 6px 18px -4px rgba(184,101,74,0.45);
     }
     [data-theme="dark"] .persona-avatar { box-shadow: 0 6px 18px -4px rgba(216,137,110,0.40); }
@@ -506,12 +506,12 @@
       letter-spacing: -0.018em; line-height: 1.1;
     }
     .persona-role {
-      font-size: 13px; color: var(--muted); letter-spacing: -0.005em;
+      font-size: 13px; color: var(--muted); letter-spacing: 0.005em;
       font-weight: 500;
     }
     .persona-motto {
       font-size: 14px; font-style: italic; color: var(--ink);
-      line-height: 1.5; letter-spacing: -0.005em;
+      line-height: 1.5; letter-spacing: 0.005em;
       padding-left: 14px; border-left: 2px solid var(--accent);
     }
     .persona-body {
@@ -520,7 +520,7 @@
     }
     .persona-meta {
       display: grid; grid-template-columns: auto 1fr; gap: 8px 14px;
-      font-size: 13.5px; color: var(--ink); letter-spacing: -0.005em;
+      font-size: 13.5px; color: var(--ink); letter-spacing: 0.005em;
     }
     .persona-meta dt {
       color: var(--soft); font-weight: 600;
@@ -531,7 +531,7 @@
     .persona-tag {
       font-size: 11.5px; font-weight: 500; color: var(--ink);
       padding: 6px 12px; border: 1px solid var(--rule);
-      border-radius: 100px; letter-spacing: -0.005em;
+      border-radius: 100px; letter-spacing: 0.005em;
       background: var(--bg);
     }
     .persona-block { display: flex; flex-direction: column; gap: 8px; }
@@ -541,7 +541,7 @@
     }
     .persona-block p {
       font-size: 14.5px; color: var(--ink); line-height: 1.6;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 900px) { .persona-row { grid-template-columns: 1fr; } }
 
@@ -560,7 +560,7 @@
       max-height: 600px;
     }
     .empathy-cap {
-      font-size: 13px; color: var(--soft); letter-spacing: -0.005em;
+      font-size: 13px; color: var(--soft); letter-spacing: 0.005em;
       text-align: center;
     }
     .empathy-cap strong { color: var(--ink); font-weight: 500; }
@@ -605,7 +605,7 @@
     }
     .insight-beat p {
       font-size: 15.5px; line-height: 1.6; color: var(--ink);
-      letter-spacing: -0.005em; max-width: 56ch;
+      letter-spacing: 0.005em; max-width: 56ch;
     }
 
     /* ── Flow cards (3 flows) ─────────────────────────── */
@@ -630,12 +630,12 @@
     }
     .flow-purpose {
       font-size: 15.5px; color: var(--muted); line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .flow-steps {
       display: flex; flex-wrap: wrap; gap: 6px 4px;
       margin-top: 14px;
-      font-size: 13.5px; color: var(--ink); letter-spacing: -0.005em;
+      font-size: 13.5px; color: var(--ink); letter-spacing: 0.005em;
     }
     .flow-step {
       padding: 6px 12px; border: 1px solid var(--rule);
@@ -688,11 +688,11 @@
     .tn-cell.now .tn-tag { color: var(--accent); }
     .tn-title {
       font-size: 17px; font-weight: 500; color: var(--ink);
-      letter-spacing: -0.01em; line-height: 1.35;
+      letter-spacing: 0; line-height: 1.35;
     }
     .tn-desc {
       font-size: 14.5px; color: var(--muted); line-height: 1.6;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 720px) { .then-now { grid-template-columns: 1fr; } }
 
@@ -710,7 +710,7 @@
     }
     .why-text {
       font-size: 15px; line-height: 1.6; color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 900px) { .why-list { grid-template-columns: 1fr; } }
 
@@ -731,7 +731,7 @@
     }
     ul.user-quotes p {
       font-size: clamp(15px, 1.3vw, 17px); font-weight: 400;
-      line-height: 1.5; letter-spacing: -0.01em; color: var(--ink);
+      line-height: 1.5; letter-spacing: 0; color: var(--ink);
       font-style: italic; text-wrap: pretty;
     }
     @media (max-width: 600px) {
@@ -753,7 +753,7 @@
       overflow: hidden; border: 1px solid var(--rule);
       display: flex; align-items: center; justify-content: center;
       color: var(--soft); font-size: 13px; text-align: center; padding: 18px;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(0,0,0,0.10);
     }
@@ -769,7 +769,7 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 16px 40px -8px rgba(0,0,0,0.6);
     }
     .screen-cap {
-      font-size: 13px; color: var(--muted); letter-spacing: -0.005em;
+      font-size: 13px; color: var(--muted); letter-spacing: 0.005em;
       line-height: 1.5; text-align: center;
     }
     .screen-cap strong { color: var(--ink); font-weight: 500; }
@@ -804,7 +804,7 @@
     .flow-video-cell .pv { max-width: 280px; }
     .flow-video-cap {
       font-size: 13px; color: var(--muted); text-align: center;
-      letter-spacing: -0.005em; line-height: 1.5; max-width: 28ch;
+      letter-spacing: 0.005em; line-height: 1.5; max-width: 28ch;
     }
     .flow-video-cap strong { color: var(--ink); font-weight: 500; }
     @media (max-width: 900px) {
@@ -827,7 +827,7 @@
     }
     .overall-flow-cap {
       font-size: 13px; color: var(--muted); text-align: center;
-      letter-spacing: -0.005em; line-height: 1.5; max-width: 32ch;
+      letter-spacing: 0.005em; line-height: 1.5; max-width: 32ch;
     }
     .overall-flow-cap strong { color: var(--ink); font-weight: 500; }
     @media (max-width: 600px) {
@@ -842,7 +842,7 @@
     }
     .pull-quote cite {
       display: block; margin-top: 14px; font-size: 13px;
-      color: var(--soft); font-style: normal; letter-spacing: -0.005em;
+      color: var(--soft); font-style: normal; letter-spacing: 0.005em;
     }
 
     /* ── Reflection: shift in thinking ────────────────── */
@@ -853,7 +853,7 @@
     }
     .shift-block.going .shift-text {
       font-size: 16px; line-height: 1.6; color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .shift-arrow {
       font-size: 22px; color: var(--soft); margin: 20px 0; line-height: 1;
@@ -863,7 +863,7 @@
     }
     .shift-block.coming .shift-text {
       font-size: clamp(17px, 1.5vw, 19px); line-height: 1.6;
-      color: var(--ink); letter-spacing: -0.01em;
+      color: var(--ink); letter-spacing: 0;
     }
 
     /* ── Closing CTA ──────────────────────────────────── */
@@ -880,7 +880,7 @@
       margin-bottom: 12px; max-width: 22ch; margin-left: auto; margin-right: auto;
     }
     .closing-cta p {
-      font-size: 15px; color: var(--muted); letter-spacing: -0.005em;
+      font-size: 15px; color: var(--muted); letter-spacing: 0.005em;
       margin-bottom: 28px; max-width: 48ch; margin-left: auto; margin-right: auto;
     }
 
@@ -891,7 +891,7 @@
       border-top: 1px solid var(--rule); max-width: var(--max-content);
     }
     .case-nav a {
-      font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
+      font-size: 16px; font-weight: 500; letter-spacing: 0;
       position: relative; padding-bottom: 3px;
     }
     .case-nav a .arrow { display: inline-block; margin-left: 8px; transition: transform 0.2s; }

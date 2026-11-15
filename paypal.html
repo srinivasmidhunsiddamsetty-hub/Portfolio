@@ -60,25 +60,25 @@
 
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #FFFFFF;
+      --bg:        #FFF9F7;
       --ink:       #0A0A0A;
       --muted:     #6B6B68;
       --soft:      #8A8A8A;
-      --rule:      #E5E5E5;
-      --hover-bg:  #F7F7F7;
-      --subnav-bg: #FAFAF8;   /* a half-step off --bg, so the two bars read apart */
-      --tint:      #F4F4F1;
+      --rule:      #DCD9D4;
+      --hover-bg:  #F1ECE8;
+      --subnav-bg: #F4F0EC;   /* a half-step off --bg, so the two bars read apart */
+      --tint:      #F1ECE8;
       --footer-bg: #000000;
       --footer-ink:#FFFFFF;
       --footer-muted:#8A8A8A;
       --accent:    #0070BA;          /* PayPal blue, used very sparingly */
 
-      --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
       --side:      clamp(28px, 6vw, 144px);
       --max-content: 1920px;
@@ -160,7 +160,7 @@
     .main-nav a {
       font-size: 17px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative;
       padding-bottom: 3px;
     }
@@ -197,7 +197,7 @@
       font-size: 13.5px;
       font-weight: 400;
       color: var(--soft);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       white-space: nowrap;
       transition: color 0.2s;
       position: relative;
@@ -241,7 +241,7 @@
       font-size: 15px;
       font-weight: 500;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 18px;
       padding-bottom: 18px;
       border-bottom: 1px solid var(--rule);
@@ -253,7 +253,7 @@
       font-weight: 400;
       font-style: italic;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       max-width: 24ch;
       line-height: 1.5;
     }
@@ -278,7 +278,7 @@
       font-weight: 400;
       line-height: 1.65;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 16px;
       max-width: 64ch;
     }
@@ -291,7 +291,7 @@
       border-top: 1px solid var(--rule);
       font-size: 15px;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .meta-row:last-child { border-bottom: 1px solid var(--rule); }
     .meta-row strong {
@@ -328,7 +328,7 @@
       justify-content: center;
       color: var(--soft);
       font-size: 14px;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     .visual-slot.tall { aspect-ratio: 4/5; }
     .visual-slot.short { aspect-ratio: 21/9; }
@@ -405,7 +405,7 @@
     .flow-title {
       font-size: 20px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       margin-bottom: 12px;
     }
     .flow-img {
@@ -475,7 +475,7 @@
       margin-top: 14px;
       font-size: 13px;
       color: var(--soft);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ─────────────────────────────────────────────
@@ -518,7 +518,7 @@
       font-weight: 400;
       line-height: 1.65;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       margin-bottom: 18px;
       max-width: 64ch;
     }
@@ -536,7 +536,7 @@
       line-height: 1.6;
       margin-bottom: 12px;
       color: var(--ink);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       max-width: 60ch;
     }
     ul.bullets li::before {
@@ -584,7 +584,7 @@
       font-size: 16px;
       line-height: 1.55;
       color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       max-width: 56ch;
     }
     @media (max-width: 720px) {
@@ -626,7 +626,7 @@
       font-size: 17px;
       font-weight: 500;
       line-height: 1.3;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
       margin-bottom: 10px;
     }
@@ -634,7 +634,7 @@
       font-size: 14.5px;
       line-height: 1.55;
       color: var(--muted);
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
     @media (max-width: 720px) {
       .impact-grid { grid-template-columns: 1fr; }
@@ -671,7 +671,7 @@
       font-size: clamp(16px, 1.4vw, 18px);
       font-weight: 400;
       line-height: 1.45;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
       font-style: italic;
       text-wrap: pretty;
@@ -705,7 +705,7 @@
       color: var(--muted);
       line-height: 1.5;
       max-width: 30ch;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Highlighted problem statement block ──── */
@@ -747,7 +747,7 @@
       font-size: clamp(13.5px, 1vw, 15px);
       font-weight: 400;
       line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       color: var(--muted);
     }
     [data-theme="dark"] .problem-statement { background: #1A1A17; }
@@ -772,7 +772,7 @@
       font-size: 13px;
       color: var(--soft);
       font-style: normal;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Insight (single bold statement) ──────── */
@@ -812,14 +812,14 @@
     .card .card-title {
       font-size: 17px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       margin-bottom: 8px;
     }
     .card .card-body {
       font-size: 14px;
       color: var(--muted);
       line-height: 1.55;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
     }
 
     /* ── Quote grid (user testing) ────────────── */
@@ -844,7 +844,7 @@
     .quote-card p {
       font-size: 16px;
       line-height: 1.5;
-      letter-spacing: -0.005em;
+      letter-spacing: 0.005em;
       color: var(--ink);
     }
 
@@ -874,7 +874,7 @@
       font-size: clamp(16px, 1.4vw, 19px);
       font-weight: 500;
       line-height: 1.55;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       color: var(--ink);
     }
     .compare-flow .arrow-inline { color: var(--soft); margin: 0 4px; }
@@ -920,7 +920,7 @@
     .case-nav a {
       font-size: 16px;
       font-weight: 500;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       position: relative;
       padding-bottom: 3px;
     }
@@ -1635,7 +1635,7 @@
       </div>
     </div>
 
-    <h3 style="font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin: 56px 0 20px; color: var(--soft); text-transform: uppercase; letter-spacing: 0.14em;">What users said</h3>
+    <h3 style="font-size: 18px; font-weight: 500; letter-spacing: 0; margin: 56px 0 20px; color: var(--soft); text-transform: uppercase; letter-spacing: 0.14em;">What users said</h3>
 
     <div class="quote-grid">
       <div class="quote-card">
