@@ -3,8 +3,8 @@
    html[data-morphism] before first paint and defined window.MORPHISM:
    the storage key, the systems this page renders, and its fallback.
 
-   Pages differ in one way. The home page renders all five systems, Flat
-   included, and carries the switcher. A case study renders the four
+   Pages differ in one way. The home page renders all three systems, Flat
+   included, and carries the switcher. A case study renders the two
    material systems and has no switcher: Flat there is simply the page's
    own stylesheet, which means no attribute at all (and no fallback).
 
@@ -54,7 +54,7 @@
 
 
   // ── header state ─────────────────────────────────────────────────
-  // Neumorphic and glass headers only separate from the page once content
+  // Glass headers only separate from the page once content
   // is actually passing beneath them.
   var scrolled = null;
   function onScroll() {

@@ -133,17 +133,8 @@ html[data-morphism] .principle-block .pb-text em { opacity: .74; }
 html[data-morphism="skeuomorphic"] :is(.live-cta:not(.ghost), .proto-cta) {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 1px 1px rgba(10,20,50,.3), 0 6px 14px -6px rgba(20,30,60,.5);
 }
-html[data-morphism="neumorphic"] :is(.live-cta:not(.ghost), .proto-cta) {
-  box-shadow: -4px -4px 10px rgba(255,255,255,.9), 5px 5px 12px rgba(163,155,143,.5);
-}
-html[data-morphism="neumorphic"][data-theme="dark"] :is(.live-cta:not(.ghost), .proto-cta) {
-  box-shadow: -4px -4px 10px rgba(255,255,255,.05), 5px 5px 12px rgba(0,0,0,.5);
-}
 html[data-morphism="glass"] :is(.live-cta:not(.ghost), .proto-cta) {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 1px rgba(255,255,255,.18), 0 10px 24px -10px rgba(20,30,60,.5);
-}
-html[data-morphism="clay"] :is(.live-cta:not(.ghost), .proto-cta) {
-  box-shadow: inset 2px 3px 5px rgba(255,255,255,.28), inset -2px -3px 6px rgba(0,0,0,.28), 0 8px 18px -8px rgba(20,30,60,.45);
 }
 
 /* Small eyebrows, numbers and highlights are set in each product's accent.

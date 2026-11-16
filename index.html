@@ -27,7 +27,7 @@
     (function () {
       var M = window.MORPHISM = {
         key: 'morphism',
-        systems: ['flat', 'skeuomorphic', 'neumorphic', 'clay', 'glass'],
+        systems: ['flat', 'skeuomorphic', 'glass'],
         fallback: 'flat'
       };
       var saved = null;
@@ -650,7 +650,7 @@
     html.is-launching .project-card::before { animation: none; }
   </style>
 
-  <!-- Four visual systems over the one structure above: tokens, then the
+  <!-- Three visual systems over the one structure above: tokens, then the
        shared shell (header, switcher, footer), then this page's skins. -->
   <link rel="stylesheet" href="morphism/tokens.css" />
   <link rel="stylesheet" href="morphism/shell.css" />
@@ -668,7 +668,7 @@
       </ul>
     </nav>
 
-    <!-- One button names the current style and opens the five. Inside is a
+    <!-- One button names the current style and opens the three. Inside is a
          single native radio group, so arrow keys move the choice and the
          checked one is announced. -->
     <div class="style-picker" id="style-picker">
@@ -693,20 +693,12 @@
             <span class="morph-text">Skeuomorphism</span>
           </label>
           <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="neumorphic" autocomplete="off">
-            <span class="morph-text">Neumorphism</span>
-          </label>
-          <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="clay" autocomplete="off">
-            <span class="morph-text">Claymorphism</span>
-          </label>
-          <label class="morph-opt">
             <input class="morph-input" type="radio" name="morphism" value="glass" autocomplete="off">
             <span class="morph-text">Glassmorphism</span>
           </label>
         </fieldset>
       </div>
-      <p class="morph-hint" id="morph-hint" role="note" hidden><span id="morph-hint-text">See this portfolio in four other UI styles</span>
+      <p class="morph-hint" id="morph-hint" role="note" hidden><span id="morph-hint-text">See this portfolio in two other UI styles</span>
         <button class="morph-hint-close" type="button" aria-label="Dismiss tip">×</button></p>
     </div>
     <!-- mark the active style, and name it on the button, before the header is first painted -->

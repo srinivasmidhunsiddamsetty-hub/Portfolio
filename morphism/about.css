@@ -10,7 +10,7 @@
    it at --text-muted, which clears 4.5:1 in every system. */
 
 /* The one hard-coded grey: the "What drives me" descriptions (#757572
-   would fall to 4.0:1 on a clay or stone card). */
+   would fall below 4.5:1 on a material card). */
 html[data-morphism] .drive-card p { color: var(--text-secondary); }
 html[data-morphism] .drive-card:hover p { color: var(--text-primary); }
 
@@ -18,7 +18,7 @@ html[data-morphism] .drive-card:hover p { color: var(--text-primary); }
 /* ── What drives me ───────────────────────────────────────────────────
    The outlined box becomes one raised card in the system's material, and
    keeps its cross. The centred label used to hide the cross with a patch
-   of page colour; on a gradient ground (glass, clay) that patch would show
+   of page colour; on a gradient ground (glass) that patch would show
    as a flat rectangle, so the cross is cut away behind the label instead
    and the label needs no background at all. */
 html[data-morphism] .drives-grid {
@@ -42,7 +42,7 @@ html[data-morphism] .about-block.drives .block-label { background: transparent; 
    terracotta at 2.4–2.7:1 on a material card. At full strength it is
    3.3:1 or better — enough for numerals this large. */
 html[data-morphism] .drive-num { opacity: 1; }
-/* a touch deeper in light mode, for neumorphism's darker stone (3.9:1) */
+/* a touch deeper in light mode, on the material cards */
 html[data-morphism]:not([data-theme="dark"]) .drive-num { color: #A85A40; }
 
 

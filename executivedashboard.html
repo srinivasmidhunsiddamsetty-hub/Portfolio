@@ -20,13 +20,13 @@
       }
     })();
 
-    // Carry the style chosen on the home page. This page renders the four
+    // Carry the style chosen on the home page. This page renders the two
     // material systems; Flat is its own stylesheet, so Flat, or no choice
     // yet, sets nothing and the page is exactly as it was designed.
     (function () {
       var M = window.MORPHISM = {
         key: 'morphism',
-        systems: ['skeuomorphic', 'neumorphic', 'glass', 'clay']
+        systems: ['skeuomorphic', 'glass']
       };
       var saved = null;
       try { saved = localStorage.getItem(M.key); } catch (e) {}

@@ -72,7 +72,7 @@ html[data-morphism] .main-nav {
 html[data-morphism] .main-nav .theme-toggle { margin-left: auto; }
 
 /* The bar's material is drawn by this layer rather than the header box,
-   so a system can inset it (clay's capsule) or frost it (glass) without
+   so a system can inset it or frost it (glass) without
    touching the header's layout. */
 html[data-morphism] :is(.site-header, .main-nav)::before {
   content: "";
@@ -87,13 +87,6 @@ html[data-morphism] :is(.site-header, .main-nav)::before {
   -webkit-backdrop-filter: var(--header-blur, none);
           backdrop-filter: var(--header-blur, none);
   transition: box-shadow var(--transition-medium), background-color var(--transition-medium);
-}
-/* Clay's capsule floats on the page ground, so the strip around it must be
-   that ground — flat colour plus the same fixed light, aligned to the
-   viewport exactly as body::before is — or scrolled content shows around
-   the capsule's edges. */
-html[data-morphism="clay"] :is(.site-header, .main-nav) {
-  background: var(--page-layer) fixed, var(--page-bg);
 }
 html[data-morphism].is-scrolled :is(.site-header, .main-nav)::before {
   background: var(--header-bg-scrolled, var(--header-bg, transparent));
