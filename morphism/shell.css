@@ -1,16 +1,12 @@
 /* ══════════════════════════════════════════════════════════════════════
-   Morphism shell — the parts every page shares: page ground, header,
-   the morphism switcher, icon buttons, footer, focus and the cross-fade.
-   Everything is scoped to html[data-morphism], which the boot script in
-   <head> sets before first paint. Without it (no JS) the page falls back
-   to its original monochrome design and the switcher stays hidden.
-
-   Structure never depends on the active system: sizes, gaps and borders
-   are fixed here, and only colour, depth, radius and material come from
-   tokens.css.
+   Shell — the home page's shared parts: page ground, header, the
+   light/dark button, footer, focus and the light/dark cross-fade.
+   Everything is scoped to html[data-morphism="flat"], set on the home
+   page's <html> tag. Sizes, gaps and borders are fixed here; colour,
+   depth and radius come from tokens.css.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* The page's own rules read these; point them at the active system. */
+/* The page's own rules read these; point them at the design's tokens. */
 html[data-morphism] {
   --bg: var(--page-bg);
   --ink: var(--text-primary);
@@ -49,11 +45,10 @@ html[data-morphism] body::before {
 
 
 /* ── Header ──────────────────────────────────────────────────────────
-   Navigation on the left; the style picker and the light/dark toggle
-   together on the right, the two appearance controls side by side. */
+   Navigation on the left, the light/dark toggle on the right. */
 html[data-morphism] .site-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 12px;
   padding: 14px var(--side);          /* 14 + 44 + 14 = the same 72px bar */
@@ -72,7 +67,7 @@ html[data-morphism] .main-nav {
 html[data-morphism] .main-nav .theme-toggle { margin-left: auto; }
 
 /* The bar's material is drawn by this layer rather than the header box,
-   so a system can inset it or frost it (glass) without
+   so it can be inset or frosted without
    touching the header's layout. */
 html[data-morphism] :is(.site-header, .main-nav)::before {
   content: "";
@@ -88,289 +83,11 @@ html[data-morphism] :is(.site-header, .main-nav)::before {
           backdrop-filter: var(--header-blur, none);
   transition: box-shadow var(--transition-medium), background-color var(--transition-medium);
 }
-html[data-morphism].is-scrolled :is(.site-header, .main-nav)::before {
-  background: var(--header-bg-scrolled, var(--header-bg, transparent));
-  box-shadow: var(--header-shadow-scrolled, var(--header-shadow, none));
-}
 
 html[data-morphism] .site-nav { justify-self: start; min-width: 0; }
 html[data-morphism] .site-header .nav-links { gap: 48px; }
 html[data-morphism] .nav-links a { color: var(--text-primary); white-space: nowrap; }
 html[data-morphism] .nav-links a::after { background: var(--text-primary); }
-
-/* ── Navigation links in the material systems ────────────────────────
-   Flat keeps the hosted underline. In the four material systems the page
-   you are on sits in the system's own surface — the same pressed or
-   filled form as a chosen key — and the other links take the raised form
-   on hover. The surface is drawn around the text by ::before, 44px tall
-   like every other control in the bar, so no link moves and every target
-   grows. .nav-links is the home page's and About's list; .main-nav ul
-   the case studies'. */
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a::before {
-  content: "";
-  position: absolute;
-  top: calc(50% - 1.5px);             /* the link box carries 3px of underline room below the text */
-  left: -0.75em;
-  right: -0.75em;
-  height: var(--control-h);
-  translate: 0 -50%;
-  z-index: -1;
-  border: 1px solid;
-  border-color: var(--nav-hover-border, var(--control-border));
-  border-radius: var(--radius-filter);
-  background: var(--nav-hover-bg, var(--control-bg));
-  box-shadow: var(--nav-hover-shadow, var(--control-shadow));
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:is(:hover, :focus-visible)::before {
-  opacity: 1;
-}
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:is(.active, [aria-current="page"])::before {
-  opacity: 1;
-  border-color: var(--nav-current-border, var(--control-border-active));
-  background: var(--nav-current-bg, var(--control-bg-active));
-  box-shadow: var(--nav-current-shadow, var(--control-shadow-active));
-}
-/* the surface replaces the underline, and carries the focus ring */
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a::after { display: none; }
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:focus-visible { outline: none; }
-html[data-morphism]:not([data-morphism="flat"]) :is(.nav-links, .main-nav ul) a:focus-visible::before {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-
-/* ── Style picker ────────────────────────────────────────────────────
-   One button beside light/dark names the current style and opens the
-   five. Inside is one native radio group: Tab lands on the chosen style,
-   arrow keys move the choice (and the page follows, live), the checked
-   option is announced, and Enter or Escape closes it. Every surface comes
-   from tokens, so the button and the menu are made of whichever material
-   is showing. */
-.style-picker { display: none; }
-
-html[data-morphism] .style-picker {
-  display: block;
-  position: relative;
-  justify-self: end;
-}
-
-.style-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: var(--control-h);
-  padding: 0 14px 0 13px;
-  border: 1px solid;
-  border-color: var(--control-border);
-  border-radius: var(--radius-filter);
-  background: var(--control-bg);
-  box-shadow: var(--control-shadow);
-  color: var(--control-ink);
-  font: 500 14px/1 var(--font-sans);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: box-shadow var(--transition-fast), background-color var(--transition-fast),
-              border-color var(--transition-fast), color var(--transition-fast), scale var(--transition-fast);
-}
-.style-btn svg {
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.style-btn-icon { width: 16px; height: 16px; }
-.style-btn-chev { width: 12px; height: 12px; opacity: .7; transition: rotate var(--transition-fast); }
-.style-btn:hover {
-  border-color: var(--control-border-hover, var(--control-border));
-  background: var(--control-bg-hover);
-  box-shadow: var(--control-shadow-hover);
-}
-/* open: the button takes the system's pressed form, like a chosen filter */
-.style-btn[aria-expanded="true"] {
-  border-color: var(--control-border-active);
-  background: var(--control-bg-active);
-  box-shadow: var(--control-shadow-active);
-  color: var(--control-ink-active);
-}
-.style-btn[aria-expanded="true"] .style-btn-chev { rotate: 180deg; }
-.style-btn:active { scale: .97; }
-
-/* The menu: a raised panel of the system's own surface, frosted in glass. */
-.style-menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  z-index: 20;
-  width: 248px;
-  padding: 6px;
-  border: 1px solid;
-  border-color: var(--border-subtle);
-  border-radius: var(--radius-large);
-  background: var(--surface-raised);
-  box-shadow: var(--menu-shadow, var(--shadow-large));
-  -webkit-backdrop-filter: var(--header-blur, none);
-          backdrop-filter: var(--header-blur, none);
-  animation: style-menu-in 160ms cubic-bezier(.2, .7, .3, 1);
-}
-.style-menu[hidden] { display: none; }
-@keyframes style-menu-in { from { opacity: 0; translate: 0 -4px; } }
-
-.morph-switch {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-inline-size: 0;
-}
-.style-menu-title {
-  float: left;                        /* lets a legend lay out like any block */
-  width: 100%;
-  padding: 10px 14px 8px;
-  font: 600 10.5px/1 var(--font-sans);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-/* Each option is a full-width 44px row. Its face is drawn behind the text:
-   the system's raised key on hover, its pressed or filled key once chosen. */
-.morph-opt {
-  clear: both;
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: var(--control-h);
-  padding: 0 14px;
-  cursor: pointer;
-  font: 500 14px/1 var(--font-sans);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  color: var(--seg-ink, var(--control-ink));
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  transition: color var(--transition-fast);
-}
-.morph-opt::before {
-  content: "";
-  position: absolute;
-  inset: 2px 0;
-  border: 1px solid;
-  border-color: var(--seg-border, var(--control-border));
-  border-radius: var(--radius-seg);
-  background: var(--seg-bg-hover, var(--control-bg-hover));
-  box-shadow: var(--seg-shadow-hover, var(--control-shadow-hover));
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-/* the indicator lamp — only where the system has one (skeuomorphic) */
-.morph-opt::after {
-  content: "";
-  display: var(--indicator-display, none);
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  width: 4px;
-  height: 4px;
-  margin-top: -2px;
-  border-radius: 50%;
-  background: var(--seg-indicator, var(--indicator));
-  box-shadow: var(--indicator-glow, none);
-  opacity: 0;
-  scale: .3;
-  transition: opacity var(--transition-fast), scale var(--transition-fast);
-}
-
-/* The radio stays in the accessibility tree and in the tab order; only
-   its native paint is hidden. */
-.morph-input {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.morph-text {
-  position: relative;
-  pointer-events: none;
-}
-
-.morph-opt:hover::before { opacity: 1; }
-
-.morph-opt:has(.morph-input:checked) {
-  color: var(--seg-ink-active, var(--control-ink-active));
-  font-weight: var(--control-weight-active, 650);
-}
-.morph-opt:has(.morph-input:checked)::before {
-  opacity: 1;
-  border-color: var(--seg-border-active, var(--control-border-active));
-  background: var(--seg-bg-active, var(--control-bg-active));
-  box-shadow: var(--seg-shadow-active, var(--control-shadow-active));
-}
-.morph-opt:has(.morph-input:checked)::after { opacity: 1; scale: 1; }
-
-.morph-opt:has(.morph-input:focus-visible)::before {
-  opacity: 1;
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-
-/* ── First-visit hint ────────────────────────────────────────────────
-   Shown once, below the style button, and gone after interaction or a
-   few seconds. The same sentence is the button's accessible description
-   permanently (aria-describedby), so nobody depends on seeing it. */
-.morph-hint {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 6px 6px 14px;
-  border: 1px solid;
-  border-color: var(--control-border);
-  border-radius: 999px;
-  background: var(--surface-primary);
-  box-shadow: var(--shadow-medium);
-  color: var(--text-primary);
-  font: 500 13px/1.3 var(--font-sans);
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  opacity: 0;
-  translate: 0 -4px;
-  transition: opacity 220ms ease, translate 220ms ease;
-}
-html[data-morphism="glass"] .morph-hint {
-  background: rgba(255,255,255,.86);
-  -webkit-backdrop-filter: blur(16px);
-          backdrop-filter: blur(16px);
-}
-html[data-morphism="glass"][data-theme="dark"] .morph-hint { background: rgba(22,26,31,.9); }
-.morph-hint.is-visible { opacity: 1; translate: 0 0; }
-.morph-hint[hidden] { display: none; }
-
-.morph-hint-close {
-  position: relative;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--text-secondary);
-  font: 400 18px/1 var(--font-sans);
-  cursor: pointer;
-}
-.morph-hint-close::after { content: ""; position: absolute; inset: -8px; }   /* 44px target */
-.morph-hint-close:hover { background: var(--surface-secondary); color: var(--text-primary); }
-
 
 /* ── Icon buttons: light/dark toggle ─────────────────────────────── */
 html[data-morphism] .theme-toggle {
@@ -437,7 +154,7 @@ html[data-morphism] :is(.footer-links, .footer-right ul) a:active { translate: 0
 
 
 /* ── Focus ───────────────────────────────────────────────────────────
-   One ring per system, chosen for at least 3:1 against its ground. */
+   The ring is chosen for at least 3:1 against its ground. */
 html[data-morphism] :is(a, button):focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
@@ -447,14 +164,13 @@ html[data-morphism] footer :is(a, button):focus-visible {
 }
 
 
-/* ── Switching systems ───────────────────────────────────────────────
-   morphism.js swaps the attribute inside a view transition, so the whole
-   page cross-fades between two finished states: nothing is laid out
-   twice, no shadow is interpolated frame by frame, and nothing moves. */
+/* ── Light/dark cross-fade ────────────────────────────────────────────
+   The theme toggle swaps data-theme inside a view transition, so the whole
+   page cross-fades between two finished states and nothing moves. */
 ::view-transition-group(*),
 ::view-transition-old(*),
 ::view-transition-new(*) {
-  animation-duration: var(--morph-duration);
+  animation-duration: var(--fade-duration);
   animation-timing-function: cubic-bezier(.4, 0, .2, 1);
 }
 
@@ -468,13 +184,6 @@ html[data-morphism] footer :is(a, button):focus-visible {
   html[data-morphism] .site-header .nav-links { gap: 32px; }
 }
 
-/* Phones: no style picker. Phones get the default system (or whatever was
-   chosen on a larger screen of the same device), and the header keeps
-   just the navigation and the light/dark toggle. */
-@media (max-width: 639px) {
-  html[data-morphism] .site-header { grid-template-columns: minmax(0, 1fr) auto; }
-  html[data-morphism] .style-picker { display: none; }
-}
 @media (max-width: 720px) {
   html[data-morphism] .site-header .nav-links { gap: 28px; }
 }
@@ -485,14 +194,9 @@ html[data-morphism] footer :is(a, button):focus-visible {
 
 
 @media (prefers-reduced-motion: reduce) {
-  .morph-opt, .morph-opt::before, .morph-opt::after,
-  .style-btn, .style-btn-chev,
-  .morph-hint, html[data-morphism] .theme-toggle,
+  html[data-morphism] .theme-toggle,
   html[data-morphism] :is(.site-header, .main-nav)::before,
-  html[data-morphism] :is(.nav-links, .main-nav ul) a::before,
   html[data-morphism] :is(.footer-links, .footer-right ul) a { transition: none; }
-  .style-menu { animation: none; }
-  .style-btn:active,
   html[data-morphism] .theme-toggle:active,
   html[data-morphism] :is(.footer-links, .footer-right ul) a:active { scale: none; }
   html[data-morphism] :is(.footer-links, .footer-right ul) a:hover,

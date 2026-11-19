@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-morphism="flat">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,24 +19,7 @@
         document.documentElement.setAttribute('data-theme', 'dark');
       }
     })();
-
-    // Morphism (visual system) — independent of light/dark above, which is
-    // why it has its own attribute and its own storage key. To change what
-    // a first-time visitor sees, change `fallback`. Phones have no switcher,
-    // so this is also what every phone shows.
-    (function () {
-      var M = window.MORPHISM = {
-        key: 'morphism',
-        systems: ['flat', 'skeuomorphic', 'glass'],
-        fallback: 'flat'
-      };
-      var saved = null;
-      try { saved = localStorage.getItem(M.key); } catch (e) {}
-      document.documentElement.setAttribute('data-morphism',
-        M.systems.indexOf(saved) !== -1 ? saved : M.fallback);
-    })();
   </script>
-  <script src="morphism/morphism.js" defer></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
@@ -650,8 +633,9 @@
     html.is-launching .project-card::before { animation: none; }
   </style>
 
-  <!-- Three visual systems over the one structure above: tokens, then the
-       shared shell (header, switcher, footer), then this page's skins. -->
+  <!-- The design over the one structure above: its tokens, the shared shell
+       (header, footer), then this page's skins. They apply under
+       html[data-morphism="flat"], which is set on the <html> tag. -->
   <link rel="stylesheet" href="morphism/tokens.css" />
   <link rel="stylesheet" href="morphism/shell.css" />
   <link rel="stylesheet" href="morphism/home.css" />
@@ -667,50 +651,6 @@
         <li><a href="SrinivasMidhun_Resume.pdf" target="_blank" rel="noopener">Resume</a></li>
       </ul>
     </nav>
-
-    <!-- One button names the current style and opens the three. Inside is a
-         single native radio group, so arrow keys move the choice and the
-         checked one is announced. -->
-    <div class="style-picker" id="style-picker">
-      <button class="style-btn" id="style-btn" type="button" aria-expanded="false" aria-controls="style-menu" aria-describedby="morph-hint-text">
-        <svg class="style-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 3.5l8.5 4.75L12 13 3.5 8.25z"/>
-          <path d="M3.5 12.5 12 17.25l8.5-4.75"/>
-          <path d="M3.5 16.25 12 21l8.5-4.75"/>
-        </svg>
-        <span class="sr-only">Interface style: </span><span id="style-btn-name">Flat design</span>
-        <svg class="style-btn-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-      </button>
-      <div class="style-menu" id="style-menu" hidden>
-        <fieldset class="morph-switch" id="morph-switch">
-          <legend class="style-menu-title">Interface style</legend>
-          <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="flat" autocomplete="off">
-            <span class="morph-text">Flat design</span>
-          </label>
-          <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="skeuomorphic" autocomplete="off">
-            <span class="morph-text">Skeuomorphism</span>
-          </label>
-          <label class="morph-opt">
-            <input class="morph-input" type="radio" name="morphism" value="glass" autocomplete="off">
-            <span class="morph-text">Glassmorphism</span>
-          </label>
-        </fieldset>
-      </div>
-      <p class="morph-hint" id="morph-hint" role="note" hidden><span id="morph-hint-text">See this portfolio in two other UI styles</span>
-        <button class="morph-hint-close" type="button" aria-label="Dismiss tip">×</button></p>
-    </div>
-    <!-- mark the active style, and name it on the button, before the header is first painted -->
-    <script>
-      (function () {
-        var m = document.documentElement.getAttribute('data-morphism');
-        var el = m && document.querySelector('#morph-switch .morph-input[value="' + m + '"]');
-        if (!el) return;
-        el.checked = true;
-        document.getElementById('style-btn-name').textContent = el.parentNode.textContent.trim();
-      })();
-    </script>
 
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -838,6 +778,9 @@
   </footer>
 
   <script>
+    // iOS only applies :active (the press feedback) when a touch listener exists.
+    document.addEventListener('touchstart', function () {}, { passive: true });
+
     // ── Theme toggle ──────────────────────────────────────
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) {
@@ -845,8 +788,9 @@
         const cur = document.documentElement.getAttribute('data-theme') || 'light';
         const next = cur === 'light' ? 'dark' : 'light';
         const apply = () => document.documentElement.setAttribute('data-theme', next);
-        // same cross-fade as switching morphism, when morphism.js is running
-        if (window.MORPHISM && window.MORPHISM.transition) window.MORPHISM.transition(apply);
+        // cross-fade, unless motion is reduced or the tab is in the background
+        if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+            document.visibilityState === 'visible') document.startViewTransition(apply);
         else apply();
         try { localStorage.setItem('theme', next); } catch (e) {}
       });

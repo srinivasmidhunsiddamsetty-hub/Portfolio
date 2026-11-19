@@ -1,18 +1,11 @@
 /* ══════════════════════════════════════════════════════════════════════
-   Morphism — homepage: hero, filters, project cards.
+   Home page skins: hero, filters, project cards.
    Hover expansion, hand-off and the launch are untouched; this file only
-   dresses the rows. Every size and gap below is the same in all three
-   systems, so switching never moves a project.
+   dresses the rows.
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── Hero ────────────────────────────────────────────────────────────
-   Stays typographic. Each system gets one quiet gesture: a tint of the
-   black, and its own treatment — skeuomorphic a bevelled lip and a
-   display vignette, glass a faint sheen across the top like light on a
-   pane (plus, in light mode, a hairline of refracted light along the
-   bottom).
-   An inset band gives back exactly as much inner padding as it takes in
-   margin, so the statement sits on the same pixels in every system. */
+   Stays typographic: the statement over the tubes on the hero colour. */
 html[data-morphism] .hero {
   margin-inline: var(--hero-inset, 0px);
   padding-inline: calc(var(--side) - var(--hero-inset, 0px));
@@ -37,8 +30,7 @@ html[data-morphism] .hero::after {
 
 /* ── Filters ─────────────────────────────────────────────────────────
    Toggle buttons with a real pressed state (aria-pressed). Chosen = the
-   system's pressed or filled form + heavier label + the indicator pip,
-   never one cue alone. */
+   filled form + a heavier label, never one cue alone. */
 html[data-morphism] .work-label { color: var(--text-primary); }
 html[data-morphism] .filters { gap: 12px; }
 
@@ -82,30 +74,10 @@ html[data-morphism] .btn-text::after {
   font-weight: var(--control-weight-active, 650);
 }
 
-/* the indicator lamp, where the system has one (skeuomorphic) */
-html[data-morphism] .filter-btn::after {
-  content: "";
-  display: var(--indicator-display, none);
-  position: absolute;
-  left: 50%;
-  bottom: 6px;
-  width: 4px;
-  height: 4px;
-  margin-left: -2px;
-  border-radius: 50%;
-  background: var(--indicator);
-  box-shadow: var(--indicator-glow, none);
-  opacity: 0;
-  scale: .3;
-  transition: opacity var(--transition-fast), scale var(--transition-fast);
-}
-html[data-morphism] .filter-btn.active::after { opacity: 1; scale: 1; }
 
 
 /* ── Project cards ───────────────────────────────────────────────────
-   Contiguous rows become separate surfaces (law of common region): each
-   project owns one continuous material, and the gap between them is what
-   lets a system's depth read at all. */
+   Each project is its own row, with a 16px gap between rows. */
 html[data-morphism] .projects-list {
   gap: var(--card-gap);
   border-top: 0;
@@ -150,15 +122,11 @@ html[data-morphism] .project-card.is-lifting {
   transition: box-shadow 200ms cubic-bezier(.22, .7, .3, 1);
 }
 
-/* The traced rainbow ring belongs to the flat design. The material
-   systems say "open" with depth instead, and dropping it also stops a
-   conic-gradient repainting every frame while a row is open. */
-html[data-morphism] .project-card::before { display: none; }
+/* The traced rainbow ring on an open row. */
 html[data-morphism="flat"] .project-card::before { display: block; }
 
 /* Flat keeps the hosted design's hairline list: no surface under a row,
-   just a rule — drawn in the middle of the shared gap, so the rows sit
-   exactly where they sit in every other system. Each visible row draws
+   just a rule, drawn in the middle of the gap. Each visible row draws
    the rule above itself and the list draws the last one, so filtering
    never doubles or drops a line. */
 html[data-morphism="flat"] .projects-list { position: relative; }
@@ -183,7 +151,7 @@ html[data-morphism="flat"] .project-card.is-open ~ .project-card:not([data-hidde
 html[data-morphism="flat"] .projects-list:has(> .project-card.is-open:last-child)::after { opacity: 0; }
 
 /* The image keeps its own colours and proportions; only its corners and
-   its mount follow the system. The media box is exactly the image's
+   its mount are styled. The media box is exactly the image's
    size (max-width/height keep it from overflowing mid-animation), so it
    no longer needs to clip, and the mount shadow can show. */
 html[data-morphism] .p-media { overflow: visible; }
@@ -199,7 +167,7 @@ html[data-morphism] .p-full  { color: var(--text-secondary); }
 
 
 /* ── The arrow: the one affordance that says "this goes somewhere" ──
-   Always visible, never hover-only. Takes the system's icon-button form
+   Always visible, never hover-only. Takes the icon-button form
    and slides a few pixels toward its destination when the card opens. */
 html[data-morphism] .p-arrow {
   border: 1px solid;
@@ -257,7 +225,6 @@ html[data-morphism] .project-card:active .p-arrow { box-shadow: var(--icon-shado
   html[data-morphism] .project-card.is-open { translate: none; }
   html[data-morphism] .project-card:active { scale: none; }
   html[data-morphism] .project-card.is-open .p-arrow { transform: none; }
-  html[data-morphism] .filter-btn,
-  html[data-morphism] .filter-btn::after { transition: none; }
+  html[data-morphism] .filter-btn { transition: none; }
   html[data-morphism] .filter-btn:active { scale: none; }
 }
